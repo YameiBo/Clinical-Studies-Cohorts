@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>临床研究队列管理平台 · 融合规划方案 V2.0</title>
+<style>
+  :root{
+    --ink:#10243a;
+    --ink-2:#33475e;
+    --muted:#66788d;
+    --line:#e2e9f2;
+    --bg:#f3f6fb;
+    --card:#ffffff;
+    --primary:#0f4c81;
+    --primary-2:#1668a8;
+    --teal:#0e8a8a;
+    --gold:#c0902c;
+    --m1:#2f6fed;
+    --m2:#6b54d6;
+    --m3:#0e8a8a;
+    --m4:#c2820f;
+    --radius:16px;
+    --shadow:0 10px 30px rgba(16,36,58,.07);
+    --shadow-sm:0 2px 10px rgba(16,36,58,.05);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:84px}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+    font-size:15px;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    background:rgba(243,246,251,.86);
+    backdrop-filter:saturate(180%) blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar .wrap{display:flex;align-items:center;gap:18px;height:60px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.2px;white-space:nowrap}
+  .brand-mark{
+    width:28px;height:28px;border-radius:8px;
+    background:linear-gradient(135deg,var(--primary),var(--teal));
+    display:grid;place-items:center;color:#fff;font-size:13px;font-weight:800;
+  }
+  .brand small{display:block;font-weight:500;color:var(--muted);font-size:11px;letter-spacing:.4px}
+  .topnav{display:flex;gap:4px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
+  .topnav::-webkit-scrollbar{display:none}
+  .topnav a{
+    color:var(--ink-2);text-decoration:none;font-size:13px;padding:7px 11px;border-radius:999px;white-space:nowrap;
+  }
+  .topnav a:hover{background:#e8eef7;color:var(--primary)}
+  .topnav a.active{background:var(--primary);color:#fff}
+  .btn-print{
+    border:1px solid var(--line);background:#fff;color:var(--ink-2);
+    padding:8px 14px;border-radius:999px;font-size:13px;cursor:pointer;white-space:nowrap;
+  }
+  .btn-print:hover{border-color:var(--primary);color:var(--primary)}
+
+  /* ---------- hero ---------- */
+  .hero{
+    background:
+      radial-gradient(900px 380px at 12% -10%,rgba(22,104,168,.20),transparent 60%),
+      radial-gradient(700px 340px at 92% 0%,rgba(14,138,138,.16),transparent 60%),
+      linear-gradient(180deg,#ffffff 0%,#f7fafd 100%);
+    border-bottom:1px solid var(--line);
+    padding:64px 0 44px;
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:12px;letter-spacing:1.6px;color:var(--primary);
+    background:#e7f0fa;border:1px solid #d3e3f5;border-radius:999px;padding:5px 12px;font-weight:600;
+  }
+  h1{font-size:clamp(28px,3.6vw,42px);line-height:1.25;margin:18px 0 10px;letter-spacing:-.5px}
+  .lede{max-width:760px;color:var(--muted);font-size:16px;margin:0}
+  .hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:34px}
+  .stat{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 20px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;
+  }
+  .stat::after{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+    background:linear-gradient(180deg,var(--primary),var(--teal));
+  }
+  .stat b{display:block;font-size:28px;line-height:1.2;letter-spacing:-.5px}
+  .stat span{font-size:12.5px;color:var(--muted);letter-spacing:.3px}
+
+  /* ---------- sections ---------- */
+  section{padding:56px 0}
+  section + section{border-top:1px solid var(--line)}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:26px}
+  .sec-num{
+    font-variant-numeric:tabular-nums;font-size:13px;font-weight:700;color:var(--teal);
+    letter-spacing:1px;padding-top:6px;
+  }
+  h2{font-size:24px;margin:0;letter-spacing:-.2px}
+  .sec-sub{color:var(--muted);font-size:13.5px;margin:6px 0 0}
+  h3{font-size:16px;margin:0 0 10px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+  .pad{padding:22px 24px}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  .muted{color:var(--muted)}
+  .tag{
+    display:inline-block;font-size:12px;padding:2px 9px;border-radius:999px;
+    background:#eef4fb;color:var(--primary);border:1px solid #dbe8f6;white-space:nowrap;
+  }
+  .tag.gold{background:#fdf5e3;color:#8a6415;border-color:#f1e2bd}
+  .tag.teal{background:#e6f5f5;color:#0b6f6f;border-color:#cbe9e9}
+
+  /* ---------- architecture ---------- */
+  .arch{display:flex;flex-direction:column;gap:12px}
+  .layer{
+    display:grid;grid-template-columns:112px 1fr;gap:14px;align-items:stretch;
+  }
+  .layer-label{
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    background:#eaf1f9;border:1px solid #d7e4f2;border-radius:12px;
+    font-size:12.5px;font-weight:700;color:var(--primary);letter-spacing:.5px;padding:8px;
+  }
+  .layer-body{
+    background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;
+    display:grid;gap:10px;
+  }
+  .layer.l1 .layer-body{grid-template-columns:repeat(3,1fr)}
+  .layer.l2 .layer-body{grid-template-columns:repeat(4,1fr);background:#fbfdff}
+  .layer.l3 .layer-body{grid-template-columns:repeat(4,1fr)}
+  .layer.l4 .layer-body{grid-template-columns:repeat(4,1fr)}
+  .layer.l5 .layer-body{grid-template-columns:repeat(2,1fr)}
+  .node{
+    border-radius:10px;padding:11px 12px;font-size:13px;text-align:center;
+    border:1px solid var(--line);background:#f8fafd;color:var(--ink-2);
+  }
+  .node b{display:block;font-size:13.5px;color:var(--ink);margin-bottom:2px}
+  .node small{font-size:11px;color:var(--muted)}
+  .node.mod{border-width:1.5px;text-align:left;background:#fff}
+  .node.mod b{font-size:14px}
+  .node.m1{border-color:#c6d8fb;background:#f4f8ff}
+  .node.m2{border-color:#dbd2f8;background:#f8f6ff}
+  .node.m3{border-color:#c6e8e8;background:#f4fbfb}
+  .node.m4{border-color:#f0dfb8;background:#fffbf2}
+  .mod-num{font-size:11px;font-weight:700;letter-spacing:.8px;color:var(--muted)}
+
+  /* ---------- modules ---------- */
+  .module{
+    border-radius:var(--radius);background:#fff;border:1px solid var(--line);
+    box-shadow:var(--shadow-sm);overflow:hidden;margin-bottom:16px;
+  }
+  .module-head{
+    display:flex;align-items:center;gap:14px;padding:18px 22px;border-bottom:1px solid var(--line);
+  }
+  .module-head .bar{width:4px;align-self:stretch;border-radius:4px}
+  .module-head h3{margin:0;font-size:17px}
+  .module-head .meta{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+  .module-body{padding:18px 22px 20px;display:grid;grid-template-columns:1.35fr 1fr;gap:24px}
+  .module-body ul{margin:0;padding-left:18px}
+  .module-body li{margin:4px 0;color:var(--ink-2)}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13.5px;align-content:start}
+  .kv dt{color:var(--muted);white-space:nowrap}
+  .kv dd{margin:0;color:var(--ink-2)}
+  .param-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+
+  /* ---------- tables ---------- */
+  .table-wrap{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  thead th{
+    background:#f2f6fb;text-align:left;font-weight:600;color:var(--ink-2);
+    padding:11px 14px;border-bottom:1px solid var(--line);white-space:nowrap;font-size:12.5px;letter-spacing:.3px;
+  }
+  tbody td{padding:10px 14px;border-bottom:1px solid #eef3f9;vertical-align:top;color:var(--ink-2)}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover td{background:#fafcfe}
+  .group-row td{
+    background:#f7f9fc;font-weight:700;color:var(--ink);font-size:12.5px;letter-spacing:.4px;
+  }
+  .num{font-variant-numeric:tabular-nums;text-align:center;width:56px;color:var(--muted)}
+  .ok{color:#0b7a5b;font-weight:600;white-space:nowrap}
+  .table-scroll{overflow-x:auto}
+
+  /* ---------- timeline ---------- */
+  .timeline{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:6px}
+  .step{
+    background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 13px;position:relative;
+  }
+  .step::before{
+    content:attr(data-step);display:inline-grid;place-items:center;
+    width:24px;height:24px;border-radius:50%;background:var(--primary);color:#fff;
+    font-size:11.5px;font-weight:700;margin-bottom:8px;
+  }
+  .step b{display:block;font-size:13.5px;margin-bottom:3px}
+  .step small{font-size:11.5px;color:var(--muted);line-height:1.6}
+
+  /* ---------- misc ---------- */
+  .note{
+    border-left:3px solid var(--gold);background:#fffaf0;border-radius:10px;
+    padding:14px 16px;font-size:13px;color:#6b5722;
+  }
+  .note b{color:#8a6415}
+  .pill-list{display:flex;flex-wrap:wrap;gap:8px}
+  .pill-list span{
+    font-size:12.5px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 12px;color:var(--ink-2);
+  }
+  .qa{display:grid;gap:10px}
+  .qa-item{
+    display:grid;grid-template-columns:30px 1fr;gap:12px;background:#fff;border:1px solid var(--line);
+    border-radius:12px;padding:13px 16px;font-size:13.5px;
+  }
+  .qa-item i{
+    font-style:normal;font-weight:700;color:var(--primary);font-size:12px;
+    width:26px;height:26px;border-radius:8px;background:#eef4fb;display:grid;place-items:center;
+  }
+  .qa-item b{display:block;margin-bottom:2px;color:var(--ink)}
+  .qa-item span{color:var(--muted);font-size:12.5px}
+  footer{padding:34px 0 46px;color:var(--muted);font-size:12.5px;text-align:center;border-top:1px solid var(--line)}
+
+  .fade{opacity:0;transform:translateY(10px);transition:opacity .5s ease,transform .5s ease}
+  .fade.in{opacity:1;transform:none}
+
+  @media (max-width:980px){
+    .hero-stats{grid-template-columns:repeat(2,1fr)}
+    .grid-3,.grid-4,.grid-2{grid-template-columns:1fr 1fr}
+    .layer{grid-template-columns:1fr}
+    .layer.l1 .layer-body,.layer.l2 .layer-body,.layer.l3 .layer-body,.layer.l4 .layer-body,.layer.l5 .layer-body{grid-template-columns:1fr 1fr}
+    .module-body{grid-template-columns:1fr}
+    .timeline{grid-template-columns:1fr 1fr 1fr}
+    .topnav{display:none}
+  }
+  @media (max-width:620px){
+    .wrap{padding:0 18px}
+    .hero-stats,.grid-3,.grid-4,.grid-2,.layer.l1 .layer-body,.layer.l2 .layer-body,.layer.l3 .layer-body,.layer.l4 .layer-body,.layer.l5 .layer-body,.timeline{grid-template-columns:1fr}
+    section{padding:42px 0}
+  }
+
+  @media print{
+    .topbar,.btn-print{display:none}
+    body{background:#fff;font-size:12px}
+    section{padding:22px 0;break-inside:avoid}
+    .fade{opacity:1;transform:none}
+    .card,.table-wrap,.module,.stat{box-shadow:none}
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <div class="brand-mark">EDC</div>
+      <div>临床研究队列管理平台<small>FUSION PROPOSAL V2.0</small></div>
+    </div>
+    <nav class="topnav">
+      <a href="#overview">方案概览</a>
+      <a href="#arch">总体架构</a>
+      <a href="#modules">五大功能域</a>
+      <a href="#cohort">队列增强</a>
+      <a href="#mapping">参数映射</a>
+      <a href="#roles">角色权限</a>
+      <a href="#delivery">实施交付</a>
+      <a href="#risk">合规验收</a>
+      <a href="#qa">融合决策</a>
+    </nav>
+    <a class="btn-print" href="../index.html" style="text-decoration:none;border-color:var(--primary);background:var(--primary);color:#fff">进入交互原型</a>
+    <button class="btn-print" onclick="window.print()">打印 / 导出 PDF</button>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">融合规划方案 · 平台 + 队列 + EDC 内核 + 服务</div>
+    <h1>一个平台承载多队列、多课题，<br/>一套配置跑通单队列全生命周期</h1>
+    <p class="lede">
+      以 EDC 平台为公共底座，吸收单队列系统的建档、查重、档案、问卷与样本能力，
+      按《规划设计方案》重构为五大功能域；新队列通过复制模板与调整配置上线，不改代码。
+    </p>
+    <div class="hero-stats">
+      <div class="stat"><b>25 条</b><span>技术参数 · 全部保留</span></div>
+      <div class="stat"><b>5 大</b><span>功能域 · 平台到队列</span></div>
+      <div class="stat"><b>4 层</b><span>平台 / 队列 / 内核 / 服务</span></div>
+      <div class="stat"><b>6 项</b><span>队列增强 Q1–Q6</span></div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section id="overview" class="fade">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num">01</div>
+      <div>
+        <h2>方案概览</h2>
+        <p class="sec-sub">两套系统的融合逻辑、建设目标与范围边界</p>
+      </div>
+    </div>
+
+    <div class="grid-3" style="margin-bottom:16px">
+      <div class="card pad">
+        <h3>平台化底座</h3>
+        <p class="muted" style="margin:0;font-size:13.5px">机构、课题、分中心、人员、角色、文档、模板、数据元下沉平台层，多队列共享，权限互相隔离。</p>
+      </div>
+      <div class="card pad">
+        <h3>单队列闭环</h3>
+        <p class="muted" style="margin:0;font-size:13.5px">建档 → 查重 → 档案 → 问卷 → 随访 → 样本 → 采集 → 质控 → 统计 → 导出，一次配置跑通全生命周期。</p>
+      </div>
+      <div class="card pad">
+        <h3>配置化交付</h3>
+        <p class="muted" style="margin:0;font-size:13.5px">对象状态、双方/家庭结构、采样时点、样本类型、填写角色、导出类型、编码与查重规则全部可配置。</p>
+      </div>
+    </div>
+
+    <div class="card pad">
+      <h3>编制依据与融合来源</h3>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th style="width:24%">来源</th><th style="width:42%">内容</th><th>在融合方案中的作用</th></tr></thead>
+          <tbody>
+            <tr><td>规划设计方案 V1.0</td><td>平台层 / 队列层 / EDC 内核 / 服务层；队列模块 5.1–5.12</td><td>本次重构的架构与队列业务依据</td></tr>
+            <tr><td>方案2 技术方案 V1.1</td><td>25 条参数、4 项增补、权限/合规/实施</td><td>平台与 EDC 内核能力基线</td></tr>
+            <tr><td>方案1 思维导图</td><td>5 大模块、队列页面要素</td><td>队列业务页面与配置项来源</td></tr>
+            <tr><td>REDCap / OpenClinica / OpenSpecimen</td><td>项目容器、纵向事件、质询、样本链路</td><td>模块划分与数据流对标验证</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note" style="margin-top:16px">
+        <b>范围说明：</b>覆盖 25 条基线参数 + 4 项客户增补（随机化、双录入、样本管理、HIS/LIS）+ 6 项队列增强（Q1–Q6）。
+        院内私有化、100 并发、导出 Excel/CSV；微信端与电子签名本期不启用。
+      </div>
+      <div class="pill-list" style="margin-top:14px">
+        <span>平台层</span><span>队列层</span><span>EDC 内核</span><span>服务层</span>
+        <span>建档查重</span><span>档案状态矩阵</span><span>问卷版本</span><span>时点 × 类型样本</span>
+        <span>队列设置中心</span><span>导出审核闭环</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="arch" class="fade">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num">02</div>
+      <div>
+        <h2>总体架构</h2>
+        <p class="sec-sub">四层技术架构承载五大功能域，队列能力以子模块嵌入 EDC 内核</p>
+      </div>
+    </div>
+
+    <div class="arch">
+      <div class="layer l5">
+        <div class="layer-label">外部系统</div>
+        <div class="layer-body">
+          <div class="node"><b>HIS 医院信息系统</b><small>患者主索引 · 就诊住院 · 诊断</small></div>
+          <div class="node"><b>LIS 检验信息系统</b><small>检验申请 · 结果 · 项目字典</small></div>
+        </div>
+      </div>
+
+      <div class="layer l1">
+        <div class="layer-label">平台层</div>
+        <div class="layer-body">
+          <div class="node"><b>组织与权限</b><small>机构 · 分中心 · 人员 · 角色</small></div>
+          <div class="node"><b>课题与队列容器</b><small>课题属性 · 模块挂载 · 锁定</small></div>
+          <div class="node"><b>平台工作台 + 文档</b><small>多课题总览 · 文件管理</small></div>
+        </div>
+      </div>
+
+      <div class="layer l2">
+        <div class="layer-label">队列层<br/>单队列操作台</div>
+        <div class="layer-body">
+          <div class="node mod m2"><span class="mod-num">Q1</span><b>队列工作台</b><small>快捷入口 · 待办</small></div>
+          <div class="node mod m2"><span class="mod-num">Q2</span><b>建档管理</b><small>知情同意 · 双方结构</small></div>
+          <div class="node mod m2"><span class="mod-num">Q3</span><b>重复建档查询</b><small>规则 · 合并/关联</small></div>
+          <div class="node mod m2"><span class="mod-num">Q4</span><b>档案管理</b><small>状态矩阵 · 批量导出</small></div>
+          <div class="node mod m3"><span class="mod-num">Q5</span><b>问卷配置</b><small>设计 · 版本 · 填写角色</small></div>
+          <div class="node mod m3"><span class="mod-num">—</span><b>随访计划</b><small>访视 · 窗口期 · 分支</small></div>
+          <div class="node mod m3"><span class="mod-num">E3</span><b>样本管理</b><small>时点 × 类型 · 入库审核</small></div>
+          <div class="node mod m3"><span class="mod-num">Q6</span><b>队列设置</b><small>建档 · 查重 · 样本 · 编码</small></div>
+          <div class="node mod m3"><span class="mod-num">—</span><b>模板与数据元</b><small>共享 · 复用 · 版本</small></div>
+          <div class="node mod m4"><span class="mod-num">—</span><b>数据采集与质控</b><small>CRF · 质询 · 超窗</small></div>
+          <div class="node mod m4"><span class="mod-num">E1/E2</span><b>随机化 / 双录入</b><small>按课题开关挂载</small></div>
+          <div class="node mod m4"><span class="mod-num">—</span><b>统计与导出</b><small>图表 · 任务 · 记录</small></div>
+        </div>
+      </div>
+
+      <div class="layer l2">
+        <div class="layer-label">EDC 内核层</div>
+        <div class="layer-body">
+          <div class="node"><b>模板制作</b><small>字段 · 共享数据元</small></div>
+          <div class="node"><b>计划配置</b><small>活动 · 时间轴</small></div>
+          <div class="node"><b>对象管理</b><small>受试者 · 访视</small></div>
+          <div class="node"><b>编码与字段映射</b><small>规则 · 标准字段</small></div>
+        </div>
+      </div>
+
+      <div class="layer l2">
+        <div class="layer-label">服务层</div>
+        <div class="layer-body">
+          <div class="node"><b>统计分析</b><small>四类报表</small></div>
+          <div class="node"><b>数据审核</b><small>导出前闸门</small></div>
+          <div class="node"><b>数据导出</b><small>条件 · 格式 · 记录</small></div>
+          <div class="node"><b>外部集成</b><small>HIS/LIS · 标签 · 微信预留</small></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card pad" style="margin-top:16px">
+      <h3>五大功能域</h3>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th style="width:16%">功能域</th><th>覆盖内容</th><th style="width:18%">主要用户</th></tr></thead>
+          <tbody>
+            <tr><td><b>M1 平台管理</b></td><td>机构、课题、分中心、人员、角色、平台工作台、文档</td><td>平台/机构管理员、PI</td></tr>
+            <tr><td><b>M2 队列运营</b></td><td>队列工作台、建档、重复建档查询、档案管理</td><td>建档员、CRC、档案管理员</td></tr>
+            <tr><td><b>M3 队列配置</b></td><td>问卷、随访计划、样本管理、队列设置、模板/数据元/编码</td><td>建库/DM、样本管理员</td></tr>
+            <tr><td><b>M4 采集质控</b></td><td>对象/访视、采集、脱落、日历、质询、超窗、锁定、双录入、随机发号</td><td>研究者、CRC、CRA、DM</td></tr>
+            <tr><td><b>M5 统计交付</b></td><td>四类统计、数据导出、导出记录、数据审核、HIS/LIS</td><td>PI、CRA、DM、统计</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="modules" class="fade">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num">03</div>
+      <div>
+        <h2>五大功能域</h2>
+        <p class="sec-sub">平台看全局、队列跑业务、内核做复用、服务管交付</p>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="module-head">
+        <div class="bar" style="background:var(--m1)"></div>
+        <h3>M1 · 平台管理</h3>
+        <div class="meta"><span class="tag">参数 1 / 2 / 3 / 4 / 5 / 6 / 7</span><span class="tag gold">平台层</span></div>
+      </div>
+      <div class="module-body">
+        <div><ul>
+          <li><b>机构管理</b>：机构与机构用户全生命周期、管理员设置、启停用、Excel 导入</li>
+          <li><b>课题管理</b>：课题属性、研究设置、进度、锁定；观察型课题自动挂载队列模块</li>
+          <li><b>分中心管理</b>：主数据维护；课题内重设编码与计划入组数</li>
+          <li><b>人员与角色</b>：分中心人员进出、角色绑定、四维权限</li>
+          <li><b>平台工作台</b>：多课题入组、进度、质询、近一周详情</li>
+          <li><b>文档管理</b>：文件/文件夹、批量上传、类型与检索</li>
+        </ul></div>
+        <div><dl class="kv">
+          <dt>核心价值</dt><dd>多队列/多课题的公共底座，资源与权限隔离</dd>
+          <dt>关键设计</dt><dd>课题即容器；研究类型决定模块挂载；平台工作台与队列工作台分工</dd>
+          <dt>主要用户</dt><dd>平台管理员、机构管理员、PI</dd>
+        </dl></div>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="module-head">
+        <div class="bar" style="background:var(--m2)"></div>
+        <h3>M2 · 队列运营</h3>
+        <div class="meta"><span class="tag">Q1–Q4 + 参数 18</span><span class="tag gold">队列层</span><span class="tag teal">单队列操作台</span></div>
+      </div>
+      <div class="module-body">
+        <div><ul>
+          <li><b>队列工作台</b>：新建档案、查重、档案、样本单上传；入组与待办概览</li>
+          <li><b>建档管理</b>：知情同意上传、对象状态枚举、关键日期、双方/家庭结构、批量建档</li>
+          <li><b>重复建档查询</b>：证件号/姓名+生日组合查重、疑似列表、合并或关联</li>
+          <li><b>档案管理</b>：多维检索、CRF 提交状态矩阵、快捷导出、档案操作</li>
+          <li><b>对象登记</b>：登记入组、批量导入；与档案 1:N 关联</li>
+        </ul></div>
+        <div><dl class="kv">
+          <dt>核心价值</dt><dd>回答「一个队列每天怎么运转」，把高频动作放在一个操作台</dd>
+          <dt>关键设计</dt><dd>档案（家庭）1:N 对象；建档即查重；档案列表用状态矩阵替代逐个点开</dd>
+          <dt>主要用户</dt><dd>建档员、CRC、PI、档案管理员</dd>
+        </dl></div>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="module-head">
+        <div class="bar" style="background:var(--m3)"></div>
+        <h3>M3 · 队列配置</h3>
+        <div class="meta"><span class="tag">参数 8 / 9 / 10 / 15 / 16 + E3 + Q5/Q6</span><span class="tag gold">队列层 + EDC 内核</span></div>
+      </div>
+      <div class="module-body">
+        <div><ul>
+          <li><b>问卷配置</b>：设计器、题目光型、校验、共享数据元；复制生成版本；填写角色</li>
+          <li><b>随访计划</b>：活动、主干/分支、时间点、窗口期、角色权限、启用锁定</li>
+          <li><b>样本管理</b>：时点 × 类型矩阵、采集/处理暂存、入库登记与审核、库位与流转</li>
+          <li><b>队列设置</b>：建档字段映射、双方结构、状态枚举、查重规则、样本字典、编码规则</li>
+          <li><b>模板与数据元</b>：共享/私有模板、使用次数与关联表单、导入导出</li>
+        </ul></div>
+        <div><dl class="kv">
+          <dt>核心价值</dt><dd>把「某个队列的研究设计」变成可复制的配置包</dd>
+          <dt>关键设计</dt><dd>配置优先；问卷版本化；样本按「时点 × 类型」组织；内核能力不单独建入口</dd>
+          <dt>主要用户</dt><dd>建库人员、DM、样本管理员、PI</dd>
+        </dl></div>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="module-head">
+        <div class="bar" style="background:var(--m3)"></div>
+        <h3>M4 · 数据采集与质量控制</h3>
+        <div class="meta"><span class="tag">参数 17 / 19 / 20 / 21 / 22 / 23 + E1 / E2</span><span class="tag gold">队列层 + 内核</span></div>
+      </div>
+      <div class="module-body">
+        <div><ul>
+          <li><b>对象与访视</b>：患者/访视列表、9 种活动状态、访视详情、研究标签</li>
+          <li><b>数据采集</b>：填写/保存/提交/分享/打印、附件、备注、质询留言</li>
+          <li><b>质询闭环</b>：访视质询 + 我的质询，更新类/方案修改类，表单级锁定</li>
+          <li><b>超窗与脱落</b>：统一时间轴计算；脱落原因与操作人追溯</li>
+          <li><b>任务日历</b>：随访任务聚合，一键进入采集</li>
+          <li><b>双录入 / 随机发号</b>：按课题开关挂载，盲底与仲裁留痕</li>
+        </ul></div>
+        <div><dl class="kv">
+          <dt>核心价值</dt><dd>数据进入系统的主战场，也是质控发生的现场</dd>
+          <dt>关键设计</dt><dd>状态机驱动；提交前规则校验；质询-锁定-解决闭环；超窗单一计算源</dd>
+          <dt>主要用户</dt><dd>研究者、CRC、CRA、DM</dd>
+        </dl></div>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="module-head">
+        <div class="bar" style="background:var(--m4)"></div>
+        <h3>M5 · 统计交付与集成</h3>
+        <div class="meta"><span class="tag">参数 11–14 / 24 / 25 + E4</span><span class="tag gold">服务层</span></div>
+      </div>
+      <div class="module-body">
+        <div><ul>
+          <li><b>队列统计</b>：入组趋势、性别、年龄、省份；分中心/质询/表单统计</li>
+          <li><b>数据导出</b>：条件→公式→格式；快捷导出类型；异步任务</li>
+          <li><b>导出记录中心</b>：导出人、类型、时间、文件、下载次数</li>
+          <li><b>数据审核</b>：导出申请 → 通过/驳回 → 下载，未通过不可下载</li>
+          <li><b>HIS/LIS 集成</b>：患者主索引、就诊、检验申请与结果、字典同步</li>
+        </ul></div>
+        <div><dl class="kv">
+          <dt>核心价值</dt><dd>数据出域的安全闸门与科研价值出口</dd>
+          <dt>关键设计</dt><dd>统计口径前置；导出即留痕；审核与下载联动；接口幂等与手工兜底</dd>
+          <dt>主要用户</dt><dd>PI、CRA、DM、统计人员</dd>
+        </dl></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="cohort" class="fade">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num">04</div>
+      <div>
+        <h2>队列增强 Q1–Q6 与配置化</h2>
+        <p class="sec-sub">把单队列系统的页面抽象为可配置能力，而非写死某个研究主题</p>
+      </div>
+    </div>
+
+    <div class="grid-3" style="margin-bottom:16px">
+      <div class="card pad"><h3>Q1 队列工作台</h3><p class="muted" style="margin:0;font-size:13px">新建档案、查重、档案、样本单上传四个高频入口；入组数、表单完成率、待办聚合。</p></div>
+      <div class="card pad"><h3>Q2 建档管理</h3><p class="muted" style="margin:0;font-size:13px">知情同意、对象状态、关键日期、双方/家庭结构；创建即生成档案编号，支持批量建档。</p></div>
+      <div class="card pad"><h3>Q3 重复建档查询</h3><p class="muted" style="margin:0;font-size:13px">证件号、姓名+出生日期组合查重；疑似列表可合并或关联；保存时自动触发。</p></div>
+      <div class="card pad"><h3>Q4 档案管理</h3><p class="muted" style="margin:0;font-size:13px">多维检索、CRF 状态矩阵、七类快捷导出、查看/编辑/采集/脱落。</p></div>
+      <div class="card pad"><h3>Q5 问卷配置</h3><p class="muted" style="margin:0;font-size:13px">设计器、校验、共享数据元、复制版本、批量发布、填写角色（医生/对象/关联对象）。</p></div>
+      <div class="card pad"><h3>Q6 队列设置</h3><p class="muted" style="margin:0;font-size:13px">建档、查重、样本、问卷、编码的统一配置中心，新队列复制即用。</p></div>
+    </div>
+
+    <div class="card pad">
+      <h3>硬编码 → 配置项</h3>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th style="width:26%">原页面硬编码</th><th style="width:34%">配置化后</th><th>位置</th></tr></thead>
+          <tbody>
+            <tr><td>婚前 / 孕前 / 孕期 / 子代</td><td>对象状态枚举（可增删改）</td><td>队列设置-建档配置</td></tr>
+            <tr><td>女方 / 男方两组字段</td><td>关联对象结构（单方/双方/家庭）</td><td>队列设置-建档配置</td></tr>
+            <tr><td>结婚日期等</td><td>关键日期字段（启用/必填）</td><td>队列设置-建档配置</td></tr>
+            <tr><td>基线 / 早孕 / 中晚孕 / 分娩 / 脐带血 / 胎盘 / 产后 42 天</td><td>采样时点分组字典</td><td>队列设置-样本配置</td></tr>
+            <tr><td>血清 / 抗凝血 / 尿液 / 分泌物 / 冻存组织</td><td>样本类型字典</td><td>队列设置-样本配置</td></tr>
+            <tr><td>医生 / 女方 / 男方填写</td><td>问卷填写角色</td><td>问卷配置</td></tr>
+            <tr><td>六种导出按钮</td><td>导出类型 + 字段级权限</td><td>数据导出</td></tr>
+            <tr><td>档案编号（家庭编号）</td><td>自定义编码规则</td><td>队列设置-自定义编码</td></tr>
+            <tr><td>证件号查重</td><td>查重字段组合与判定规则</td><td>队列设置-查重配置</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="mapping" class="fade">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num">05</div>
+      <div>
+        <h2>25 条参数落位总表</h2>
+        <p class="sec-sub">不遗漏、不重复；参数 24 归入导出审核，修正原方案归属</p>
+      </div>
+    </div>
+
+    <div class="table-wrap table-scroll">
+      <table>
+        <thead><tr><th class="num">序号</th><th>参数项</th><th>功能域</th><th>层级</th><th>核心响应</th></tr></thead>
+        <tbody>
+          <tr class="group-row"><td colspan="5">M1 平台管理（7 条）</td></tr>
+          <tr><td class="num">1</td><td>机构管理</td><td>M1</td><td>平台层</td><td>机构与用户全生命周期、批量导入</td></tr>
+          <tr><td class="num">2</td><td>课题管理</td><td>M1</td><td>平台层</td><td>课题属性、设置、进度、锁定、队列挂载</td></tr>
+          <tr><td class="num">3</td><td>文档管理</td><td>M1</td><td>平台层</td><td>文件/文件夹、14 类格式、批量操作</td></tr>
+          <tr><td class="num">4</td><td>首页</td><td>M1 + M2</td><td>平台/队列</td><td>平台多课题总览 + 单队列工作台</td></tr>
+          <tr><td class="num">5</td><td>分中心管理</td><td>M1</td><td>平台层</td><td>主数据 + 课题内编码与计划入组</td></tr>
+          <tr><td class="num">6</td><td>人员管理</td><td>M1</td><td>平台层</td><td>人员、批量导入导出、进出中心</td></tr>
+          <tr><td class="num">7</td><td>角色管理</td><td>M1</td><td>平台层</td><td>页面/操作/数据/导出四维权限</td></tr>
+
+          <tr class="group-row"><td colspan="5">M2 队列运营（1 条 + Q1–Q4）</td></tr>
+          <tr><td class="num">18</td><td>对象登记</td><td>M2</td><td>队列层</td><td>登记入组、批量导入、与档案关联</td></tr>
+
+          <tr class="group-row"><td colspan="5">M3 队列配置（5 条 + E3 + Q5/Q6）</td></tr>
+          <tr><td class="num">8</td><td>模板制作</td><td>M3</td><td>EDC 内核</td><td>字段、共享数据元、导入导出</td></tr>
+          <tr><td class="num">9</td><td>数据元统计</td><td>M3</td><td>EDC 内核</td><td>使用次数与关联表单</td></tr>
+          <tr><td class="num">10</td><td>计划配置</td><td>M3</td><td>EDC 内核</td><td>活动、主干/分支、窗口期、启停</td></tr>
+          <tr><td class="num">15</td><td>对象基本信息配置</td><td>M3</td><td>EDC 内核</td><td>登记字段映射、列表显示字段</td></tr>
+          <tr><td class="num">16</td><td>自定义编码</td><td>M3</td><td>EDC 内核</td><td>元素、前缀、分隔符、流水号</td></tr>
+
+          <tr class="group-row"><td colspan="5">M4 采集质控（6 条 + E1/E2）</td></tr>
+          <tr><td class="num">17</td><td>对象管理</td><td>M4</td><td>队列/内核</td><td>患者/访视视图、采集、质询留言</td></tr>
+          <tr><td class="num">19</td><td>脱落管理</td><td>M4</td><td>队列层</td><td>脱落列表与原因追溯</td></tr>
+          <tr><td class="num">20</td><td>任务日历</td><td>M4</td><td>队列层</td><td>日历视图、随访任务、跳转采集</td></tr>
+          <tr><td class="num">21</td><td>给我的质询</td><td>M4</td><td>队列层</td><td>个人质询列表、解决与留言</td></tr>
+          <tr><td class="num">22</td><td>访视质询</td><td>M4</td><td>队列层</td><td>双类型质询、锁定、筛选</td></tr>
+          <tr><td class="num">23</td><td>超窗管理</td><td>M4</td><td>队列层</td><td>超窗日期、范围、天数</td></tr>
+
+          <tr class="group-row"><td colspan="5">M5 统计交付（6 条 + E4）</td></tr>
+          <tr><td class="num">11</td><td>课题统计</td><td>M5</td><td>服务层</td><td>趋势、性别、年龄、省份</td></tr>
+          <tr><td class="num">12</td><td>分中心入组统计</td><td>M5</td><td>服务层</td><td>实际入组、时间段、明细</td></tr>
+          <tr><td class="num">13</td><td>质询统计</td><td>M5</td><td>服务层</td><td>中心/表单/数据元三维</td></tr>
+          <tr><td class="num">14</td><td>表单统计</td><td>M5</td><td>服务层</td><td>多维筛选、图表 + 列表</td></tr>
+          <tr><td class="num">24</td><td>数据审核</td><td>M5</td><td>服务层</td><td>导出申请审批，未通过不可下载</td></tr>
+          <tr><td class="num">25</td><td>数据导出</td><td>M5</td><td>服务层</td><td>条件/公式/格式、记录中心</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note" style="margin-top:14px">
+      <b>计数核对：</b>7 + 1 + 5 + 6 + 6 = 25 条，无遗漏、无重复。参数 4 同时服务平台工作台与队列工作台，只计一次。
+    </div>
+  </div>
+</section>
+
+<section id="roles" class="fade">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num">06</div>
+      <div>
+        <h2>角色与权限</h2>
+        <p class="sec-sub">在既有角色上增加建档员、样本管理员、档案管理员；四维权限在课题范围内生效</p>
+      </div>
+    </div>
+
+    <div class="table-wrap table-scroll">
+      <table>
+        <thead><tr><th>能力</th><th>平台管理员</th><th>机构管理员</th><th>PI/CO-PI</th><th>建库/DM</th><th>建档员</th><th>随访/CRC</th><th>样本管理员</th><th>CRA</th><th>统计</th></tr></thead>
+        <tbody>
+          <tr><td>机构 / 分中心</td><td class="ok">✓</td><td class="ok">本机构</td><td>只读</td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td></tr>
+          <tr><td>人员与角色</td><td class="ok">✓</td><td class="ok">本机构</td><td>只读</td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td></tr>
+          <tr><td>课题属性</td><td class="ok">✓</td><td class="muted">—</td><td class="ok">✓</td><td class="ok">✓</td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td></tr>
+          <tr><td>模板/问卷/计划</td><td class="ok">✓</td><td class="muted">—</td><td>审核</td><td class="ok">✓</td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td></tr>
+          <tr><td>新建档案/查重</td><td class="muted">—</td><td class="muted">—</td><td>只读</td><td class="muted">—</td><td class="ok">✓</td><td class="ok">✓</td><td class="muted">—</td><td>只读</td><td class="muted">—</td></tr>
+          <tr><td>档案管理</td><td class="muted">—</td><td class="muted">—</td><td class="ok">✓</td><td class="muted">—</td><td class="ok">✓</td><td class="ok">✓</td><td class="muted">—</td><td>只读</td><td class="muted">—</td></tr>
+          <tr><td>数据采集</td><td class="muted">—</td><td class="muted">—</td><td>只读</td><td class="muted">—</td><td class="muted">—</td><td class="ok">✓</td><td class="muted">—</td><td>只读</td><td class="muted">—</td></tr>
+          <tr><td>样本管理</td><td class="muted">—</td><td class="muted">—</td><td>只读</td><td>配置</td><td class="muted">—</td><td>采集</td><td class="ok">✓</td><td>只读</td><td class="muted">—</td></tr>
+          <tr><td>质询提出/解决</td><td class="muted">—</td><td class="muted">—</td><td class="ok">✓</td><td class="ok">✓</td><td class="muted">—</td><td class="ok">✓</td><td class="muted">—</td><td class="ok">✓</td><td class="muted">—</td></tr>
+          <tr><td>数据锁定/解锁</td><td class="ok">✓</td><td class="muted">—</td><td class="ok">✓</td><td class="ok">✓</td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td></tr>
+          <tr><td>统计报表</td><td class="ok">✓</td><td class="ok">本机构</td><td class="ok">✓</td><td class="ok">✓</td><td class="muted">—</td><td>部分</td><td class="muted">—</td><td class="ok">✓</td><td class="ok">✓</td></tr>
+          <tr><td>数据导出</td><td class="ok">✓</td><td>按授权</td><td class="ok">✓</td><td class="ok">✓</td><td class="muted">—</td><td class="muted">—</td><td class="muted">—</td><td>按授权</td><td class="ok">✓</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted" style="font-size:12.5px;margin:12px 2px 0">矩阵为默认值；实际以课题角色配置为准。导出权限精确到 CRF 数据项，盲底与揭盲权限单独授权。</p>
+  </div>
+</section>
+
+<section id="delivery" class="fade">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num">07</div>
+      <div>
+        <h2>实施与交付</h2>
+        <p class="sec-sub">先平台、再队列配置，最后打通样本与集成</p>
+      </div>
+    </div>
+
+    <div class="timeline">
+      <div class="step" data-step="1"><b>平台初始化</b><small>机构、分中心、人员、角色、四维权限</small></div>
+      <div class="step" data-step="2"><b>队列配置</b><small>复制课题、队列设置、问卷、随访计划</small></div>
+      <div class="step" data-step="3"><b>建档查重</b><small>知情同意、双方结构、查重规则、编码</small></div>
+      <div class="step" data-step="4"><b>样本与集成</b><small>时点×类型、入库审核、HIS/LIS 联调</small></div>
+      <div class="step" data-step="5"><b>培训上线</b><small>分角色培训、试运行、首例验证</small></div>
+      <div class="step" data-step="6"><b>运行交付</b><small>质控、统计、导出审核、锁库验收</small></div>
+    </div>
+
+    <div class="grid-2" style="margin-top:18px">
+      <div class="card pad">
+        <h3>交付物清单</h3>
+        <ul class="muted" style="margin:0;padding-left:18px;font-size:13.5px">
+          <li>平台配置清单、角色权限矩阵、课题属性表</li>
+          <li>队列配置包：状态枚举、双方结构、时点/类型、编码、查重规则</li>
+          <li>问卷/CRF 模板、数据元字典、随访计划表</li>
+          <li>样本登记表、入库审核流程、标签模板、接口联调报告</li>
+          <li>操作手册、培训记录、UAT 报告、参数 + 增强响应对照表</li>
+        </ul>
+      </div>
+      <div class="card pad">
+        <h3>验收口径</h3>
+        <ul class="muted" style="margin:0;padding-left:18px;font-size:13.5px">
+          <li>25 条参数 100% 响应，无负偏离</li>
+          <li>4 项增补与 6 项队列增强专项验收</li>
+          <li>新建队列不改代码，配置可复制</li>
+          <li>查重自动触发、质询闭环 100%、导出审核可追溯</li>
+          <li>100 并发下列表 2 秒内，导出不阻塞</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="risk" class="fade">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num">08</div>
+      <div>
+        <h2>合规、验收与风险</h2>
+        <p class="sec-sub">平台与队列共用一套权限、审计与安全底座</p>
+      </div>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:18px">
+      <div class="card pad"><h3>审计留痕</h3><p class="muted" style="margin:0;font-size:13px">登录、操作、数据变更、发号/揭盲、导出、接口调用全量留痕。</p></div>
+      <div class="card pad"><h3>合规设计</h3><p class="muted" style="margin:0;font-size:13px">参照 21 CFR Part 11 与 ICH-GCP 的电子记录与稽查轨迹；本次不含电子签名。</p></div>
+      <div class="card pad"><h3>部署安全</h3><p class="muted" style="margin:0;font-size:13px">院内私有化，数据不出院；TLS、数据库加密、文件与业务库分离。</p></div>
+      <div class="card pad"><h3>性能目标</h3><p class="muted" style="margin:0;font-size:13px">100 并发下列表 2 秒内；统计与导出异步执行。</p></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card pad">
+        <h3>验收指标</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>指标</th><th>标准</th></tr></thead>
+            <tbody>
+              <tr><td>参数覆盖</td><td>25 条 100% 响应，无遗漏、无重复</td></tr>
+              <tr><td>增补能力</td><td>随机化/双录入/样本/HIS-LIS 专项通过</td></tr>
+              <tr><td>队列增强</td><td>Q1–Q6 全部可操作，配置可复制</td></tr>
+              <tr><td>查重</td><td>保存自动触发，误报可标记留痕</td></tr>
+              <tr><td>样本链路</td><td>时点×类型、入库审核、库位可追溯</td></tr>
+              <tr><td>导出合规</td><td>申请→审核→下载→记录全链路</td></tr>
+              <tr><td>性能</td><td>100 并发列表 2 秒内，导出不阻塞</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card pad">
+        <h3>主要风险与应对</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>风险</th><th>应对</th></tr></thead>
+            <tbody>
+              <tr><td>队列配置项多，实施门槛高</td><td>提供队列模板与配置向导，首批陪跑</td></tr>
+              <tr><td>查重误报/漏报</td><td>分级匹配 + 人工确认 + 非重复标记留痕</td></tr>
+              <tr><td>双方/家庭结构差异大</td><td>结构模板化，单方/双方/家庭可配</td></tr>
+              <tr><td>样本账实不符</td><td>标签打印 + 扫码定位 + 入库双人复核</td></tr>
+              <tr><td>HIS/LIS 厂商配合不足</td><td>合同锁定接口清单与责任；手工补录兜底</td></tr>
+              <tr><td>微信需求反复</td><td>配置项保留，本期不启用，二期单独立项</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="qa" class="fade">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-num">09</div>
+      <div>
+        <h2>融合决策与遗留问题</h2>
+        <p class="sec-sub">方案1、方案2 与规划文档的冲突处理，需在合同技术附件锁定的事项</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card pad">
+        <h3>融合决策</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th style="width:34%">决策</th><th>结论</th></tr></thead>
+            <tbody>
+              <tr><td>架构</td><td>平台 + 队列 + EDC 内核 + 服务四层</td></tr>
+              <tr><td>模块划分</td><td>5 大功能域，替代原 4 模块方案</td></tr>
+              <tr><td>队列能力</td><td>新增 Q1–Q6，全部配置化</td></tr>
+              <tr><td>参数 24 归属</td><td>移至 M5，作为导出前审核闸门</td></tr>
+              <tr><td>首页</td><td>平台工作台 + 队列工作台分工</td></tr>
+              <tr><td>数据模型</td><td>档案（家庭）1:N 对象（参与者）</td></tr>
+              <tr><td>微信 / 电子签名</td><td>配置保留，本期不启用</td></tr>
+              <tr><td>部署 / 并发 / 导出</td><td>院内私有化 / 100 用户 / Excel+CSV</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card pad">
+        <h3>遗留问题</h3>
+        <div class="qa">
+          <div class="qa-item"><i>01</i><div><b>队列模板首批范围</b><span>先落地哪几个队列？决定配置包与培训优先级。</span></div></div>
+          <div class="qa-item"><i>02</i><div><b>查重规则与容错</b><span>证件号缺失时的组合规则、误报处理与合并权限。</span></div></div>
+          <div class="qa-item"><i>03</i><div><b>样本管理深度</b><span>是否含库位、标签打印、扫码、销毁审批。</span></div></div>
+          <div class="qa-item"><i>04</i><div><b>HIS/LIS 接口清单</b><span>字段字典、频率、SLA、厂商配合方式。</span></div></div>
+          <div class="qa-item"><i>05</i><div><b>历史档案/样本迁移</b><span>既有数据清洗、映射与导入范围。</span></div></div>
+          <div class="qa-item"><i>06</i><div><b>等保与院内安全规范</b><span>测评要求与部署加固配合。</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note" style="margin-top:18px">
+      <b>范围外（二期/增值）：</b>移动端 APP 与 OCR、ePRO、多版本多环境迁移、CTMS/eTMF/PV 集成、电子签名、微信端实际集成、第三方数据接入完整实现。
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    临床研究队列管理平台 · 融合规划方案 V2.0<br/>
+    融合规划设计方案 V1.0、方案1 思维导图与方案2 技术方案；最终以合同技术附件为准。
+  </div>
+</footer>
+
+<script>
+  const links = [...document.querySelectorAll('.topnav a')];
+  const sections = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-45% 0px -50% 0px' });
+  sections.forEach(s => io.observe(s));
+  const fadeIO = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); fadeIO.unobserve(e.target); } });
+  }, { threshold: 0.06 });
+  document.querySelectorAll('.fade').forEach(el => fadeIO.observe(el));
+</script>
+
+</body>
+</html>

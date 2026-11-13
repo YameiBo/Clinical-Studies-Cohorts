@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>临床研究队列管理平台 · 方案思维导图（融合版）</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:#0f172a;background:#eef2f7}
+  header{height:92px;display:flex;align-items:center;gap:20px;padding:0 28px;background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;box-shadow:0 2px 12px rgba(15,23,42,.18);position:relative;z-index:10}
+  .brand h1{margin:0;font-size:17px;font-weight:700;letter-spacing:.5px}
+  .brand p{margin:4px 0 0;font-size:12px;color:#94a3b8}
+  .controls{margin-left:auto;display:flex;gap:8px}
+  .controls button{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#e2e8f0;font-size:12px;padding:7px 13px;border-radius:8px;cursor:pointer;transition:.15s}
+  .controls button:hover{background:rgba(255,255,255,.18)}
+  .legend{display:flex;gap:12px;margin-left:8px}
+  .legend span{display:flex;align-items:center;gap:5px;font-size:11px;color:#cbd5e1}
+  .legend i{width:9px;height:9px;border-radius:3px;display:inline-block}
+  #stage{height:calc(100vh - 92px);overflow:auto;position:relative;
+    background:
+      radial-gradient(circle at 1px 1px, rgba(148,163,184,.22) 1px, transparent 0) 0 0/22px 22px,
+      linear-gradient(180deg,#f8fafc,#eef2f7)}
+  #world{position:relative;padding:0}
+  #links{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+  .node{position:absolute;padding:10px 12px;border-radius:11px;background:#fff;border:1px solid #e2e8f0;
+    box-shadow:0 1px 2px rgba(15,23,42,.06);font-size:13px;line-height:1.35;transition:box-shadow .15s,transform .15s;z-index:2}
+  .node:hover{box-shadow:0 8px 22px rgba(15,23,42,.16);transform:translateY(-1px);z-index:6}
+  .n0{background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;border:none;font-size:16px;font-weight:700;padding:16px 18px;box-shadow:0 10px 30px rgba(15,23,42,.28)}
+  .n1{font-weight:700;font-size:14px;border-left-width:5px;border-left-style:solid}
+  .n2{font-weight:600;background:#fff}
+  .n3{background:#f8fafc;font-size:12px;color:#334155;border-style:dashed}
+  .ttl{word-break:break-word}
+  .note{font-size:11px;color:#64748b;margin-top:4px;font-weight:400}
+  .n0 .note{color:#cbd5e1}
+  .n3 .note{color:#94a3b8}
+  .tg{position:absolute;top:-8px;right:-8px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;
+    background:#e2e8f0;color:#334155;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 1px 3px rgba(15,23,42,.18);pointer-events:none}
+  .tg.off{background:#cbd5e1}
+  .hint{position:fixed;left:20px;bottom:14px;font-size:11px;color:#64748b;background:rgba(255,255,255,.85);
+    border:1px solid #e2e8f0;border-radius:8px;padding:6px 11px;z-index:20;backdrop-filter:blur(4px)}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <h1>临床研究队列管理平台 · 方案思维导图（融合版）</h1>
+    <p>5 大功能域 · 25 条参数 · 4 项增补 · 6 项队列增强 · 平台 + 队列 + EDC 内核 + 服务</p>
+  </div>
+  <div class="legend">
+    <span><i style="background:#2563eb"></i>平台管理</span>
+    <span><i style="background:#0d9488"></i>队列运营</span>
+    <span><i style="background:#7c3aed"></i>队列配置</span>
+    <span><i style="background:#d97706"></i>采集质控</span>
+    <span><i style="background:#e11d48"></i>统计交付</span>
+  </div>
+  <div class="controls">
+    <button id="expandAll">展开全部</button>
+    <button id="collapseMod">折叠到模块</button>
+  </div>
+</header>
+
+<div id="stage">
+  <div id="world">
+    <svg id="links"></svg>
+    <div id="nodes"></div>
+  </div>
+</div>
+<div class="hint">点击带 <b>+</b> 的节点可展开细节；模块颜色对应图例。</div>
+
+<script>
+const DATA = {
+  "name": "临床研究队列管理平台",
+  "note": "5 大功能域 · 25 条参数 · 4 项增补 · 6 项队列增强",
+  "color": "#0f172a",
+  "children": [
+    {
+      "name": "M1 平台管理域",
+      "note": "参数 1 · 2 · 3 · 4 · 5 · 6 · 7",
+      "color": "#2563eb",
+      "children": [
+        {
+          "name": "机构管理",
+          "note": "参数 1",
+          "children": [
+            {
+              "name": "机构列表 / 新增 / 编辑 / 删除（有用户不可删）"
+            },
+            {
+              "name": "机构用户 CRUD、设管理员、启停用、重置密码"
+            },
+            {
+              "name": "Excel 批量导入 + 模板下载；工号/姓名搜索"
+            }
+          ]
+        },
+        {
+          "name": "课题管理",
+          "note": "参数 2",
+          "children": [
+            {
+              "name": "课题编码 / 名称 / 简称 / PI / 起止 / 摘要"
+            },
+            {
+              "name": "课题属性：类型 / 目的 / 分配 / 阶段 / 盲法 / 入组数 / 中心数"
+            },
+            {
+              "name": "功能开关：分组 / 随机化 / 样本 / 双录入"
+            },
+            {
+              "name": "进度、锁定/解锁、CO-PI、按简称或 PI 搜索"
+            },
+            {
+              "name": "观察型课题自动挂载队列模块"
+            }
+          ]
+        },
+        {
+          "name": "分中心管理",
+          "note": "参数 5",
+          "children": [
+            {
+              "name": "中心编码 / 从属机构 / 名称 / 负责人 / 计划入组"
+            },
+            {
+              "name": "新增 / 编辑 / 删除（含其中用户）"
+            },
+            {
+              "name": "课题添加已有分中心，重设编码与计划入组"
+            }
+          ]
+        },
+        {
+          "name": "人员与角色",
+          "note": "参数 6 · 7",
+          "children": [
+            {
+              "name": "人员批量导入导出、重置密码、进出分中心"
+            },
+            {
+              "name": "角色编码 / 名称 / 级别"
+            },
+            {
+              "name": "四维权限：页面 / 操作 / 数据 / 导出"
+            },
+            {
+              "name": "队列角色：建档员 / 随访员 / 样本管理员 / 档案管理员"
+            }
+          ]
+        },
+        {
+          "name": "平台工作台",
+          "note": "参数 4",
+          "children": [
+            {
+              "name": "多课题列表与实际入组数"
+            },
+            {
+              "name": "任务进度、质询跟踪"
+            },
+            {
+              "name": "近一周详情：及时率 / 质询率 / 完成率"
+            }
+          ]
+        },
+        {
+          "name": "文档管理",
+          "note": "参数 3",
+          "children": [
+            {
+              "name": "按课题管理文件 / 文件夹"
+            },
+            {
+              "name": "多类型批量上传、编辑、删除、搜索"
+            },
+            {
+              "name": "文档与 CRF 数据分离"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "M2 队列运营域",
+      "note": "Q1–Q4 · 参数 18",
+      "color": "#0d9488",
+      "children": [
+        {
+          "name": "队列工作台 Q1",
+          "children": [
+            {
+              "name": "快捷入口：新建档案 / 查重 / 档案 / 样本单上传"
+            },
+            {
+              "name": "累计入组、表单完成率、待办聚合"
+            }
+          ]
+        },
+        {
+          "name": "建档管理 Q2",
+          "children": [
+            {
+              "name": "知情同意：是否签署 + 图片上传（≤6MB）"
+            },
+            {
+              "name": "对象状态枚举：婚前 / 孕前 / 孕期 / 子代"
+            },
+            {
+              "name": "关键日期字段（启用 / 必填可配）"
+            },
+            {
+              "name": "关联对象结构：单方 / 双方 / 家庭"
+            },
+            {
+              "name": "创建档案自动生成档案编号；批量建档"
+            }
+          ]
+        },
+        {
+          "name": "重复建档查询 Q3",
+          "children": [
+            {
+              "name": "证件号、姓名+出生日期组合查重"
+            },
+            {
+              "name": "疑似重复列表与详情"
+            },
+            {
+              "name": "合并档案或标记关联；保存时自动触发"
+            }
+          ]
+        },
+        {
+          "name": "档案管理 Q4",
+          "children": [
+            {
+              "name": "检索：档案编号 / 机构 / 时间 / 完成状态 / 双方信息"
+            },
+            {
+              "name": "CRF 提交状态矩阵"
+            },
+            {
+              "name": "七类快捷导出：全量 / 英文 / 映射 / 问卷 / 名单 / 知情同意书"
+            },
+            {
+              "name": "查看 / 编辑 / 采集 / 脱落"
+            }
+          ]
+        },
+        {
+          "name": "对象登记",
+          "note": "参数 18",
+          "children": [
+            {
+              "name": "登记入组、批量导入"
+            },
+            {
+              "name": "档案 1:N 对象（参与者）"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "M3 队列配置域",
+      "note": "参数 8 · 9 · 10 · 15 · 16 · E3 · Q5 · Q6",
+      "color": "#7c3aed",
+      "children": [
+        {
+          "name": "问卷配置 Q5",
+          "children": [
+            {
+              "name": "问卷列表、创建 / 修改 / 复制 / 预览 / 发布"
+            },
+            {
+              "name": "设计器：题目、字段类型、校验规则"
+            },
+            {
+              "name": "版本管理：复制生成新版本"
+            },
+            {
+              "name": "填写角色：医生 / 对象 / 关联对象"
+            }
+          ]
+        },
+        {
+          "name": "随访计划",
+          "note": "参数 10",
+          "children": [
+            {
+              "name": "活动增删改、关联模板、必填、微信显示（预留）"
+            },
+            {
+              "name": "主干：访视类型 / 时间点 / 间隔 / 窗口期 / 权限"
+            },
+            {
+              "name": "分支：手动入组或按 CRF 字段自动入组"
+            },
+            {
+              "name": "登记表单；启用 / 禁用锁定"
+            }
+          ]
+        },
+        {
+          "name": "样本管理",
+          "note": "E3",
+          "children": [
+            {
+              "name": "采样时点 × 样本类型二维矩阵"
+            },
+            {
+              "name": "采集 / 处理暂存 / 入库登记 / 入库审核"
+            },
+            {
+              "name": "样本编码、库位、状态流转、标签打印"
+            },
+            {
+              "name": "与课题「启用样本」联动"
+            }
+          ]
+        },
+        {
+          "name": "队列设置 Q6",
+          "children": [
+            {
+              "name": "建档配置：字段映射、双方结构、状态枚举、关键日期"
+            },
+            {
+              "name": "查重配置：字段组合与判定规则"
+            },
+            {
+              "name": "样本配置：时点分组、类型字典"
+            },
+            {
+              "name": "自定义编码：元素 / 前缀 / 分隔符 / 流水号"
+            }
+          ]
+        },
+        {
+          "name": "模板与数据元",
+          "note": "参数 8 · 9",
+          "children": [
+            {
+              "name": "共享 / 私有模板，被引用不可删"
+            },
+            {
+              "name": "数据元使用次数与关联表单"
+            },
+            {
+              "name": "模板 / 数据元 / JSON 导入导出"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "M4 采集与质控域",
+      "note": "参数 17 · 19–23 · E1 · E2",
+      "color": "#d97706",
+      "children": [
+        {
+          "name": "对象与访视",
+          "note": "参数 17",
+          "children": [
+            {
+              "name": "患者 / 访视列表与 9 种活动状态"
+            },
+            {
+              "name": "访视详情、研究标签"
+            },
+            {
+              "name": "新增患者、脱落"
+            }
+          ]
+        },
+        {
+          "name": "数据采集",
+          "children": [
+            {
+              "name": "填写 / 保存 / 提交 / 分享 / 打印"
+            },
+            {
+              "name": "提交前 CRF 规则校验"
+            },
+            {
+              "name": "附件、文本备注、质询留言"
+            }
+          ]
+        },
+        {
+          "name": "质询闭环",
+          "note": "参数 21 · 22",
+          "children": [
+            {
+              "name": "更新类 / 方案修改类双类型"
+            },
+            {
+              "name": "我的质询列表、解决与留言"
+            },
+            {
+              "name": "表单级锁定与解锁留痕"
+            }
+          ]
+        },
+        {
+          "name": "超窗 / 脱落",
+          "note": "参数 19 · 23",
+          "children": [
+            {
+              "name": "超窗日期、范围、天数（统一时间轴）"
+            },
+            {
+              "name": "脱落列表与原因追溯"
+            }
+          ]
+        },
+        {
+          "name": "任务日历",
+          "note": "参数 20",
+          "children": [
+            {
+              "name": "随访任务聚合、一键进入采集"
+            }
+          ]
+        },
+        {
+          "name": "随机化 / 双录入",
+          "note": "E1 · E2",
+          "children": [
+            {
+              "name": "分层区组、发号、盲底、揭盲审批"
+            },
+            {
+              "name": "双人独立录入、比对、仲裁、留痕"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "M5 统计交付与集成",
+      "note": "参数 11–14 · 24 · 25 · E4",
+      "color": "#e11d48",
+      "children": [
+        {
+          "name": "队列统计",
+          "note": "参数 11–14",
+          "children": [
+            {
+              "name": "入组趋势、性别、年龄、省份"
+            },
+            {
+              "name": "分中心入组、质询、表单统计"
+            },
+            {
+              "name": "图表 + 明细列表双视图"
+            }
+          ]
+        },
+        {
+          "name": "数据导出",
+          "note": "参数 25",
+          "children": [
+            {
+              "name": "条件 → 公式 → 格式三段式"
+            },
+            {
+              "name": "Excel / CSV；快捷导出类型"
+            },
+            {
+              "name": "异步任务与下载列表"
+            }
+          ]
+        },
+        {
+          "name": "导出记录中心",
+          "children": [
+            {
+              "name": "导出人、类型、时间、文件"
+            },
+            {
+              "name": "下载次数、最后下载时间"
+            },
+            {
+              "name": "按导出人搜索与重置"
+            }
+          ]
+        },
+        {
+          "name": "数据审核",
+          "note": "参数 24",
+          "children": [
+            {
+              "name": "导出申请 → 通过 / 驳回"
+            },
+            {
+              "name": "备注、筛选、申请人搜索"
+            },
+            {
+              "name": "未通过不可下载"
+            }
+          ]
+        },
+        {
+          "name": "HIS/LIS 集成",
+          "note": "E4",
+          "children": [
+            {
+              "name": "患者主索引、就诊住院"
+            },
+            {
+              "name": "检验申请 / 结果 / 项目字典"
+            },
+            {
+              "name": "映射、幂等、重试、日志、手工兜底"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+};
+const W = [260, 225, 210, 270];
+const COL = 320, GAP_Y = 12;
+const world = document.getElementById("world");
+const nodesBox = document.getElementById("nodes");
+const svg = document.getElementById("links");
+let ALL = [], ROOT = null;
+
+function build(src, depth, parent){
+  const el = document.createElement("div");
+  el.className = "node n" + depth;
+  el.style.width = W[depth] + "px";
+  const ttl = document.createElement("div");
+  ttl.className = "ttl";
+  ttl.textContent = src.name;
+  el.appendChild(ttl);
+  if (src.note){
+    const nt = document.createElement("div");
+    nt.className = "note";
+    nt.textContent = src.note;
+    el.appendChild(nt);
+  }
+  const tg = document.createElement("span");
+  tg.className = "tg";
+  el.appendChild(tg);
+
+  const color = src.color || (parent ? parent.color : "#0f172a");
+  if (depth === 1){ el.style.borderLeftColor = color; ttl.style.color = color; }
+
+  const n = { name: src.name, dom: el, tg, depth, parent, color, children: [], collapsed: false };
+  nodesBox.appendChild(el);
+
+  if (src.children) src.children.forEach(c => n.children.push(build(c, depth + 1, n)));
+
+  el.addEventListener("click", () => {
+    if (n.children.length){ n.collapsed = !n.collapsed; refresh(); }
+  });
+  if (n.children.length) el.style.cursor = "pointer";
+
+  ALL.push(n);
+  return n;
+}
+
+function refresh(){
+  function setVis(n, pv){
+    n.visible = pv;
+    n.dom.style.display = pv ? "" : "none";
+    n.children.forEach(c => setVis(c, pv && !n.collapsed));
+  }
+  setVis(ROOT, true);
+
+  ALL.forEach(n => { if (n.visible){ n.w = n.dom.offsetWidth; n.h = n.dom.offsetHeight; } });
+
+  function calc(n){
+    if (!n.visible){ n.subH = 0; return; }
+    if (!n.collapsed && n.children.length){
+      let total = 0;
+      n.children.forEach((c, i) => { calc(c); total += c.subH; if (i) total += GAP_Y; });
+      n.childrenH = total;
+      n.subH = Math.max(n.h, total);
+    } else {
+      n.childrenH = 0;
+      n.subH = n.h;
+    }
+  }
+  calc(ROOT);
+
+  function place(n, x, top){
+    if (!n.visible) return;
+    n.x = x;
+    n.y = top + (n.subH - n.h) / 2;
+    if (!n.collapsed && n.children.length){
+      let cy = top + (n.subH - n.childrenH) / 2;
+      n.children.forEach(c => { place(c, x + COL, cy); cy += c.subH + GAP_Y; });
+    }
+  }
+  place(ROOT, 0, 0);
+
+  let maxX = 0, maxY = 0;
+  ALL.forEach(n => {
+    if (!n.visible) return;
+    n.dom.style.left = n.x + "px";
+    n.dom.style.top = n.y + "px";
+    if (n.children.length){
+      n.tg.textContent = n.collapsed ? "+" + n.children.length : "−";
+      n.tg.classList.toggle("off", !n.collapsed);
+      n.tg.style.display = "";
+    } else {
+      n.tg.style.display = "none";
+    }
+    maxX = Math.max(maxX, n.x + n.w);
+    maxY = Math.max(maxY, n.y + n.h);
+  });
+
+  world.style.width = (maxX + 60) + "px";
+  world.style.height = (maxY + 60) + "px";
+  drawLinks();
+}
+
+function drawLinks(){
+  svg.innerHTML = "";
+  const frag = document.createDocumentFragment();
+  function walk(n){
+    if (!n.visible || n.collapsed) return;
+    n.children.forEach(c => {
+      if (!c.visible) return;
+      const x1 = n.x + n.w, y1 = n.y + n.h / 2;
+      const x2 = c.x, y2 = c.y + c.h / 2;
+      const mx = (x1 + x2) / 2;
+      const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      p.setAttribute("d", "M" + x1 + "," + y1 + " C" + mx + "," + y1 + " " + mx + "," + y2 + " " + x2 + "," + y2);
+      p.setAttribute("fill", "none");
+      p.setAttribute("stroke", c.color);
+      p.setAttribute("stroke-width", "2");
+      p.setAttribute("stroke-opacity", "0.45");
+      p.setAttribute("stroke-linecap", "round");
+      frag.appendChild(p);
+      walk(c);
+    });
+  }
+  walk(ROOT);
+  svg.appendChild(frag);
+}
+
+ROOT = build(DATA, 0, null);
+ALL.forEach(n => { if (n.depth >= 2) n.collapsed = true; });
+
+document.getElementById("expandAll").addEventListener("click", () => {
+  ALL.forEach(n => n.collapsed = false);
+  refresh();
+});
+document.getElementById("collapseMod").addEventListener("click", () => {
+  ALL.forEach(n => { n.collapsed = n.depth >= 1; });
+  refresh();
+});
+
+refresh();
+window.addEventListener("resize", refresh);
+</script>
+</body>
+</html>
