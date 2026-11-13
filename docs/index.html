@@ -1,0 +1,2606 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>临床研究队列管理平台 · 交互原型 V2.0</title>
+<style>
+  :root{
+    --ink:#10243a; --ink2:#33475e; --muted:#66788d; --line:#e2e9f2;
+    --bg:#e9eef5; --card:#fff; --primary:#5b4fb3; --primary2:#7c6ae0;
+    --teal:#7c6ae0; --gold:#c0902c; --red:#c2413b; --green:#0b7a5b;
+    --radius:12px; --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+    --mono:"SFMono-Regular",Menlo,Monaco,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);
+    font-size:14px;line-height:1.6;overflow:hidden;-webkit-font-smoothing:antialiased;
+  }
+  button{font-family:inherit}
+
+  /* ---------- demo topbar ---------- */
+  .topbar{height:60px;display:flex;align-items:center;gap:12px;padding:0 18px;background:#fff;border-bottom:1px solid var(--line)}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:14px}
+  .mark{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#5b21b6,#a78bfa);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:800;letter-spacing:.5px}
+  .brand small{display:block;font-size:12px;font-weight:500;color:var(--muted);letter-spacing:.7px}
+  .tag-demo{font-size:12px;color:#5b4fb3;background:#f0edff;border:1px solid #ddd6fe;border-radius:999px;padding:3px 9px;font-weight:600;white-space:nowrap}
+  .spacer{flex:1}
+
+  /* ---------- layout ---------- */
+  .stage{height:100vh;padding:0;display:block;background:#f5f8fc}
+  .win{height:100vh;min-height:0;background:#fff;border-radius:0;overflow:hidden;display:flex;flex-direction:column;box-shadow:none}
+  .titlebar{height:38px;background:#f4f7fb;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:0 12px;flex-shrink:0}
+  .dot{width:10px;height:10px;border-radius:50%}
+  .dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
+  .win-title{flex:1;text-align:center;font-size:12px;color:var(--muted);margin-right:46px}
+  .win-status{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;white-space:nowrap}
+  .live{width:6px;height:6px;border-radius:50%;background:#8b7cf0;box-shadow:0 0 6px rgba(139,124,240,.6)}
+  .body{flex:1;min-height:0;display:grid;grid-template-columns:250px minmax(0,1fr);grid-template-rows:54px minmax(0,1fr)}
+
+  /* ---------- sidebar（参考样式：靛紫菜单） ---------- */
+  .sidebar{grid-row:1/3;background:linear-gradient(180deg,#4f44a8 0%,#453a93 100%);color:rgba(255,255,255,.9);display:flex;flex-direction:column;min-height:0}
+  .sb-brand{display:flex;align-items:center;gap:11px;padding:18px 16px 10px}
+  .sb-brand .mark{width:42px;height:42px;border-radius:13px;font-size:13px;background:linear-gradient(135deg,#8b7cf0,#6d5bd0);box-shadow:0 6px 16px rgba(24,16,64,.3);letter-spacing:.5px}
+  .sb-brand b{display:block;color:#fff;font-size:15px;line-height:1.3}
+  .sb-brand span{display:block;color:rgba(255,255,255,.62);font-size:12px;letter-spacing:.3px}
+  .sb-proj{margin:4px 12px 6px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.14);font-size:12px;color:rgba(255,255,255,.78);display:flex;align-items:center;gap:7px;cursor:pointer}
+  .sb-proj:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.24)}
+  .sb-proj b{color:#fff;font-size:13px}
+  .sb-proj i{margin-left:auto;font-style:normal;color:rgba(255,255,255,.65);font-size:12px}
+  .sb-nav{flex:1;overflow:auto;padding:4px 10px 10px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.25) transparent}
+  .sb-nav::-webkit-scrollbar{width:6px}
+  .sb-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.25);border-radius:3px}
+  .sb-nav::-webkit-scrollbar-track{background:transparent}
+  .sb-pin{padding:2px 0}
+  .sb-sep{height:1px;background:rgba(255,255,255,.14);margin:8px 10px 6px}
+  .sb-group{margin-bottom:2px}
+  .sb-title{font-size:12px;letter-spacing:.4px;color:rgba(255,255,255,.45);font-weight:600;padding:10px 9px 5px;display:flex;align-items:center;gap:7px}
+  .sb-title::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.14)}
+  .nav{display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:11px;color:rgba(255,255,255,.88);font-size:14px;cursor:pointer;border:1px solid transparent;position:relative;transition:background .15s,color .15s}
+  .nav:hover{background:rgba(255,255,255,.08);color:#fff}
+  .nav.active{background:#5b4fb3;color:#fff;font-weight:600;border-color:transparent;box-shadow:0 4px 12px rgba(20,12,50,.18)}
+  .nav.active::before{display:none}
+  .nav svg{width:18px;height:18px;stroke-width:1.8;opacity:.85;flex-shrink:0}
+  .nav.active svg{opacity:1}
+  .nav .cnt{margin-left:auto;font-family:var(--mono);font-size:12px;background:#ef2b4f;color:#fff;border-radius:999px;padding:0 6px;line-height:18px;font-weight:600}
+  .sb-foot{margin-top:auto;padding:8px 10px 14px;border-top:1px solid rgba(255,255,255,.14)}
+  .sb-foot .nav{color:rgba(255,255,255,.75);padding:8px 10px}
+  .sb-foot .nav:hover{color:#fff}
+
+  /* ---------- chrome ---------- */
+  .chrome{grid-column:2;grid-row:1;display:flex;align-items:center;gap:12px;padding:0 20px;background:#fff;border-bottom:1px solid var(--line);min-width:0}
+  .crumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);white-space:nowrap}
+  .crumb b{color:var(--ink);font-weight:600}
+  .crumb i{font-style:normal;color:#c3cfdd}
+  .search{position:relative;margin-left:auto;width:210px}
+  .search .input{height:32px;font-size:12px;padding-left:26px;background:#f8f7fd}
+  .search::before{content:"";position:absolute;left:9px;top:9px;width:9px;height:9px;border:1.5px solid #8ba0b6;border-radius:50%}
+  .search::after{content:"";position:absolute;left:17px;top:16px;width:4px;height:1.5px;background:#8ba0b6;transform:rotate(45deg)}
+  .chrome-user{display:flex;align-items:center;gap:8px;padding-left:12px;border-left:1px solid var(--line)}
+  .chrome-user .cu-av{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:linear-gradient(135deg,#6d28d9,#a78bfa);color:#fff;font-size:12px;font-weight:700}
+  .chrome-user b{display:block;font-size:12px;line-height:1.2;color:#10243a}
+  .chrome-user span{display:block;font-size:12px;color:var(--muted)}
+  .role{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);white-space:nowrap}
+  .role select{border:1px solid var(--line);background:#f8f7fd;border-radius:6px;font-size:12px;padding:3px 5px;color:var(--ink)}
+  .bell{position:relative;width:27px;height:27px;border-radius:7px;border:1px solid var(--line);background:#fff;cursor:pointer;display:grid;place-items:center;color:#5b6b7f}
+  .bell:hover{background:#f4f7fb;color:var(--primary)}
+  .bell svg{width:12px;height:12px}
+  .bell .nd{position:absolute;top:4px;right:5px;width:5px;height:5px;border-radius:50%;background:var(--red)}
+  .main{grid-column:2;grid-row:2;background:#f5f8fc;padding:20px 24px 26px;overflow:auto}
+
+  /* ---------- common ---------- */
+  .head{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+  .head h1{margin:0;font-size:18px;letter-spacing:-.2px;line-height:1.3}
+  .head .sub{font-size:12px;color:var(--muted);margin-top:2px}
+  .acts{margin-left:auto;display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 2px 7px rgba(16,36,58,.04);overflow:hidden}
+  .panel + .panel{margin-top:12px}
+  .ph{display:flex;align-items:center;gap:9px;padding:10px 14px;border-bottom:1px solid #eef3f9}
+  .ph h3{margin:0;font-size:14px}
+  .ph .more{margin-left:auto;font-size:12px;color:var(--muted)}
+  .pb{padding:12px 14px}
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .stack{display:flex;flex-direction:column;gap:12px}
+  .muted{color:var(--muted)} .tiny{font-size:12px} .mono{font-family:var(--mono);font-size:12px}
+  .right{text-align:right} .nowrap{white-space:nowrap}
+
+  .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;gap:10px;box-shadow:0 2px 7px rgba(16,36,58,.04);position:relative;overflow:hidden}
+  .stat::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#6d5bd0,#8b7cf0)}
+  .ico{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:#f1eeff;color:#4f44a8;font-size:12px;font-weight:700;flex-shrink:0}
+  .stat .v{font-size:21px;font-weight:700;letter-spacing:-.4px;line-height:1.15}
+  .stat .l{font-size:12px;color:var(--muted)}
+  .stat .d{font-size:12px;margin-top:1px}
+  .up{color:var(--green)} .down{color:var(--red)}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;height:34px;padding:0 14px;border-radius:8px;border:1px solid transparent;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;text-decoration:none;transition:.15s}
+  .btn-p{background:var(--primary);color:#fff}
+  .btn-p:hover{background:#443a8f;transform:translateY(-1px);box-shadow:0 4px 12px rgba(91,79,179,.28)}
+  .btn-s{background:#fff;color:var(--ink2);border-color:var(--line)}
+  .btn-s:hover{border-color:#c4b5fd;background:#faf8ff;color:var(--primary)}
+  .btn-d{background:#fff;color:var(--red);border-color:#f0cfcb}
+  .btn-d:hover{background:#fdecea}
+  .btn-sm{height:30px;padding:0 12px;font-size:12px;border-radius:7px}
+  .btn-xs{height:27px;padding:0 9px;font-size:12px;border-radius:6px}
+  .link{border:none;background:none;color:var(--primary2);font-size:12px;cursor:pointer;padding:2px 3px}
+  .link:hover{text-decoration:underline}
+  .link.danger{color:var(--red)}
+
+  .input,.select{height:34px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink);font-size:12px;padding:0 9px;outline:none;width:100%}
+  .input:focus,.select:focus{border-color:var(--primary2);box-shadow:0 0 0 3px rgba(124,106,224,.18)}
+  .toolbar{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+  .toolbar .input{width:230px}
+  .chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:2px 7px;border-radius:999px;background:#f2f6fb;color:#41556c;border:1px solid #e2e9f2;white-space:nowrap}
+  .chip.teal{background:#f0edff;color:#5b4fb3;border-color:#ddd6fe}
+  .chip.gold{background:#fdf5e3;color:#8a6415;border-color:#f0dfb8}
+  .chip.red{background:#fdecea;color:#a33630;border-color:#f3cdc9}
+
+  /* ---------- table ---------- */
+  .tw{overflow:auto}
+  .tbl{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}
+  .tbl thead th{text-align:left;font-size:12px;color:#61748a;font-weight:600;background:#f8f7fd;padding:8px 11px;border-bottom:1px solid var(--line);position:sticky;top:0}
+  .tbl td{padding:9px 12px;border-bottom:1px solid #eff4f9;color:#2f4358;vertical-align:middle}
+  .tbl tr:last-child td{border-bottom:none}
+  .tbl tbody tr:hover td{background:#fafcfe}
+  .tbl .st{font-weight:600;color:var(--ink)}
+  .tbl .num{font-family:var(--mono);font-size:12px}
+  .rowlink{cursor:pointer}
+  .empty{padding:24px;text-align:center;color:#8ba0b6;font-size:12px}
+  .badge{display:inline-flex;align-items:center;height:22px;padding:0 7px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid;white-space:nowrap}
+  .b-green{background:#e7f6f0;color:#0b7a5b;border-color:#b9e3d3}
+  .b-gold{background:#fdf5e3;color:#8a6415;border-color:#f0dfb8}
+  .b-red{background:#fdecea;color:#a33630;border-color:#f3cdc9}
+  .b-blue{background:#f1eeff;color:#5b4fb3;border-color:#ddd6fe}
+  .b-gray{background:#f2f5f9;color:#5b6b7f;border-color:#e2e9f2}
+  .db{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#2f4358}
+  .db::before{content:"";width:5px;height:5px;border-radius:50%;background:#9db0c4}
+  .db.ok::before{background:var(--green)} .db.warn::before{background:#c2820f}
+  .db.bad::before{background:var(--red)} .db.info::before{background:var(--primary2)}
+  .progress{height:5px;background:#eef3f9;border-radius:3px;overflow:hidden;flex:1}
+  .fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#6d5bd0,#8b7cf0)}
+  .fill.g{background:linear-gradient(90deg,#0b7a5b,#37a97f)}
+  .fill.w{background:linear-gradient(90deg,#c2820f,#d9a53a)}
+
+  /* ---------- home ---------- */
+  .trend{display:flex;align-items:flex-end;gap:6px;height:140px;padding-top:6px}
+  .tcol{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px}
+  .tbar{width:100%;border-radius:3px 3px 0 0;background:linear-gradient(180deg,#8b7cf0,#4f44a8);opacity:.9;min-height:3px}
+  .tcol:hover .tbar{opacity:1;box-shadow:0 0 0 2px rgba(139,124,240,.22)}
+  .tlb{font-size:12px;color:#8ba0b6;font-family:var(--mono)}
+  .legend{display:flex;gap:10px;font-size:12px;color:var(--muted);margin-top:4px}
+  .ld{display:inline-block;width:6px;height:6px;border-radius:2px;margin-right:4px}
+  .kv{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px dashed #e8eef6}
+  .kv:last-child{border-bottom:none}
+  .kv .k{font-size:12px;color:#5b6b7f} .kv .v{font-size:12px;font-weight:600}
+  .quick{display:flex;flex-wrap:wrap;gap:6px}
+  .quick button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 9px;font-size:12px;color:#33475e;cursor:pointer}
+  .quick button:hover{border-color:#c4b5fd;background:#faf8ff;color:var(--primary)}
+
+  /* ---------- split / list / builder ---------- */
+  .split{display:grid;grid-template-columns:230px minmax(0,1fr);gap:12px}
+  .list{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .li{padding:9px 11px;border-bottom:1px solid #eff4f9;cursor:pointer}
+  .li:last-child{border-bottom:none}
+  .li:hover{background:#f8fbfe}
+  .li.active{background:#eef6ff;border-left:2px solid var(--primary2)}
+  .li b{display:block;font-size:12px} .li span{display:block;font-size:12px;color:#8ba0b6;margin-top:1px}
+  .fcard{display:flex;align-items:center;gap:8px;padding:7px 9px;border:1px solid #e6edf6;border-radius:7px;margin-bottom:5px;background:#fbfdff}
+  .fcard b{font-size:12px} .fcard span{font-size:12px;color:#8ba0b6;margin-left:auto}
+  .fcard .rm{border:none;background:none;color:#b3c1d1;cursor:pointer;font-size:14px;line-height:1;padding:0 2px}
+  .fcard .rm:hover{color:var(--red)}
+  .vline{position:relative;padding-left:20px}
+  .vline::before{content:"";position:absolute;left:6px;top:7px;bottom:7px;width:2px;background:#e3ebf5}
+  .visit{position:relative;padding-bottom:14px}
+  .visit::before{content:"";position:absolute;left:-18px;top:4px;width:9px;height:9px;border-radius:50%;background:#fff;border:2px solid #8b7cf0}
+  .visit.done::before{background:#8b7cf0}
+  .visit b{font-size:12px}
+  .visit .meta{font-size:12px;color:#7f92a7;margin-top:1px}
+  .visit .chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+
+  .hero{display:flex;align-items:flex-start;gap:13px;margin-bottom:12px}
+  .hero .avatar{width:42px;height:42px;border-radius:11px;font-size:15px}
+  .hero h2{margin:0;font-size:16px}
+  .hero .sub{font-size:12px;color:var(--muted);margin-top:1px}
+  .hero .ops{margin-left:auto;display:flex;gap:6px}
+  .tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:12px;overflow:auto}
+  .tab{border:none;background:none;padding:7px 11px;font-size:12px;color:#61748a;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+  .tab:hover{color:var(--primary)}
+  .tab.active{color:var(--primary);font-weight:600;border-bottom-color:var(--primary)}
+  .frow{display:grid;grid-template-columns:118px minmax(0,1fr);gap:10px;align-items:center;padding:6px 0}
+  .frow > label{font-size:12px;color:#5b6b7f;text-align:right}
+  .frow label .req{color:var(--red);margin-right:2px}
+  .frow .input,.frow .select{height:32px;font-size:12px}
+  .frow .err{grid-column:2;color:var(--red);font-size:12px}
+  .radio{display:flex;gap:12px;font-size:12px;align-items:center}
+  .radio label{font-size:12px;color:#2f4358;display:flex;gap:5px;align-items:center}
+
+  /* ---------- charts ---------- */
+  .donut{width:118px;height:118px;border-radius:50%;position:relative;flex-shrink:0}
+  .donut::after{content:"";position:absolute;inset:22px;background:#fff;border-radius:50%}
+  .donut .mid{position:absolute;inset:0;display:grid;place-items:center;text-align:center;z-index:1}
+  .donut .mid b{display:block;font-size:17px;line-height:1.2}
+  .dist{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+  .dname{width:78px;text-align:right;font-size:12px;color:var(--muted);flex-shrink:0}
+  .dwrap{flex:1;height:6px;background:#eef3f9;border-radius:3px;overflow:hidden}
+  .dfill{height:100%;border-radius:3px;background:linear-gradient(90deg,#6d5bd0,#8b7cf0)}
+  .dval{width:20px;text-align:right;font-family:var(--mono);font-size:12px}
+
+  /* ---------- modal / toast ---------- */
+  .mask{position:fixed;inset:0;background:rgba(8,20,35,.46);backdrop-filter:blur(3px);display:grid;place-items:center;z-index:100;padding:18px;animation:fade .15s}
+  .modal{width:560px;max-width:94vw;max-height:88vh;background:#fff;border-radius:14px;box-shadow:0 24px 70px rgba(0,0,0,.28);display:flex;flex-direction:column;overflow:hidden;animation:pop .18s}
+  .mh{display:flex;align-items:center;gap:9px;padding:14px 18px;border-bottom:1px solid var(--line)}
+  .mh h3{margin:0;font-size:14px}
+  .mh .x{margin-left:auto;width:24px;height:24px;border:none;border-radius:6px;background:#f3f6fa;color:#6b7d91;cursor:pointer;font-size:14px;line-height:1}
+  .mh .x:hover{background:#e9eff7;color:var(--ink)}
+  .mb{padding:14px 18px;overflow:auto}
+  .mf{display:flex;justify-content:flex-end;gap:7px;padding:10px 18px;border-top:1px solid var(--line);background:#fbfdff}
+  .fg{display:grid;grid-template-columns:1fr 1fr;gap:9px 11px}
+  .field{display:flex;flex-direction:column;gap:4px}
+  .field.full{grid-column:1/-1}
+  .field label{font-size:12px;color:#5b6b7f}
+  .field .input,.field .select{height:34px}
+  .field textarea{min-height:64px;resize:vertical;border:1px solid var(--line);border-radius:7px;padding:7px 9px;font-family:inherit;font-size:12px;outline:none}
+  .field textarea:focus{border-color:var(--primary2);box-shadow:0 0 0 3px rgba(124,106,224,.18)}
+  .hint{font-size:12px;color:#8ba0b6;margin-top:5px}
+  .cbs{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px}
+  .cbs label{display:flex;gap:6px;align-items:center;font-size:12px;background:#f8fafd;border:1px solid #eaf0f7;border-radius:6px;padding:5px 7px}
+  .toasts{position:fixed;top:64px;right:18px;z-index:200;display:flex;flex-direction:column;gap:7px;align-items:flex-end}
+  .toast{background:#10243a;color:#fff;font-size:12px;padding:8px 12px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.2);display:flex;align-items:center;gap:7px;max-width:360px;animation:slide .18s}
+  .toast::before{content:"";width:5px;height:5px;border-radius:50%;background:#37b3b3}
+  .toast.ok::before{background:#42d3a0} .toast.warn::before{background:#f0b54a} .toast.err::before{background:#ff8177}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @keyframes pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+  @keyframes slide{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
+
+  /* ---------- right panel ---------- */
+  .panel-r{display:flex;flex-direction:column;gap:11px;overflow:auto;min-height:0;padding-right:1px}
+  .rc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 13px;box-shadow:0 2px 7px rgba(16,36,58,.04)}
+  .rc h4{margin:0 0 7px;font-size:12px;letter-spacing:.8px;color:var(--teal);font-weight:700}
+  .rc h3{margin:0 0 3px;font-size:14px}
+  .rc p{margin:0;font-size:12px;color:#61748a;line-height:1.7}
+  .tips{margin:7px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px}
+  .tips li{font-size:12px;color:#4b6076;background:#f7fafd;border:1px solid #f3f0ff;border-radius:6px;padding:5px 7px;line-height:1.5}
+  .tips li b{color:var(--primary);font-weight:600}
+  .flow{display:flex;flex-direction:column;gap:5px}
+  .flow button{display:flex;align-items:center;gap:7px;text-align:left;border:1px solid #e6edf6;background:#fff;border-radius:7px;padding:6px 8px;font-size:12px;color:#33475e;cursor:pointer}
+  .flow button:hover{border-color:#c4b5fd;background:#faf8ff}
+  .step-no{width:17px;height:17px;border-radius:5px;background:#f1eeff;color:var(--primary);font-size:12px;font-weight:700;display:grid;place-items:center;flex-shrink:0}
+  .note-r{font-size:12px;color:#8ba0b6;line-height:1.6}
+  .panel-toggle{display:none}
+
+
+
+  /* ---------- 日历 ---------- */
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .cal-dow{background:#f7f5fd;color:#5b6b7f;font-size:12px;font-weight:600;padding:7px 8px;border-bottom:1px solid var(--line)}
+  .cal-cell{min-height:92px;padding:6px 7px;border-right:1px solid #eef3f9;border-bottom:1px solid #eef3f9;background:#fff}
+  .cal-cell:nth-child(7n){border-right:none}
+  .cal-cell.out{background:#fafbfd}
+  .cal-cell.today{background:#f7f4ff;box-shadow:inset 0 0 0 2px #c4b5fd}
+  .cal-num{font-size:12px;font-weight:600;color:#33475e;margin-bottom:3px}
+  .cal-cell.today .cal-num{color:#4f44a8}
+  .cal-ev{display:block;width:100%;text-align:left;border:none;border-radius:5px;padding:3px 5px;font-size:12px;line-height:1.35;margin-top:3px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#f1eeff;color:#4f44a8}
+  .cal-ev.green{background:#e7f6f0;color:#0b7a5b}
+  .cal-ev.gold{background:#fdf5e3;color:#8a6415}
+  .cal-ev.red{background:#fdecea;color:#a33630}
+  .cal-ev.gray{background:#f2f5f9;color:#5b6b7f}
+  .cal-more{font-size:12px;color:#8ba0b6;margin-top:3px}
+  /* ---------- readability: 提示 >=12px, 正文 >=14px ---------- */
+  body{font-size:14px}
+  .tbl,.tbl tbody td{font-size:14px}
+  .tbl thead th{font-size:12px}
+  .input,.select,.field .input,.field .select,.frow .input,.frow .select,textarea{font-size:14px}
+  .tbl .num,.mono,.tiny,.hint,.chip,.badge,.db,.legend,.tlb,.dname,.dval,.rc h4{font-size:12px}
+  .kv .k{font-size:12px} .kv .v{font-size:14px}
+  .li b,.visit b,.rc h3,.mh h3{font-size:14px}
+  .li span,.visit .meta,.head .sub,.ph .more,.stat .l,.stat .d,.sb-title,.sb-brand span,.sb-user span{font-size:12px}
+  .tab,.btn{font-size:14px}
+  .btn-sm,.btn-xs,.link{font-size:12px}
+  .head h1{font-size:20px}
+  .stat .v{font-size:24px}
+  .chip{height:24px;padding:2px 9px}
+  .tips li,.flow button,.note-r{font-size:12px}
+  .rc p{font-size:14px}
+  .rc p{line-height:1.7}
+  .tips li{padding:6px 8px}
+  @media (max-width:1180px){
+    .stage{grid-template-columns:minmax(0,1fr)}
+    .panel-r{display:none}
+    .panel-toggle{display:inline-flex}
+  }
+  @media (max-width:860px){
+    body{overflow:hidden}
+    .stage{height:100vh;padding:0;grid-template-columns:1fr}
+    .win{height:100vh;min-height:0}
+    .body{grid-template-columns:62px minmax(0,1fr)}
+    .sb-brand{padding:14px 8px 10px;justify-content:center}
+    .sb-brand div,.sb-proj,.sb-title,.nav span,.nav .cnt{display:none}
+    .nav{justify-content:center;padding:8px 0}
+    .search,.role{display:none}
+    .g2,.g3,.g4{grid-template-columns:1fr 1fr}
+    .split{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="win">
+    <div class="body">
+      <aside class="sidebar">
+        <div class="sb-brand"><div class="mark">EDC</div><div><b>临床研究平台</b><span>队列管理工作台</span></div></div>
+        <div class="sb-proj" data-action="switch-project"><span>当前队列</span><b>SAPPHIRE</b><i>切换 ›</i></div>
+        <div class="sb-nav" id="nav"></div>
+        <div class="sb-foot" id="sbFoot"></div>
+      </aside>
+
+      <div class="chrome">
+        <div class="crumb" id="crumb"><span>工作台</span></div>
+        <div class="search"><input class="input" id="globalSearch" placeholder="搜索受试者 / 入组编号 / 姓名" /></div>
+        <div class="role"><span>当前角色</span>
+          <select id="roleSelect">
+            <option value="CRC">CRC 研究协调员</option>
+            <option value="PI">PI 主要研究者</option>
+            <option value="DM">DM 数据管理员</option>
+            <option value="CRA">CRA 监查员</option>
+          </select>
+        </div>
+        <div class="chrome-user"><span class="cu-av">李</span><div><b>李静</b><span>CRC · S01</span></div></div>
+        <button class="bell" data-action="notify" title="待办提醒">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+          <span class="nd"></span>
+        </button>
+      </div>
+
+      <main class="main" id="main"></main>
+    </div>
+  </div>
+
+</div>
+
+<div id="modalRoot"></div>
+<div class="toasts" id="toastRoot"></div>
+
+<script>
+/* ================= 演示数据 ================= */
+const db = {
+  orgs:[
+    {code:'ORG-001',name:'上海市第一人民医院',level:'三级甲等',addr:'上海市 / 虹口区',users:42},
+    {code:'ORG-002',name:'复旦大学附属华山医院',level:'三级甲等',addr:'上海市 / 静安区',users:28},
+    {code:'ORG-003',name:'上海交通大学医学院附属瑞金医院',level:'三级甲等',addr:'上海市 / 黄浦区',users:35},
+    {code:'ORG-004',name:'上海市第六人民医院',level:'三级甲等',addr:'上海市 / 徐汇区',users:0},
+    {code:'ORG-005',name:'北京安定医院',level:'三级甲等',addr:'北京市 / 西城区',users:56},
+    {code:'ORG-006',name:'郑州市骨科医院',level:'三级甲等',addr:'河南省 / 郑州市',users:38},
+    {code:'ORG-007',name:'北京积水潭医院',level:'三级甲等',addr:'北京市 / 西城区',users:44}
+  ],
+  archives:[
+    {code:'ARC-S01-0001',org:'上海市第一人民医院',female:'张*华',male:'李*明',fid:'3101**********1234',mid:'3101**********5678',date:'2026-09-12',status:{'基线问卷':'已提交','早孕随访':'已提交','中晚孕随访':'已提交','妊娠结局':'未提交'}},
+    {code:'ARC-S01-0002',org:'上海市第一人民医院',female:'王*芳',male:'赵*军',fid:'3101**********2345',mid:'3101**********6789',date:'2026-09-20',status:{'基线问卷':'已提交','早孕随访':'已提交','中晚孕随访':'未提交','妊娠结局':'未提交'}},
+    {code:'ARC-S02-0001',org:'复旦大学附属华山医院',female:'陈*',male:'周*',fid:'3101**********3456',mid:'3101**********7890',date:'2026-10-02',status:{'基线问卷':'已提交','早孕随访':'未提交','中晚孕随访':'未提交','妊娠结局':'未提交'}},
+    {code:'ARC-S03-0001',org:'上海交通大学医学院附属瑞金医院',female:'刘*敏',male:'孙*',fid:'3101**********4567',mid:'3101**********8901',date:'2026-10-18',status:{'基线问卷':'未提交','早孕随访':'未提交','中晚孕随访':'未提交','妊娠结局':'未提交'}}
+  ],
+  queue:{
+    statuses:['婚前','孕前','孕期','子代'],
+    structure:'双方（女方 / 男方）',
+    keyDates:['结婚日期','末次月经'],
+    timepoints:['基线','早孕','中晚孕','分娩','脐带血','胎盘','产后 42 天'],
+    sampleTypes:['血清','抗凝血','非抗凝血','尿液','阴道分泌物','冻存组织'],
+    codeRule:'ARC-{中心编码}-{流水号}',
+    dupRule:'证件号码 + 姓名/出生日期'
+  },
+  sites:[
+    {code:'S01',org:'上海市第一人民医院',name:'心血管内科',pi:'王建国',plan:60,actual:38},
+    {code:'S02',org:'复旦大学附属华山医院',name:'心内科',pi:'周敏',plan:50,actual:31},
+    {code:'S03',org:'上海交通大学医学院附属瑞金医院',name:'高血压科',pi:'陈立',plan:40,actual:24},
+    {code:'S04',org:'上海市第六人民医院',name:'心内科',pi:'赵敏',plan:40,actual:0},
+    {code:'D01',org:'北京安定医院',name:'精神科',pi:'张明',plan:300,actual:86},
+    {code:'D02',org:'天津市安定医院',name:'精神科',pi:'李强',plan:180,actual:64},
+    {code:'D03',org:'杭州市第七人民医院',name:'精神科',pi:'王芳',plan:150,actual:52},
+    {code:'H01',org:'郑州市骨科医院',name:'创伤骨科',pi:'刘伟',plan:200,actual:56},
+    {code:'H02',org:'北京积水潭医院',name:'创伤骨科',pi:'陈刚',plan:300,actual:128},
+    {code:'H03',org:'上海市第六人民医院',name:'骨科',pi:'赵敏',plan:120,actual:48}
+  ],
+  users:[
+    {no:'U1024',name:'王建国',gender:'男',phone:'138****2201',title:'主任医师',role:'PI',site:'S01',status:'启用'},
+    {no:'U1025',name:'李静',gender:'女',phone:'139****7788',title:'研究护士',role:'CRC',site:'S01',status:'启用'},
+    {no:'U1026',name:'赵敏',gender:'女',phone:'137****4512',title:'数据管理员',role:'DM',site:'S01',status:'启用'},
+    {no:'U1027',name:'陈明',gender:'男',phone:'136****0921',title:'监查员',role:'CRA',site:'S01',status:'停用'},
+    {no:'U1028',name:'周敏',gender:'女',phone:'135****3344',title:'副主任医师',role:'PI',site:'S02',status:'启用'},
+    {no:'U1031',name:'张明',gender:'男',phone:'138****5566',title:'主任医师',role:'PI',site:'D01',status:'启用'},
+    {no:'U1032',name:'刘伟',gender:'男',phone:'139****6677',title:'副主任医师',role:'PI',site:'H01',status:'启用'},
+    {no:'U1033',name:'陈刚',gender:'男',phone:'137****7788',title:'主任医师',role:'PI',site:'H02',status:'启用'}
+  ],
+  roles:[
+    {code:'R01',name:'系统管理员',level:'平台',pages:'全部页面',data:'全部数据',export:'全部字段'},
+    {code:'R02',name:'PI 主要研究者',level:'课题',pages:'首页 / 对象 / 质询 / 统计',data:'课题数据',export:'课题字段'},
+    {code:'R03',name:'CRC 研究协调员',level:'中心',pages:'对象 / 登记 / 日历',data:'本人中心',export:'不可导出'},
+    {code:'R04',name:'CRA 监查员',level:'中心',pages:'对象 / 质询 / 超窗 / 审核',data:'授权中心',export:'按授权'},
+    {code:'R05',name:'DM 数据管理员',level:'课题',pages:'模板 / 计划 / 质询 / 导出',data:'课题数据',export:'全部字段'}
+  ],
+  projects:[
+    {code:'EDC-2024-001',short:'SAPPHIRE',name:'华东地区育龄人群生殖健康队列研究',pi:'王建国',org:'上海市第一人民医院',start:'2024-03-01',end:'2026-02-28',plan:240,actual:186,centers:6,status:'进行中',locked:false,type:'观察性（队列）',blind:'开放',queue:true},
+    {code:'EDC-2024-002',short:'ORCHID',name:'XX 单抗治疗晚期非小细胞肺癌的 II 期研究',pi:'周敏',org:'复旦大学附属华山医院',start:'2024-06-15',end:'2026-06-30',plan:120,actual:64,centers:4,status:'进行中',locked:false,type:'干预性',blind:'开放',queue:false},
+    {code:'EDC-2023-018',short:'MAGNOLIA',name:'心血管疾病队列随访研究',pi:'陈立',org:'瑞金医院',start:'2023-09-01',end:'2025-08-31',plan:800,actual:812,centers:8,status:'已锁库',locked:true,type:'观察性（队列）',blind:'开放',queue:true},
+    {code:'EDC-2026-003',short:'DEPRESSION',name:'全国多中心抑郁症前瞻性队列研究',pi:'张明',org:'北京安定医院',start:'2026-01-01',end:'2029-12-31',plan:10000,actual:1286,centers:57,status:'进行中',locked:false,type:'观察性（队列）',blind:'开放',queue:true},
+    {code:'EDC-2025-007',short:'HIP',name:'老年髋部骨折全国专病队列研究',pi:'陈刚',org:'北京积水潭医院',start:'2025-03-01',end:'2028-02-28',plan:3000,actual:1876,centers:47,status:'进行中',locked:false,type:'观察性（队列）',blind:'开放',queue:true}
+  ],
+  docs:[
+    {name:'SAPPHIRE_研究方案_V3.0.pdf',size:'4.2 MB',by:'王建国',time:'2026-10-08',folder:'方案文件'},
+    {name:'研究者手册_2026.pdf',size:'8.7 MB',by:'周敏',time:'2026-09-21',folder:'方案文件'},
+    {name:'CRF填写指南.docx',size:'1.1 MB',by:'赵敏',time:'2026-10-12',folder:'操作规范'},
+    {name:'中心启动会_会议纪要.pdf',size:'620 KB',by:'李静',time:'2026-10-19',folder:'中心管理'},
+    {name:'DEPRESSION_研究方案_V2.0.pdf',size:'6.8 MB',by:'张明',time:'2026-09-02',folder:'方案文件'},
+    {name:'抑郁量表评分手册.docx',size:'1.6 MB',by:'王芳',time:'2026-09-18',folder:'操作规范'},
+    {name:'HIP_研究方案_V1.3.pdf',size:'5.1 MB',by:'陈刚',time:'2026-08-12',folder:'方案文件'},
+    {name:'髋部骨折随访操作手册.pdf',size:'2.3 MB',by:'刘伟',time:'2026-09-06',folder:'操作规范'}
+  ],
+  templates:[
+    {code:'T-FORM-001',name:'受试者基本信息',shared:'共享',fields:[
+      {name:'入组编号',type:'文本'},{name:'姓名缩写',type:'文本'},{name:'性别',type:'单选'},
+      {name:'出生年月',type:'日期'},{name:'身高(cm)',type:'数值'},{name:'体重(kg)',type:'数值'}
+    ]},
+    {code:'T-FORM-002',name:'生命体征',shared:'共享',fields:[
+      {name:'收缩压(mmHg)',type:'数值'},{name:'舒张压(mmHg)',type:'数值'},{name:'心率(次/分)',type:'数值'},
+      {name:'体温(℃)',type:'数值'},{name:'测量日期',type:'日期'}
+    ]},
+    {code:'T-FORM-003',name:'实验室检查',shared:'私有',fields:[
+      {name:'血红蛋白(g/L)',type:'数值'},{name:'白细胞(×10⁹/L)',type:'数值'},
+      {name:'肌酐(μmol/L)',type:'数值'},{name:'检查日期',type:'日期'}
+    ]}
+  ],
+  questionnaires:[
+    {code:'Q-BASE-01',name:'基线调查问卷',questions:42,role:'女方 / 男方',version:'V2.1',status:'已发布',updated:'2026-10-12'},
+    {code:'Q-EARLY-01',name:'早孕随访调查表',questions:28,role:'医生',version:'V1.3',status:'已发布',updated:'2026-10-18'},
+    {code:'Q-MID-01',name:'中晚孕期随访记录',questions:36,role:'医生',version:'V1.0',status:'未发布',updated:'2026-11-02'},
+    {code:'Q-OUT-01',name:'妊娠结局随访调查表',questions:24,role:'医生 / 女方',version:'V1.1',status:'已发布',updated:'2026-09-28'},
+    {code:'Q-PP-01',name:'产后 42 天随访调查表',questions:31,role:'女方',version:'V1.0',status:'未发布',updated:'2026-11-05'}
+  ],
+  plan:{enabled:true,activities:[
+    {code:'V1',name:'筛选期',type:'计划访视',schedule:'D-7 ~ D0',window:'±2 天',forms:4,status:'已完成'},
+    {code:'V2',name:'基线访视',type:'计划访视',schedule:'D0',window:'0 天',forms:5,status:'已完成'},
+    {code:'V3',name:'第 4 周随访',type:'计划访视',schedule:'D28',window:'±3 天',forms:3,status:'进行中'},
+    {code:'V4',name:'第 12 周随访',type:'计划访视',schedule:'D84',window:'±5 天',forms:3,status:'未开始'},
+    {code:'V5',name:'第 24 周随访',type:'计划访视',schedule:'D168',window:'±7 天',forms:4,status:'未开始'}
+  ]},
+  subjects:[
+    {id:'S01-0001',name:'张*华',gender:'男',age:56,site:'S01',enroll:'2026-09-12',visit:'V3 随访',status:'有质询',queries:2,random:'R-0021',group:'试验组',samples:3},
+    {id:'S01-0002',name:'李*芳',gender:'女',age:63,site:'S01',enroll:'2026-09-15',visit:'V3 随访',status:'已完成',queries:0,random:'R-0022',group:'对照组',samples:2},
+    {id:'S01-0003',name:'王*军',gender:'男',age:48,site:'S01',enroll:'2026-09-20',visit:'V2 基线',status:'未完成',queries:0,random:'R-0023',group:'试验组',samples:1},
+    {id:'S02-0001',name:'陈*',gender:'女',age:59,site:'S02',enroll:'2026-09-22',visit:'V3 随访',status:'超窗',queries:1,random:'R-0024',group:'对照组',samples:2},
+    {id:'S03-0001',name:'刘*明',gender:'男',age:67,site:'S03',enroll:'2026-10-02',visit:'V2 基线',status:'有质询',queries:3,random:'R-0025',group:'试验组',samples:0}
+  ],
+  queries:[
+    {id:'Q-1001',subject:'S01-0001',site:'S01',enroll:'2026-09-12',activity:'V3 随访',activityStatus:'有质询',form:'生命体征',field:'收缩压',type:'更新类',from:'李静',time:'2026-11-09 10:21',status:'未解决',locked:false,msg:'收缩压 180mmHg，请核对原始记录'},
+    {id:'Q-1002',subject:'S01-0001',site:'S01',enroll:'2026-09-12',activity:'V3 随访',activityStatus:'锁定',form:'实验室检查',field:'血红蛋白',type:'方案修改类',from:'赵敏',time:'2026-11-09 14:05',status:'未解决',locked:true,msg:'参考范围更新，请确认是否影响判定'},
+    {id:'Q-1003',subject:'S02-0001',site:'S02',enroll:'2026-09-22',activity:'V3 随访',activityStatus:'未完成',form:'生命体征',field:'体温',type:'更新类',from:'陈明',time:'2026-11-08 09:40',status:'未解决',locked:false,msg:'体温 39.6℃，请确认是否录入错误'},
+    {id:'Q-1004',subject:'S03-0001',site:'S03',enroll:'2026-10-02',activity:'V2 基线',activityStatus:'已解决',form:'合并用药',field:'剂量',type:'更新类',from:'赵敏',time:'2026-11-07 16:12',status:'已解决',locked:false,msg:'剂量单位已统一为 mg'}
+  ],
+  dropouts:[
+    {subject:'S02-0002',name:'孙*',gender:'女',site:'S02',enroll:'2026-08-18',stage:'V3 随访',date:'2026-10-30',reason:'受试者撤回知情同意',by:'李静',enrollTime:'2026-08-18 09:20'},
+    {subject:'S01-0009',name:'周*',gender:'男',site:'S01',enroll:'2026-07-06',stage:'V2 基线',date:'2026-09-15',reason:'失访，连续 3 次未到访',by:'王建国',enrollTime:'2026-07-06 14:05'},
+    {subject:'S03-0004',name:'吴*',gender:'女',site:'S03',enroll:'2026-08-30',stage:'V4 随访',date:'2026-11-01',reason:'研究者判断需退出研究',by:'赵敏',enrollTime:'2026-08-30 10:40'}
+  ],
+  calendar:[
+    {date:'2026-11-03',time:'09:00',subject:'S01-0002',activity:'V3 随访',site:'S01',status:'已完成'},
+    {date:'2026-11-05',time:'10:30',subject:'S02-0001',activity:'V3 随访',site:'S02',status:'已完成'},
+    {date:'2026-11-10',time:'09:20',subject:'S01-0001',activity:'V3 随访',site:'S01',status:'有质询'},
+    {date:'2026-11-13',time:'09:30',subject:'S01-0002',activity:'V4 随访',site:'S01',status:'未完成'},
+    {date:'2026-11-13',time:'14:00',subject:'S03-0001',activity:'V2 基线',site:'S03',status:'有质询'},
+    {date:'2026-11-17',time:'09:00',subject:'S01-0003',activity:'V3 随访',site:'S01',status:'未开始'},
+    {date:'2026-11-20',time:'10:00',subject:'S02-0001',activity:'V4 随访',site:'S02',status:'未开始'},
+    {date:'2026-11-24',time:'09:30',subject:'S01-0001',activity:'V4 随访',site:'S01',status:'未开始'},
+    {date:'2026-12-02',time:'09:00',subject:'S01-0002',activity:'V5 随访',site:'S01',status:'未开始'},
+    {date:'2026-12-08',time:'14:30',subject:'S03-0001',activity:'V3 随访',site:'S03',status:'未开始'}
+  ],
+  deviations:[
+    {subject:'S02-0001',site:'S02',visit:'V3 随访',plan:'2026-11-04',actual:'2026-11-12',days:8,window:3,status:'待处理'},
+    {subject:'S01-0003',site:'S01',visit:'V2 基线',plan:'2026-10-28',actual:'2026-11-02',days:5,window:0,status:'已处理'},
+    {subject:'S03-0001',site:'S03',visit:'V3 随访',plan:'2026-11-01',actual:'—',days:0,window:3,status:'未到访'}
+  ],
+  reviews:[
+    {id:'RV-0112',file:'SAPPHIRE_数据导出申请_20261109.xlsx',unit:'统计部',by:'陈明',time:'2026-11-09 09:12',status:'待审核',note:''},
+    {id:'RV-0111',file:'SAPPHIRE_中期分析数据集.csv',unit:'数据管理部',by:'赵敏',time:'2026-11-08 17:30',status:'通过',note:'字段范围符合授权'},
+    {id:'RV-0110',file:'ORCHID_监查数据导出.xlsx',unit:'CRA 团队',by:'周敏',time:'2026-11-07 11:05',status:'驳回',note:'缺少伦理批件编号'}
+  ],
+  exports:[
+    {name:'SAPPHIRE_受试者清单_20261109.xlsx',by:'赵敏',time:'2026-11-09 15:20',status:'已完成',count:3,format:'xlsx'},
+    {name:'SAPPHIRE_生命体征_20261108.csv',by:'陈明',time:'2026-11-08 10:02',status:'已完成',count:1,format:'csv'}
+  ],
+  samples:[
+    {code:'SPH-S01-0001-B01',subject:'S01-0001',type:'全血',visit:'V3 随访',box:'A-03-02',status:'已入库',time:'2026-11-08 09:30'},
+    {code:'SPH-S01-0001-S01',subject:'S01-0001',type:'血清',visit:'V3 随访',box:'A-03-03',status:'已入库',time:'2026-11-08 09:35'},
+    {code:'SPH-S01-0002-B01',subject:'S01-0002',type:'全血',visit:'V3 随访',box:'A-04-01',status:'已出库',time:'2026-11-06 14:10'}
+  ],
+  logs:[
+    {time:'2026-11-10 09:12:04',iface:'HIS-患者主索引',dir:'HIS → EDC',subject:'S01-0001',status:'成功',ms:126},
+    {time:'2026-11-10 09:12:06',iface:'LIS-检验结果',dir:'LIS → EDC',subject:'S01-0001',status:'成功',ms:238},
+    {time:'2026-11-10 09:15:41',iface:'LIS-检验结果',dir:'LIS → EDC',subject:'S02-0001',status:'失败',ms:3000},
+    {time:'2026-11-10 09:20:18',iface:'HIS-就诊信息',dir:'HIS → EDC',subject:'S03-0001',status:'成功',ms:154}
+  ],
+  doubleEntry:[
+    {form:'V2 基线 · 生命体征',field:'收缩压(mmHg)',v1:'142',v2:'128',by1:'李静',by2:'赵敏',status:'待仲裁',final:''},
+    {form:'V2 基线 · 生命体征',field:'舒张压(mmHg)',v1:'88',v2:'88',by1:'李静',by2:'赵敏',status:'一致',final:'88'},
+    {form:'V2 基线 · 实验室检查',field:'血红蛋白(g/L)',v1:'132',v2:'123',by1:'李静',by2:'赵敏',status:'待仲裁',final:''},
+    {form:'V2 基线 · 实验室检查',field:'肌酐(μmol/L)',v1:'76',v2:'76',by1:'李静',by2:'赵敏',status:'一致',final:'76'}
+  ],
+  age:[{g:'0-9',n:0},{g:'10-19',n:2},{g:'20-29',n:8},{g:'30-39',n:22},{g:'40-49',n:46},{g:'50-59',n:68},{g:'60-69',n:52},{g:'70-79',n:28},{g:'80-89',n:9},{g:'≥90',n:1}]
+};
+
+
+/* ================= 多队列数据集 ================= */
+db.queue.name='华东地区育龄人群生殖健康队列';
+db.queue.people=[{key:'p0',label:'女方'},{key:'p1',label:'男方'}];
+db.queue.statusColumns=['基线问卷','早孕随访','中晚孕随访','妊娠结局'];
+db.queue.randomized=true;
+db.queue.crf={title:'生命体征',fields:[
+  {id:'fldSbp',label:'收缩压(mmHg)',value:'180'},
+  {id:'fldDbp',label:'舒张压(mmHg)',value:'110'},
+  {id:'fldTemp',label:'体温(℃)',value:'',ph:'30 ~ 42',req:true,min:30,max:42},
+  {id:'fldDate',label:'测量日期',type:'date',value:'2026-11-13'}
+]};
+db.stats={enrolled:186,male:108,female:78,avgAge:'54.2',provinces:7,
+  trend:[12,18,22,20,28,34,31,38,42,46,50,54],
+  provinceData:[['上海',86],['江苏',32],['浙江',25],['安徽',18],['北京',9],['广东',8],['山东',6],['其他',2]],
+  age:db.age};
+
+const SAPPHIRE_SET={
+  archives:db.archives,queue:db.queue,questionnaires:db.questionnaires,plan:db.plan,subjects:db.subjects,
+  queries:db.queries,dropouts:db.dropouts,calendar:db.calendar,deviations:db.deviations,samples:db.samples,
+  reviews:db.reviews,exports:db.exports,logs:db.logs,doubleEntry:db.doubleEntry,templates:db.templates,age:db.age,stats:db.stats
+};
+
+const DEPRESSION_SET={
+  queue:{name:'全国多中心抑郁症前瞻性队列研究',lead:'北京安定医院',structure:'单方（受试者）',
+    people:[{key:'p0',label:'受试者'}],statuses:['首发','复发','缓解期','随访中'],
+    keyDates:['首次发病日期','基线评估日期'],
+    timepoints:['基线','第 4 周','第 3 个月','第 6 个月','第 12 个月'],
+    sampleTypes:['全血','血清','血浆','DNA','RNA'],
+    codeRule:'DEP-{中心编码}-{流水号}',dupRule:'身份证号 + 姓名/出生日期',randomized:false,
+    statusColumns:['基线评估','4周随访','3个月随访','6个月随访','12个月随访'],
+    crf:{title:'PHQ-9 抑郁量表',fields:[
+      {id:'fldPhq',label:'PHQ-9 总分',value:'18'},
+      {id:'fldGad',label:'GAD-7 总分',value:'12'},
+      {id:'fldQ9',label:'第 9 题（自杀意念）',value:'',ph:'0 ~ 3',req:true,min:0,max:3},
+      {id:'fldDate',label:'评估日期',type:'date',value:'2026-11-13'}
+    ]}},
+  questionnaires:[
+    {code:'DEP-Q-BASE',name:'基线评估（SCID / PHQ-9 / GAD-7）',questions:48,role:'医生 / 受试者',version:'V2.0',status:'已发布',updated:'2026-09-02'},
+    {code:'DEP-Q-W4',name:'第 4 周随访问卷',questions:22,role:'受试者',version:'V1.1',status:'已发布',updated:'2026-09-20'},
+    {code:'DEP-Q-M3',name:'第 3 个月随访评估',questions:26,role:'医生',version:'V1.0',status:'已发布',updated:'2026-10-06'},
+    {code:'DEP-Q-M6',name:'第 6 个月随访问卷',questions:24,role:'受试者',version:'V1.0',status:'未发布',updated:'2026-10-28'},
+    {code:'DEP-Q-M12',name:'第 12 个月随访评估',questions:30,role:'医生 / 受试者',version:'V1.0',status:'未发布',updated:'2026-11-04'}
+  ],
+  plan:{enabled:true,activities:[
+    {code:'V1',name:'基线评估',type:'计划访视',schedule:'D0',window:'±7 天',forms:4,status:'已完成'},
+    {code:'V2',name:'第 4 周随访',type:'计划访视',schedule:'D28',window:'±7 天',forms:3,status:'进行中'},
+    {code:'V3',name:'第 3 个月随访',type:'计划访视',schedule:'D84',window:'±14 天',forms:4,status:'进行中'},
+    {code:'V4',name:'第 6 个月随访',type:'计划访视',schedule:'D168',window:'±14 天',forms:4,status:'未开始'},
+    {code:'V5',name:'第 12 个月随访',type:'计划访视',schedule:'D336',window:'±30 天',forms:5,status:'未开始'}
+  ]},
+  archives:[
+    {code:'DEP-D01-0001',org:'北京安定医院',people:[{label:'受试者',name:'李*',id:'1101**********1234'}],date:'2026-09-03',status:{'基线评估':'已提交','4周随访':'已提交','3个月随访':'已提交','6个月随访':'未提交','12个月随访':'未提交'}},
+    {code:'DEP-D01-0002',org:'北京安定医院',people:[{label:'受试者',name:'王*',id:'1101**********2345'}],date:'2026-09-08',status:{'基线评估':'已提交','4周随访':'已提交','3个月随访':'未提交','6个月随访':'未提交','12个月随访':'未提交'}},
+    {code:'DEP-D02-0001',org:'天津市安定医院',people:[{label:'受试者',name:'赵*',id:'1201**********3456'}],date:'2026-09-15',status:{'基线评估':'已提交','4周随访':'未提交','3个月随访':'未提交','6个月随访':'未提交','12个月随访':'未提交'}},
+    {code:'DEP-D02-0002',org:'天津市安定医院',people:[{label:'受试者',name:'陈*',id:'1201**********4567'}],date:'2026-09-22',status:{'基线评估':'已提交','4周随访':'已提交','3个月随访':'已提交','6个月随访':'已提交','12个月随访':'未提交'}},
+    {code:'DEP-D03-0001',org:'杭州市第七人民医院',people:[{label:'受试者',name:'刘*',id:'3301**********5678'}],date:'2026-10-01',status:{'基线评估':'未提交','4周随访':'未提交','3个月随访':'未提交','6个月随访':'未提交','12个月随访':'未提交'}}
+  ],
+  subjects:[
+    {id:'D01-0001',name:'李*',gender:'男',age:28,site:'D01',enroll:'2026-09-03',visit:'V2 第 4 周',status:'有质询',queries:2,random:'—',group:'—',samples:2},
+    {id:'D01-0002',name:'王*',gender:'女',age:35,site:'D01',enroll:'2026-09-08',visit:'V3 第 3 个月',status:'已完成',queries:0,random:'—',group:'—',samples:2},
+    {id:'D01-0003',name:'赵*',gender:'男',age:42,site:'D02',enroll:'2026-09-15',visit:'V2 第 4 周',status:'未完成',queries:0,random:'—',group:'—',samples:1},
+    {id:'D02-0001',name:'陈*',gender:'女',age:24,site:'D02',enroll:'2026-09-22',visit:'V1 基线',status:'超窗',queries:1,random:'—',group:'—',samples:0},
+    {id:'D03-0001',name:'刘*',gender:'女',age:31,site:'D03',enroll:'2026-10-01',visit:'V1 基线',status:'有质询',queries:2,random:'—',group:'—',samples:1}
+  ],
+  queries:[
+    {id:'DQ-2001',subject:'D01-0001',site:'D01',enroll:'2026-09-03',activity:'V2 第 4 周',activityStatus:'有质询',form:'PHQ-9 量表',field:'第 9 题',type:'更新类',from:'张明',time:'2026-11-09 09:15',status:'未解决',locked:false,msg:'自杀意念条目评分与访谈记录不一致，请复核'},
+    {id:'DQ-2002',subject:'D01-0001',site:'D01',enroll:'2026-09-03',activity:'V2 第 4 周',activityStatus:'有质询',form:'用药依从性',field:'服药天数',type:'方案修改类',from:'王芳',time:'2026-11-09 11:40',status:'未解决',locked:false,msg:'服药天数大于随访间隔，请核对'},
+    {id:'DQ-2003',subject:'D02-0001',site:'D02',enroll:'2026-09-22',activity:'V1 基线',activityStatus:'未完成',form:'基线评估',field:'首次发病年龄',type:'更新类',from:'李强',time:'2026-11-08 15:20',status:'未解决',locked:false,msg:'首次发病年龄小于 10 岁，请确认'},
+    {id:'DQ-2004',subject:'D03-0001',site:'D03',enroll:'2026-10-01',activity:'V1 基线',activityStatus:'已解决',form:'GAD-7 量表',field:'总分',type:'更新类',from:'张明',time:'2026-11-06 10:05',status:'已解决',locked:false,msg:'总分计算错误，已更正'}
+  ],
+  dropouts:[
+    {subject:'D02-0002',name:'孙*',gender:'女',site:'D02',enroll:'2026-08-26',stage:'V2 第 4 周',date:'2026-10-28',reason:'受试者撤回知情同意',by:'李强',enrollTime:'2026-08-26 09:30'},
+    {subject:'D03-0003',name:'周*',gender:'男',site:'D03',enroll:'2026-08-12',stage:'V3 第 3 个月',date:'2026-10-18',reason:'失访，连续 3 次未联系上',by:'王芳',enrollTime:'2026-08-12 14:10'}
+  ],
+  samples:[
+    {code:'DEP-D01-0001-B01',subject:'D01-0001',type:'全血',visit:'基线',box:'P-01-01',status:'已入库',time:'2026-09-03 10:10'},
+    {code:'DEP-D01-0001-D01',subject:'D01-0001',type:'DNA',visit:'基线',box:'P-01-02',status:'已入库',time:'2026-09-03 10:15'},
+    {code:'DEP-D01-0002-S01',subject:'D01-0002',type:'血清',visit:'第 3 个月',box:'P-02-01',status:'已出库',time:'2026-10-20 09:40'}
+  ],
+  calendar:[
+    {date:'2026-11-04',time:'09:00',subject:'D01-0001',activity:'V2 第 4 周',site:'D01',status:'有质询'},
+    {date:'2026-11-06',time:'10:30',subject:'D01-0002',activity:'V3 第 3 个月',site:'D01',status:'已完成'},
+    {date:'2026-11-13',time:'09:00',subject:'D01-0003',activity:'V2 第 4 周',site:'D02',status:'未完成'},
+    {date:'2026-11-13',time:'14:30',subject:'D02-0001',activity:'V1 基线',site:'D02',status:'有质询'},
+    {date:'2026-11-19',time:'09:30',subject:'D03-0001',activity:'V1 基线',site:'D03',status:'未开始'},
+    {date:'2026-11-26',time:'10:00',subject:'D01-0002',activity:'V4 第 6 个月',site:'D01',status:'未开始'},
+    {date:'2026-12-03',time:'09:00',subject:'D01-0001',activity:'V3 第 3 个月',site:'D01',status:'未开始'}
+  ],
+  deviations:[
+    {subject:'D02-0001',site:'D02',visit:'V1 基线',plan:'2026-11-01',actual:'2026-11-09',days:6,window:7,status:'已处理'},
+    {subject:'D03-0001',site:'D03',visit:'V1 基线',plan:'2026-11-08',actual:'—',days:0,window:7,status:'待处理'}
+  ],
+  templates:[
+    {code:'DEP-T-001',name:'受试者基本信息',shared:'共享',fields:[{name:'入组编号',type:'文本'},{name:'姓名缩写',type:'文本'},{name:'性别',type:'单选'},{name:'出生年月',type:'日期'}]},
+    {code:'DEP-T-002',name:'抑郁症状量表',shared:'共享',fields:[{name:'PHQ-9 总分',type:'数值'},{name:'GAD-7 总分',type:'数值'},{name:'自杀意念',type:'单选'},{name:'评估日期',type:'日期'}]},
+    {code:'DEP-T-003',name:'用药与依从性',shared:'私有',fields:[{name:'药物名称',type:'文本'},{name:'剂量',type:'数值'},{name:'服药天数',type:'数值'}]}
+  ],
+  reviews:[
+    {id:'DRV-0201',file:'DEPRESSION_期中分析导出申请.xlsx',unit:'统计部',by:'王芳',time:'2026-11-09 08:50',status:'待审核',note:''},
+    {id:'DRV-0200',file:'DEPRESSION_中心质控数据.csv',unit:'项目管理组',by:'张明',time:'2026-11-07 16:20',status:'通过',note:'字段范围符合授权'}
+  ],
+  exports:[
+    {name:'DEPRESSION_受试者清单_20261109.xlsx',by:'王芳',time:'2026-11-09 14:10',status:'已完成',count:2,format:'xlsx'},
+    {name:'DEPRESSION_PHQ9_20261108.csv',by:'张明',time:'2026-11-08 11:30',status:'已完成',count:1,format:'csv'}
+  ],
+  logs:[
+    {time:'2026-11-13 09:05:12',iface:'HIS-患者主索引',dir:'HIS → EDC',subject:'D01-0001',status:'成功',ms:132},
+    {time:'2026-11-13 09:06:40',iface:'LIS-检验结果',dir:'LIS → EDC',subject:'D01-0001',status:'成功',ms:245},
+    {time:'2026-11-13 09:12:18',iface:'HIS-就诊信息',dir:'HIS → EDC',subject:'D02-0001',status:'失败',ms:3000}
+  ],
+  doubleEntry:[
+    {form:'基线 · PHQ-9',field:'第 9 题',v1:'1',v2:'0',by1:'张明',by2:'王芳',status:'待仲裁',final:''},
+    {form:'基线 · PHQ-9',field:'总分',v1:'18',v2:'17',by1:'张明',by2:'王芳',status:'待仲裁',final:''}
+  ],
+  age:[{g:'18-24',n:86},{g:'25-34',n:412},{g:'35-44',n:338},{g:'45-54',n:246},{g:'55-64',n:142},{g:'65-74',n:52},{g:'≥75',n:10}],
+  stats:{enrolled:1286,male:548,female:738,avgAge:'38.6',provinces:12,
+    trend:[42,58,76,92,110,128,142,156,168,176,184,194],
+    provinceData:[['北京',286],['天津',154],['浙江',132],['广东',98],['江苏',96],['四川',72],['其他',448]],
+    age:[{g:'18-24',n:86},{g:'25-34',n:412},{g:'35-44',n:338},{g:'45-54',n:246},{g:'55-64',n:142},{g:'65-74',n:52},{g:'≥75',n:10}]}
+};
+
+const HIP_SET={
+  queue:{name:'老年髋部骨折全国专病队列研究',lead:'北京积水潭医院',structure:'单方（受试者）',
+    people:[{key:'p0',label:'受试者'}],statuses:['术前','术后3天','术后1个月','术后3个月','术后6个月','术后1年'],
+    keyDates:['受伤日期','手术日期'],
+    timepoints:['术前','术后3天','术后1个月','术后3个月','术后6个月','术后1年'],
+    sampleTypes:['全血','血清','尿液','骨组织','粪便'],
+    codeRule:'HIP-{中心编码}-{流水号}',dupRule:'住院号 + 姓名/出生日期',randomized:false,
+    statusColumns:['术前评估','术后3天','术后1个月','术后3个月','术后6个月','术后1年'],
+    crf:{title:'髋部骨折随访评估',fields:[
+      {id:'fldHarris',label:'Harris 髋关节评分',value:'82',req:true,min:0,max:100},
+      {id:'fldHeal',label:'骨折愈合判定',value:'是'},
+      {id:'fldCompl',label:'并发症记录',value:'无'},
+      {id:'fldDate',label:'评估日期',type:'date',value:'2026-11-13'}
+    ]}},
+  questionnaires:[
+    {code:'HIP-Q-PRE',name:'术前评估与手术记录',questions:40,role:'医生',version:'V1.3',status:'已发布',updated:'2026-08-12'},
+    {code:'HIP-Q-D3',name:'术后 3 天评估',questions:18,role:'医生',version:'V1.1',status:'已发布',updated:'2026-09-06'},
+    {code:'HIP-Q-M1',name:'术后 1 个月随访',questions:24,role:'医生 / 受试者',version:'V1.0',status:'已发布',updated:'2026-09-18'},
+    {code:'HIP-Q-M3',name:'术后 3 个月随访',questions:25,role:'医生 / 受试者',version:'V1.0',status:'已发布',updated:'2026-10-10'},
+    {code:'HIP-Q-M6',name:'术后 6 个月随访',questions:26,role:'受试者',version:'V1.0',status:'未发布',updated:'2026-10-22'},
+    {code:'HIP-Q-Y1',name:'术后 1 年随访',questions:28,role:'医生 / 受试者',version:'V1.0',status:'未发布',updated:'2026-11-02'}
+  ],
+  plan:{enabled:true,activities:[
+    {code:'V1',name:'术前评估',type:'计划访视',schedule:'D-1',window:'±2 天',forms:4,status:'已完成'},
+    {code:'V2',name:'术后 3 天',type:'计划访视',schedule:'D3',window:'±1 天',forms:3,status:'进行中'},
+    {code:'V3',name:'术后 1 个月',type:'计划访视',schedule:'D30',window:'±7 天',forms:3,status:'进行中'},
+    {code:'V4',name:'术后 3 个月',type:'计划访视',schedule:'D90',window:'±14 天',forms:3,status:'未开始'},
+    {code:'V5',name:'术后 6 个月',type:'计划访视',schedule:'D180',window:'±30 天',forms:4,status:'未开始'},
+    {code:'V6',name:'术后 1 年',type:'计划访视',schedule:'D365',window:'±30 天',forms:4,status:'未开始'}
+  ]},
+  archives:[
+    {code:'HIP-H01-0001',org:'郑州市骨科医院',people:[{label:'受试者',name:'张*',id:'4101**********1234'}],date:'2026-09-05',status:{'术前评估':'已提交','术后3天':'已提交','术后1个月':'已提交','术后3个月':'未提交','术后6个月':'未提交','术后1年':'未提交'}},
+    {code:'HIP-H01-0002',org:'郑州市骨科医院',people:[{label:'受试者',name:'李*',id:'4101**********2345'}],date:'2026-09-12',status:{'术前评估':'已提交','术后3天':'已提交','术后1个月':'已提交','术后3个月':'已提交','术后6个月':'已提交','术后1年':'未提交'}},
+    {code:'HIP-H01-0003',org:'郑州市骨科医院',people:[{label:'受试者',name:'王*',id:'4101**********3456'}],date:'2026-09-20',status:{'术前评估':'已提交','术后3天':'未提交','术后1个月':'未提交','术后3个月':'未提交','术后6个月':'未提交','术后1年':'未提交'}},
+    {code:'HIP-H02-0001',org:'北京积水潭医院',people:[{label:'受试者',name:'赵*',id:'1101**********4567'}],date:'2026-09-18',status:{'术前评估':'已提交','术后3天':'已提交','术后1个月':'未提交','术后3个月':'未提交','术后6个月':'未提交','术后1年':'未提交'}},
+    {code:'HIP-H03-0001',org:'上海市第六人民医院',people:[{label:'受试者',name:'陈*',id:'3101**********5678'}],date:'2026-10-02',status:{'术前评估':'未提交','术后3天':'未提交','术后1个月':'未提交','术后3个月':'未提交','术后6个月':'未提交','术后1年':'未提交'}}
+  ],
+  subjects:[
+    {id:'H01-0001',name:'张*',gender:'男',age:78,site:'H01',enroll:'2026-09-05',visit:'V3 术后 1 个月',status:'有质询',queries:2,random:'—',group:'—',samples:3},
+    {id:'H01-0002',name:'李*',gender:'女',age:82,site:'H01',enroll:'2026-09-12',visit:'V4 术后 3 个月',status:'已完成',queries:0,random:'—',group:'—',samples:3},
+    {id:'H01-0003',name:'王*',gender:'男',age:75,site:'H01',enroll:'2026-09-20',visit:'V2 术后 3 天',status:'未完成',queries:0,random:'—',group:'—',samples:1},
+    {id:'H02-0001',name:'赵*',gender:'女',age:80,site:'H02',enroll:'2026-09-18',visit:'V3 术后 1 个月',status:'超窗',queries:1,random:'—',group:'—',samples:2},
+    {id:'H03-0001',name:'陈*',gender:'男',age:85,site:'H03',enroll:'2026-10-02',visit:'V1 术前',status:'有质询',queries:1,random:'—',group:'—',samples:0}
+  ],
+  queries:[
+    {id:'HQ-3001',subject:'H01-0001',site:'H01',enroll:'2026-09-05',activity:'V3 术后 1 个月',activityStatus:'有质询',form:'髋关节功能评分',field:'Harris 评分',type:'更新类',from:'刘伟',time:'2026-11-09 10:05',status:'未解决',locked:false,msg:'Harris 评分与分项合计不一致，请复核'},
+    {id:'HQ-3002',subject:'H01-0001',site:'H01',enroll:'2026-09-05',activity:'V3 术后 1 个月',activityStatus:'有质询',form:'影像学评估',field:'骨折愈合',type:'方案修改类',from:'陈刚',time:'2026-11-09 13:30',status:'未解决',locked:false,msg:'愈合判定标准已更新，请按新版复评'},
+    {id:'HQ-3003',subject:'H02-0001',site:'H02',enroll:'2026-09-18',activity:'V3 术后 1 个月',activityStatus:'未完成',form:'并发症记录',field:'深静脉血栓',type:'更新类',from:'赵敏',time:'2026-11-08 09:40',status:'未解决',locked:false,msg:'超声报告提示血栓，请补充并发症记录'},
+    {id:'HQ-3004',subject:'H03-0001',site:'H03',enroll:'2026-10-02',activity:'V1 术前',activityStatus:'已解决',form:'术前评估',field:'ASA 分级',type:'更新类',from:'刘伟',time:'2026-11-05 16:10',status:'已解决',locked:false,msg:'ASA 分级已按麻醉记录更正'}
+  ],
+  dropouts:[
+    {subject:'H02-0002',name:'孙*',gender:'男',site:'H02',enroll:'2026-08-20',stage:'V4 术后 3 个月',date:'2026-10-26',reason:'失访，电话与住址均无法联系',by:'陈刚',enrollTime:'2026-08-20 09:10'},
+    {subject:'H03-0002',name:'周*',gender:'女',site:'H03',enroll:'2026-08-08',stage:'V3 术后 1 个月',date:'2026-10-12',reason:'转院继续治疗，退出队列',by:'赵敏',enrollTime:'2026-08-08 15:30'}
+  ],
+  samples:[
+    {code:'HIP-H01-0001-B01',subject:'H01-0001',type:'全血',visit:'术前',box:'B-01-01',status:'已入库',time:'2026-09-05 08:30'},
+    {code:'HIP-H01-0001-S01',subject:'H01-0001',type:'血清',visit:'术前',box:'B-01-02',status:'已入库',time:'2026-09-05 08:35'},
+    {code:'HIP-H01-0001-O01',subject:'H01-0001',type:'骨组织',visit:'术中',box:'B-01-03',status:'已出库',time:'2026-09-06 11:20'}
+  ],
+  calendar:[
+    {date:'2026-11-03',time:'09:00',subject:'H01-0002',activity:'V4 术后 3 个月',site:'H01',status:'已完成'},
+    {date:'2026-11-06',time:'10:00',subject:'H01-0001',activity:'V3 术后 1 个月',site:'H01',status:'有质询'},
+    {date:'2026-11-13',time:'09:00',subject:'H01-0003',activity:'V2 术后 3 天',site:'H01',status:'未完成'},
+    {date:'2026-11-13',time:'14:00',subject:'H02-0001',activity:'V3 术后 1 个月',site:'H02',status:'未完成'},
+    {date:'2026-11-20',time:'09:30',subject:'H03-0001',activity:'V1 术前',site:'H03',status:'未开始'},
+    {date:'2026-11-28',time:'10:30',subject:'H01-0002',activity:'V5 术后 6 个月',site:'H01',status:'未开始'},
+    {date:'2026-12-05',time:'09:00',subject:'H01-0001',activity:'V4 术后 3 个月',site:'H01',status:'未开始'}
+  ],
+  deviations:[
+    {subject:'H02-0001',site:'H02',visit:'V3 术后 1 个月',plan:'2026-11-02',actual:'2026-11-12',days:3,window:7,status:'已处理'},
+    {subject:'H03-0001',site:'H03',visit:'V1 术前',plan:'2026-11-08',actual:'—',days:0,window:2,status:'待处理'}
+  ],
+  templates:[
+    {code:'HIP-T-001',name:'受试者基本信息',shared:'共享',fields:[{name:'入组编号',type:'文本'},{name:'姓名缩写',type:'文本'},{name:'性别',type:'单选'},{name:'出生年月',type:'日期'}]},
+    {code:'HIP-T-002',name:'髋部骨折术前评估',shared:'共享',fields:[{name:'受伤日期',type:'日期'},{name:'骨折类型',type:'单选'},{name:'ASA 分级',type:'单选'},{name:'手术方式',type:'单选'}]},
+    {code:'HIP-T-003',name:'手术与麻醉记录',shared:'私有',fields:[{name:'手术日期',type:'日期'},{name:'手术时长(min)',type:'数值'},{name:'出血量(mL)',type:'数值'}]}
+  ],
+  reviews:[
+    {id:'HRV-0301',file:'HIP_专病队列数据导出申请.xlsx',unit:'统计部',by:'赵敏',time:'2026-11-09 09:40',status:'待审核',note:''},
+    {id:'HRV-0300',file:'HIP_郑州市骨科医院质控数据.csv',unit:'项目管理组',by:'刘伟',time:'2026-11-07 15:10',status:'通过',note:'字段范围符合授权'}
+  ],
+  exports:[
+    {name:'HIP_受试者清单_20261109.xlsx',by:'刘伟',time:'2026-11-09 16:00',status:'已完成',count:2,format:'xlsx'},
+    {name:'HIP_术后随访_20261108.csv',by:'陈刚',time:'2026-11-08 10:20',status:'已完成',count:1,format:'csv'}
+  ],
+  logs:[
+    {time:'2026-11-13 08:55:10',iface:'HIS-患者主索引',dir:'HIS → EDC',subject:'H01-0001',status:'成功',ms:118},
+    {time:'2026-11-13 09:01:22',iface:'LIS-检验结果',dir:'LIS → EDC',subject:'H01-0001',status:'成功',ms:226},
+    {time:'2026-11-13 09:18:05',iface:'HIS-住院信息',dir:'HIS → EDC',subject:'H02-0001',status:'失败',ms:3000}
+  ],
+  doubleEntry:[
+    {form:'术前 · 手术记录',field:'手术时长(min)',v1:'95',v2:'105',by1:'刘伟',by2:'赵敏',status:'待仲裁',final:''},
+    {form:'术前 · 手术记录',field:'出血量(mL)',v1:'320',v2:'300',by1:'刘伟',by2:'赵敏',status:'待仲裁',final:''}
+  ],
+  age:[{g:'60-64',n:128},{g:'65-69',n:286},{g:'70-74',n:412},{g:'75-79',n:498},{g:'80-84',n:364},{g:'85-89',n:158},{g:'≥90',n:30}],
+  stats:{enrolled:1876,male:782,female:1094,avgAge:'79.6',provinces:18,
+    trend:[68,92,118,146,168,190,214,238,256,272,288,304],
+    provinceData:[['河南',386],['北京',312],['上海',218],['江苏',186],['山东',164],['广东',128],['其他',482]],
+    age:[{g:'60-64',n:128},{g:'65-69',n:286},{g:'70-74',n:412},{g:'75-79',n:498},{g:'80-84',n:364},{g:'85-89',n:158},{g:'≥90',n:30}]}
+};
+
+const QUEUE_SETS={SAPPHIRE:SAPPHIRE_SET,DEPRESSION:DEPRESSION_SET,HIP:HIP_SET};
+function activateQueue(short){
+  const set=QUEUE_SETS[short];
+  if(!set) return false;
+  ['archives','queue','questionnaires','plan','subjects','queries','dropouts','calendar','deviations','samples','reviews','exports','logs','doubleEntry','templates','age','stats']
+    .forEach(k=>{ if(set[k]) db[k]=set[k]; });
+  state.currentQueue=short;
+  state.subject=set.subjects[0]?.id||'';
+  state.subjectFilter=''; state.queryTab='全部'; state.qFilter={site:'',from:'',to:'',code:''};
+  state.dropSite=''; state.dropFilter=''; state.archiveFilter=''; state.sampleTab='全部'; state.template=set.templates[0]?.code||'T-FORM-001';
+  state.tab='visits'; state.folder='全部'; state.docFilter=''; state.conds=[];
+  return true;
+}
+
+const state = {
+  page:'home', role:'CRC', currentQueue:'SAPPHIRE',
+  qFilter:{site:'',from:'',to:'',code:''}, dropSite:'', subject:'S01-0001', tab:'visits',
+  queryTab:'全部', template:'T-FORM-001', folder:'全部',
+  orgFilter:'', userFilter:'', subjectFilter:'', docFilter:'', conds:[]
+};
+
+const NAV = [
+  {group:'平台管理',items:[{id:'orgs',name:'机构管理'},{id:'projects',name:'课题管理'},{id:'docs',name:'文档管理'},{id:'sites',name:'分中心管理'},{id:'users',name:'人员管理'},{id:'roles',name:'角色管理'}]},
+  {group:'当前队列',items:[{id:'cohort',name:'队列工作台'},{id:'enroll',name:'建档管理'},{id:'archives',name:'档案管理'},{id:'qsettings',name:'队列设置'}]},
+  {group:'队列配置',items:[{id:'questionnaires',name:'问卷配置'},{id:'plan',name:'随访计划'},{id:'samples',name:'样本管理'},{id:'templates',name:'模板与数据元'}]},
+  {group:'数据采集与质控',items:[{id:'subjects',name:'对象管理'},{id:'dropouts',name:'脱落管理'},{id:'calendar',name:'任务日历'},{id:'queries',name:'质询管理',badge:'3'},{id:'deviations',name:'超窗管理'},{id:'review',name:'数据审核',badge:'2'},{id:'random',name:'随机化'}]},
+  {group:'统计与交付',items:[{id:'stats',name:'队列统计'},{id:'forms',name:'表单统计'},{id:'export',name:'数据导出'}]},
+  {group:'外部集成',items:[{id:'integration',name:'HIS/LIS 集成'}]}
+];
+
+const PANEL = {
+  home:{title:'平台工作台',desc:'多课题、多队列的统一入口：查看在研项目、入组进度与待办，进入单个队列操作台。',tips:['点击「进入队列」切换到单队列工作台','「切换课题」可体验多队列隔离','机构/角色/文档等平台能力都在左侧平台管理组']},
+  questionnaires:{title:'问卷配置',desc:'问卷设计、版本、发布与填写角色；与模板/数据元共用一套数据字典。',tips:['点击「发布」切换问卷状态','「复制新版本」保留已采集数据可追溯','设计器入口与模板字段打通']},
+  dropouts:{title:'脱落管理',desc:'查看脱落受试者列表与脱落信息，支持按中心与入组编码检索。',tips:['点击「登记脱落」新增一条脱落记录','可按中心筛选或按编号/姓名搜索','登记后受试者状态同步为脱落']},
+  calendar:{title:'任务日历',desc:'通过日历查看随访活动与到访状态，点击任务直接进入数据采集。',tips:['上一月/下一月切换月份','点击日历中的任务跳转受试者详情','今日任务列表可快速进入采集']},
+  cohort:{title:'队列工作台',desc:'单队列的一站式操作台：建档、查重、档案、样本与待办在这里聚合。',tips:['点击「新建档案」进入建档流程','点击「重复建档查询」验证查重','待办可直接跳转质询或样本']},
+  enroll:{title:'建档管理',desc:'知情同意、对象状态、关键日期、双方结构与登记信息，创建后自动生成档案编号。',tips:['未签署知情同意无法创建','证件号重复会触发查重提示','创建成功后自动跳到档案列表']},
+  archives:{title:'档案管理',desc:'以 CRF 提交状态矩阵呈现每份档案进度，支持查重、批量导出与进入采集。',tips:['点击档案行查看双方信息与 CRF 状态','批量导出会生成导出任务','重复建档查询可按证件号或姓名搜索']},
+  qsettings:{title:'队列设置',desc:'队列级配置中心：状态枚举、双方结构、查重规则、采样时点与样本类型。',tips:['添加对象状态后建档下拉立即更新','采样时点与样本类型可扩展','编码规则决定档案编号格式']},
+  orgs:{title:'机构管理',desc:'维护机构主数据与机构用户；机构下有用户时不可删除。',tips:['搜索「华山」实时过滤','新增机构会做必填校验','删除有用户的机构会被拦截']},
+  sites:{title:'分中心管理',desc:'分中心为研究执行单元，可为课题关联并设置编码与计划入组数。',tips:['点击「添加至课题」关联当前课题','新增后列表实时更新','按编码或名称搜索']},
+  users:{title:'人员管理',desc:'人员档案与账号分离，支持批量导入、重置密码与角色绑定。',tips:['模拟批量导入 12 人','重置密码给出初始密码','人员状态区分启用/停用']},
+  roles:{title:'角色管理',desc:'页面、操作、数据、导出四维权限；盲底与揭盲单独授权。',tips:['点击「配置权限」勾选四维权限','保存后摘要实时更新','导出权限精确到字段']},
+  projects:{title:'课题管理',desc:'课题即项目容器；研究类型决定挂载队列或随机化模块。',tips:['新建课题会校验必填','锁定/解锁即时生效','点击「进入」回到对象管理']},
+  docs:{title:'文档管理',desc:'按课题管理方案、手册、SOP，与 CRF 数据分离。',tips:['左侧切换文件夹','上传文件后列表新增','支持删除与搜索']},
+  templates:{title:'模板与数据元',desc:'EDC 内核：字段、共享数据元、模板版本与影响分析。',tips:['左侧切换模板，右侧同步','添加/移除字段会更新预览','保存模板给出提示']},
+  plan:{title:'计划配置',desc:'以访视为主线编排活动、窗口期与权限；启用后不可编辑主干。',tips:['启用/禁用计划切换锁定','启用状态下新增活动被拦截','超窗口径来自时间轴引擎']},
+  subjects:{title:'对象管理',desc:'受试者登记、访视状态、数据采集与质询的统一入口。',tips:['点击任意行进入详情','详情内切换访视/CRF/样本/质询','提交 CRF 会做必填与范围校验']},
+  queries:{title:'质询管理',desc:'更新类与方案修改类分开统计，提出→处理→解决全程留痕。',tips:['切换全部/未解决/已解决','解决需填写处理说明','未解决数同步到导航角标']},
+  deviations:{title:'超窗管理',desc:'超窗天数统一由访视时间轴引擎计算，口径一致。',tips:['按状态筛选','发送提醒通知研究者','天数 = 实际 − 计划 − 窗口']},
+  review:{title:'数据审核',desc:'导出前的闸门：审核通过后方可导出。',tips:['通过/驳回均需备注','状态实时更新','可与导出流程联动']},
+  stats:{title:'队列统计',desc:'入组趋势、性别占比、年龄段与省份分布。',tips:['切换时间范围重新汇总','图表与列表同源','省份按人数区间着色']},
+  forms:{title:'表单统计',desc:'按完成时间、地区、分中心筛选，图表与列表双视图。',tips:['完成个数按表单实例统计','可下钻中心维度','支持导出统计']},
+  export:{title:'数据导出',desc:'条件→公式→格式三段式配置，导出 Excel/CSV，异步生成。',tips:['添加检索条件','选择 xlsx 或 csv 生成任务','完成后下载并记录次数']},
+  random:{title:'随机化',desc:'分层区组随机、号段管理、盲底保护与紧急揭盲审批。',tips:['CRC 角色下组别为掩码','重新发号即时更新','PI 可查看组别']},
+  double:{title:'双录入',desc:'双人独立录入后字段级比对，差异由第三方仲裁并保留原始值。',tips:['对待仲裁字段选择正确值','全部仲裁后提示完成','一致字段无需处理']},
+  samples:{title:'样本管理',desc:'按采样时点 × 样本类型组织登记，入库审核后闭环。',tips:['采集样本登记新记录','状态可逐级推进','库位精确到盒/孔']},
+  integration:{title:'HIS/LIS 集成',desc:'院内集成网关：患者主索引、就诊、检验结果与字典同步。',tips:['失败记录可重试','接口不可用可手工补录','日志含耗时与业务主键']},
+  'subject-detail':{title:'受试者详情',desc:'单个受试者的访视、CRF、样本与质询聚合视图，是数据采集的主战场。',tips:['切换访视/数据采集/样本/质询标签','提交 CRF 会校验必填与体温范围','发起质询后可在质询管理闭环']}
+};
+
+/* ================= 工具 ================= */
+const $ = (s,r=document)=>r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pct = (a,b)=>Math.min(100,Math.round(a/(b||1)*100));
+
+function toast(msg,type='ok'){
+  const t=document.createElement('div');
+  t.className='toast '+type; t.textContent=msg;
+  $('#toastRoot').appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(10px)';t.style.transition='all .2s'},2300);
+  setTimeout(()=>t.remove(),2550);
+}
+function modal(title, body, footer=''){
+  $('#modalRoot').innerHTML=`<div class="mask" data-mask><div class="modal" role="dialog" aria-modal="true">
+    <div class="mh"><h3>${title}</h3><button class="x" data-action="close-modal">×</button></div>
+    <div class="mb">${body}</div>${footer?`<div class="mf">${footer}</div>`:''}</div></div>`;
+  const f=$('#modalRoot .mb input, #modalRoot .mb select, #modalRoot .mb textarea');
+  if(f) setTimeout(()=>f.focus(),50);
+}
+function closeModal(){ $('#modalRoot').innerHTML=''; }
+function badge(s){
+  const m={'进行中':'b-blue','已锁库':'b-gray','启用':'b-green','停用':'b-gray','已完成':'b-green','未完成':'b-gold',
+    '有质询':'b-gold','超窗':'b-red','未解决':'b-gold','已解决':'b-green','待审核':'b-gold','通过':'b-green',
+    '驳回':'b-red','已入库':'b-green','已出库':'b-blue','已采集':'b-gold','待仲裁':'b-gold','一致':'b-green',
+    '成功':'b-green','失败':'b-red','待处理':'b-gold','已处理':'b-green','未到访':'b-gray','生成中':'b-gold','已销毁':'b-gray',
+    '待质询':'b-gold','锁定':'b-gray','未开始':'b-gray','停止':'b-gray','入组中':'b-blue'};
+  return `<span class="badge ${m[s]||'b-gray'}">${s}</span>`;
+}
+function bar(a,b,cls=''){
+  return `<div style="display:flex;align-items:center;gap:7px;min-width:110px"><div class="progress"><div class="fill ${cls}" style="width:${pct(a,b)}%"></div></div><span class="mono" style="width:32px;text-align:right">${pct(a,b)}%</span></div>`;
+}
+function pageHead(title,sub,acts=''){
+  return `<div class="head"><div><h1>${title}</h1><div class="sub">${sub}</div></div><div class="acts">${acts}</div></div>`;
+}
+function stat(ico,v,l,d,cls='up'){
+  return `<div class="stat"><div class="ico">${ico}</div><div><div class="v">${v}</div><div class="l">${l}</div><div class="d ${cls}">${d}</div></div></div>`;
+}
+function go(page){
+  if(!PANEL[page]) return;
+  state.page=page; render();
+}
+
+/* ================= 导航 / 右侧说明 ================= */
+const SVG=(d)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const ICON={
+  zap:SVG('<path d="M13 2 3 14h8l-1 8 10-12h-8z"/>'),
+  task:SVG('<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'),
+  home:SVG('<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>'),
+  grid:SVG('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>'),
+  folder:SVG('<path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>'),
+  building:SVG('<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2"/>'),
+  pin:SVG('<path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0z"/><circle cx="12" cy="10" r="3"/>'),
+  users:SVG('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/>'),
+  shield:SVG('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'),
+  file:SVG('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h6"/>'),
+  dashboard:SVG('<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 3v18M8 9h13"/>'),
+  userplus:SVG('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/>'),
+  archive:SVG('<rect x="3" y="3" width="18" height="5" rx="1"/><path d="M5 8v12h14V8M10 12h4"/>'),
+  sliders:SVG('<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 8h6M17 16h6"/>'),
+  clipboard:SVG('<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3h6v3H9z"/><path d="M9 11h6M9 15h4"/>'),
+  calendar:SVG('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/>'),
+  flask:SVG('<path d="M9 3h6M10 3v6L4 20a1 1 0 0 0 .9 1h14.2a1 1 0 0 0 .9-1L14 9V3"/><path d="M7 15h10"/>'),
+  form:SVG('<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 7h10M7 12h10M7 17h6"/>'),
+  activity:SVG('<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>'),
+  message:SVG('<path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>'),
+  clock:SVG('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'),
+  check:SVG('<rect x="3" y="3" width="18" height="18" rx="2"/><path d="m8 12 3 3 5-6"/>'),
+  copy:SVG('<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>'),
+  shuffle:SVG('<path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>'),
+  chart:SVG('<path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/>'),
+  download:SVG('<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/>'),
+  plug:SVG('<path d="M9 2v6M15 2v6M6 8h12v3a6 6 0 0 1-12 0z"/><path d="M12 17v5"/>'),
+  help:SVG('<circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2-3 4"/><circle cx="12" cy="17" r=".5"/>'),
+  logout:SVG('<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>')
+};
+const ICON_OF={home:'home',projects:'folder',orgs:'building',sites:'pin',users:'users',roles:'shield',docs:'file',
+  cohort:'dashboard',enroll:'userplus',archives:'archive',qsettings:'sliders',questionnaires:'clipboard',plan:'calendar',
+  samples:'flask',templates:'form',subjects:'activity',queries:'message',deviations:'clock',review:'check',
+  double:'copy',random:'shuffle',stats:'chart',forms:'file',export:'download',integration:'plug'};
+function renderNav(){
+  const todo=db.queries.filter(q=>q.status==='未解决').length+db.reviews.filter(r=>r.status==='待审核').length+db.deviations.filter(x=>x.status==='待处理').length;
+  const pin=(page,icon,label,cnt)=>`<div class="nav ${state.page===page?'active':''}" data-action="go" data-page="${page}">${icon}<span>${label}</span>${cnt?`<span class="cnt">${cnt}</span>`:''}</div>`;
+  $('#nav').innerHTML=`
+    <div class="sb-pin">${pin('home',ICON.zap,'平台工作台')}
+      <div class="nav" data-action="notify">${ICON.task}<span>我的任务</span><span class="cnt">${todo}</span></div></div>
+    <div class="sb-sep"></div>
+    ${NAV.map(g=>`<div class="sb-group"><div class="sb-title">${g.group==='当前队列'?state.currentQueue+' 队列':g.group}</div>
+      ${g.items.map(it=>{
+        const cnt = it.id==='queries'? db.queries.filter(q=>q.status==='未解决').length
+          : it.id==='review'? db.reviews.filter(r=>r.status==='待审核').length : 0;
+        const active=it.id===state.page||(it.id==='subjects'&&state.page==='subject-detail');
+        return `<div class="nav ${active?'active':''}" data-action="go" data-page="${it.id}">
+          ${ICON[ICON_OF[it.id]]||ICON.grid}<span>${it.name}</span>${cnt?`<span class="cnt">${cnt}</span>`:''}</div>`;
+      }).join('')}</div>`).join('')}`;
+  $('#sbFoot').innerHTML=`<div class="nav" data-action="help">${ICON.help}<span>帮助中心</span></div>
+    <div class="nav" data-action="logout">${ICON.logout}<span>退出登录</span></div>`;
+}
+function renderPanel(){
+  const host=$('#panelR');
+  if(!host) return;
+  const p=PANEL[state.page]||PANEL.home;
+  host.innerHTML=`
+    <div class="rc"><h4>当前页面</h4><h3>${p.title}</h3><p>${p.desc}</p>
+      <ul class="tips">${p.tips.map(t=>`<li><b>试一下</b> ${t}</li>`).join('')}</ul></div>
+    <div class="rc"><h4>演示路线</h4><div class="flow">
+      <button data-action="flow" data-flow="build"><span class="step-no">1</span>平台：建课题 → 进入队列</button>
+      <button data-action="flow" data-flow="enroll"><span class="step-no">2</span>建档：知情同意 → 查重</button>
+      <button data-action="flow" data-flow="collect"><span class="step-no">3</span>采集：档案 → CRF → 质询</button>
+      <button data-action="flow" data-flow="deliver"><span class="step-no">4</span>交付：导出 → 审核</button>
+    </div></div>
+    <div class="rc"><h4>说明</h4><div class="note-r">全部为模拟数据，操作即时生效但不落库；右上角切换角色可体验权限与盲底差异，「重置数据」恢复初始状态。</div></div>`;
+}
+function groupOf(page){
+  if(page==='subject-detail') return '对象管理';
+  for(const g of NAV){ if(g.items.some(it=>it.id===page)) return g.group==='当前队列'?state.currentQueue+' 队列':g.group; }
+  return '总览';
+}
+function render(){
+  const map={home:renderHome,orgs:renderOrgs,sites:renderSites,users:renderUsers,roles:renderRoles,
+    projects:renderProjects,docs:renderDocs,templates:renderTemplates,plan:renderPlan,
+    subjects:renderSubjects,queries:renderQueries,deviations:renderDeviations,review:renderReview,
+    stats:renderStats,forms:renderForms,export:renderExport,random:renderRandom,double:renderDouble,
+    samples:renderSamples,integration:renderIntegration,'subject-detail':renderSubjectDetail,
+    cohort:renderCohort,enroll:renderEnroll,archives:renderArchives,qsettings:renderQSettings,questionnaires:renderQuestionnaires,
+    dropouts:renderDropouts,calendar:renderCalendar};
+  renderNav();
+  const cq=db.projects.find(p=>p.short===state.currentQueue);
+  const sbq=document.querySelector('.sb-proj b'); if(sbq&&cq) sbq.textContent=cq.short;
+  requestAnimationFrame(()=>{ $('#nav .nav.active')?.scrollIntoView({block:'nearest'}); });
+  $('#main').innerHTML=(map[state.page]||renderHome)();
+  $('#main').scrollTop=0;
+  const p=PANEL[state.page]||PANEL.home;
+  const grp = groupOf(state.page);
+  $('#crumb').innerHTML = state.page==='home'
+    ? `<b>工作台</b>`
+    : `<span>${grp}</span> <i>/</i> <b>${p.title}</b>`;
+  renderPanel();
+}
+
+/* ================= 平台工作台 ================= */
+function renderHome(){
+  const qs=db.projects.filter(p=>p.queue);
+  const todo=db.queries.filter(q=>q.status==='未解决').length+db.reviews.filter(r=>r.status==='待审核').length;
+  return `${pageHead('平台工作台','多队列 · 多课题统一入口；课题按研究类型挂载队列或随机化模块',`
+      <button class="btn btn-s btn-sm" data-action="switch-project">切换队列</button>
+      <button class="btn btn-p btn-sm" data-action="new-project">新建课题</button>`)}
+    <div class="g4" style="margin-bottom:12px">
+      ${stat('课','8','在研课题',`含队列 ${qs.length} 个`)}
+      ${stat('队',qs.length,'队列课题','观察型自动挂载')}
+      ${stat('档','486','累计档案','本月 +23')}
+      ${stat('待',todo,'待处理事项','质询 + 导出审核','down')}
+    </div>
+    <div class="g3" style="margin-bottom:12px">
+      ${db.projects.map(p=>`
+        <div class="panel"><div class="pb">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+            <span class="chip ${p.queue?'teal':''}">${p.queue?'队列':'课题'}</span>
+            <span class="chip">${p.type}</span>
+            <span class="badge ${p.locked?'b-gray':'b-green'}" style="margin-left:auto">${p.locked?'已锁库':'进行中'}</span>
+          </div>
+          <div style="font-size:14px;font-weight:700">${p.short}</div>
+          <div class="muted tiny" style="min-height:30px;line-height:1.5;margin:2px 0 8px">${p.name}</div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:#61748a;margin-bottom:4px">
+            <span style="max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">PI ${p.pi} · ${p.org}</span><span>${p.centers} 中心</span></div>
+          ${bar(p.actual,p.plan,p.actual/p.plan>.8?'g':'')}
+          <div style="display:flex;gap:6px;margin-top:10px">
+            ${QUEUE_SETS[p.short]?`<button class="btn btn-p btn-xs" data-action="enter-queue" data-code="${p.code}">进入队列</button>`:''}
+            <button class="btn btn-s btn-xs" data-action="enter-project" data-code="${p.code}">查看课题</button>
+          </div>
+        </div></div>`).join('')}
+    </div>
+    <div class="g2">
+      <div class="panel"><div class="ph"><h3>待办与审批</h3><button class="link" data-action="go" data-page="queries">全部 →</button></div>
+        <div class="pb">
+          <div class="kv"><span class="k">待解决质询</span><span class="v">${db.queries.filter(q=>q.status==='未解决').length}</span></div>
+          <div class="kv"><span class="k">待审核导出</span><span class="v">${db.reviews.filter(r=>r.status==='待审核').length}</span></div>
+          <div class="kv"><span class="k">待审核样本入库</span><span class="v">2</span></div>
+          <div class="kv"><span class="k">超窗任务</span><span class="v">${db.deviations.filter(x=>x.status==='待处理').length}</span></div>
+          <div style="display:flex;gap:6px;margin-top:8px"><button class="btn btn-s btn-xs" data-action="go" data-page="review">数据审核</button>
+          <button class="btn btn-s btn-xs" data-action="go" data-page="samples">样本入库</button></div>
+        </div></div>
+      <div class="panel"><div class="ph"><h3>平台职责分工</h3><span class="more">课题 / 队列 / 分中心 / 机构</span></div>
+        <div class="pb">
+          <div class="kv"><span class="k">课题管理</span><span class="v">牵头单位负责方案、进度、质控与考核</span></div>
+          <div class="kv"><span class="k">队列管理</span><span class="v">多中心队列数据与样本采集、随访</span></div>
+          <div class="kv"><span class="k">分中心管理</span><span class="v">本地筛选、入组、随访，接受培训与质控</span></div>
+          <div class="kv"><span class="k">机构管理</span><span class="v">法人管理、伦理合规、经费使用</span></div>
+          <div class="hint">一个课题对应一个队列；队列由多个分中心共同填充，数据权限按课题/机构/中心隔离。</div>
+        </div></div>
+    </div>`;
+}
+
+/* ================= 机构 ================= */
+function renderOrgs(){
+  const kw=state.orgFilter.trim();
+  const rows=db.orgs.filter(o=>!kw||o.name.includes(kw)||o.code.includes(kw));
+  return `${pageHead('机构管理','维护机构主数据与机构用户；机构下有用户时不可删除',`
+      <button class="btn btn-s btn-sm" data-action="import-org">批量导入</button>
+      <button class="btn btn-p btn-sm" data-action="new-org">新增机构</button>`)}
+    <div class="panel"><div class="pb" style="padding-bottom:0"><div class="toolbar">
+      <input class="input" id="orgSearch" placeholder="按机构名称或编码搜索" value="${esc(state.orgFilter)}" />
+      <span class="chip">共 ${rows.length} 家机构</span></div></div>
+      <div class="tw"><table class="tbl"><thead><tr><th>机构编码</th><th>机构名称</th><th>等级</th><th>地址</th><th>用户数</th><th class="right">操作</th></tr></thead>
+      <tbody>${rows.length?rows.map(o=>`<tr><td class="mono">${o.code}</td><td class="st">${esc(o.name)}</td><td>${o.level}</td><td class="muted">${o.addr}</td>
+        <td><span class="db ${o.users?'info':''}">${o.users} 人</span></td>
+        <td class="right"><button class="link" data-action="edit-org" data-code="${o.code}">编辑</button>
+        <button class="link danger" data-action="del-org" data-code="${o.code}">删除</button></td></tr>`).join(''):`<tr><td colspan="6"><div class="empty">没有匹配的机构</div></td></tr>`}</tbody></table></div></div>`;
+}
+
+/* ================= 分中心 ================= */
+function renderSites(){
+  return `${pageHead('分中心管理','分中心为研究执行单元，可为课题关联并设置课题内编码与计划入组数',`
+      <button class="btn btn-p btn-sm" data-action="new-site">新增分中心</button>`)}
+    <div class="panel"><div class="pb" style="padding-bottom:0"><div class="toolbar">
+      <input class="input" id="siteSearch" placeholder="按中心编码或名称搜索" />
+      <span class="chip">共 ${db.sites.length} 个分中心 · 覆盖 ${db.orgs.length} 家机构</span></div></div>
+      <div class="tw"><table class="tbl"><thead><tr><th>中心编码</th><th>所属队列</th><th>从属机构</th><th>中心名称</th><th>负责人</th><th>计划</th><th>实际</th><th>进度</th><th class="right">操作</th></tr></thead>
+      <tbody>${db.sites.map(s=>`<tr data-search="${esc(s.code+s.name+s.org)}"><td class="mono">${s.code}</td><td><span class="chip ${queueOfSite(s.code)!=='—'?'teal':''}">${queueOfSite(s.code)}</span></td><td>${esc(s.org)}</td><td class="st">${s.name}</td><td>${s.pi}</td>
+        <td class="num">${s.plan}</td><td class="num">${s.actual}</td><td>${bar(s.actual,s.plan,s.actual/s.plan>.8?'g':'')}</td>
+        <td class="right"><button class="btn btn-s btn-xs" data-action="add-site" data-code="${s.code}">添加至课题</button></td></tr>`).join('')}</tbody></table></div></div>`;
+}
+
+/* ================= 人员 ================= */
+function renderUsers(){
+  const kw=state.userFilter.trim();
+  const rows=db.users.filter(u=>!kw||u.name.includes(kw)||u.no.includes(kw));
+  return `${pageHead('人员管理','人员档案与账号分离，支持批量导入、重置密码与分中心角色绑定',`
+      <button class="btn btn-s btn-sm" data-action="import-users">批量导入</button>
+      <button class="btn btn-p btn-sm" data-action="new-user">新增人员</button>`)}
+    <div class="panel"><div class="pb" style="padding-bottom:0"><div class="toolbar">
+      <input class="input" id="userSearch" placeholder="按工号或姓名搜索" value="${esc(state.userFilter)}" />
+      <span class="chip">共 ${rows.length} 人</span></div></div>
+      <div class="tw"><table class="tbl"><thead><tr><th>工号</th><th>姓名</th><th>性别</th><th>手机号</th><th>职称</th><th>角色</th><th>分中心</th><th>状态</th><th class="right">操作</th></tr></thead>
+      <tbody>${rows.map(u=>`<tr><td class="mono">${u.no}</td><td class="st">${u.name}</td><td>${u.gender}</td><td class="mono">${u.phone}</td><td>${u.title}</td>
+        <td><span class="chip">${u.role}</span></td><td>${u.site}</td><td>${badge(u.status)}</td>
+        <td class="right"><button class="link" data-action="reset-pwd" data-name="${u.name}">重置密码</button></td></tr>`).join('')}</tbody></table></div></div>`;
+}
+
+/* ================= 角色 ================= */
+function renderRoles(){
+  return `${pageHead('角色管理','页面、操作、数据、导出四维权限；盲底与揭盲单独授权',`
+      <button class="btn btn-p btn-sm" data-action="new-role">新增角色</button>`)}
+    <div class="g2" style="margin-bottom:12px">
+      <div class="panel"><div class="ph"><h3>四维权限模型</h3></div><div class="pb">
+        <div class="kv"><span class="k">页面权限</span><span class="v">对象 / 随访 / 质询…</span></div>
+        <div class="kv"><span class="k">操作权限</span><span class="v">打印 / 脱落 / 录入…</span></div>
+        <div class="kv"><span class="k">数据权限</span><span class="v">课题 / 机构 / 中心 / 个人</span></div>
+        <div class="kv"><span class="k">导出权限</span><span class="v">精确到 CRF 字段</span></div></div></div>
+      <div class="panel"><div class="ph"><h3>权限约束</h3></div><div class="pb">
+        <div class="kv"><span class="k">盲底可见</span><span class="v"><span class="chip red">仅授权角色</span></span></div>
+        <div class="kv"><span class="k">揭盲操作</span><span class="v">申请 + 审批 + 理由</span></div>
+        <div class="kv"><span class="k">导出留痕</span><span class="v">全量记录</span></div>
+        <div class="kv"><span class="k">删除</span><span class="v">逻辑删除，不可物理删除</span></div></div></div>
+    </div>
+    <div class="panel"><div class="tw"><table class="tbl"><thead><tr><th>编码</th><th>角色名称</th><th>级别</th><th>页面权限</th><th>数据权限</th><th>导出权限</th><th class="right">操作</th></tr></thead>
+      <tbody>${db.roles.map(r=>`<tr><td class="mono">${r.code}</td><td class="st">${r.name}</td><td><span class="chip">${r.level}</span></td>
+        <td class="muted">${r.pages}</td><td>${r.data}</td><td>${r.export}</td>
+        <td class="right"><button class="btn btn-s btn-xs" data-action="perm-role" data-code="${r.code}">配置权限</button></td></tr>`).join('')}</tbody></table></div></div>`;
+}
+
+/* ================= 课题 ================= */
+function renderProjects(){
+  return `${pageHead('课题管理','课题建档、属性配置、进度与锁定；锁定后所有用户不可操作',`
+      <button class="btn btn-p btn-sm" data-action="new-project">新建课题</button>`)}
+    <div class="panel"><div class="tw"><table class="tbl"><thead><tr><th>课题编码</th><th>简称</th><th>课题名称</th><th>PI</th><th>起止日期</th><th>入组进度</th><th>中心</th><th>状态</th><th class="right">操作</th></tr></thead>
+      <tbody>${db.projects.map(p=>`<tr><td class="mono">${p.code}</td><td class="st">${p.short}</td>
+        <td style="max-width:300px"><div style="overflow:hidden;text-overflow:ellipsis">${p.name}</div><div class="tiny muted">牵头 ${p.org}</div></td>
+        <td>${p.pi} ${QUEUE_SETS[p.short]?'<span class="chip teal" style="margin-left:4px">队列</span>':''}</td>
+        <td class="mono tiny">${p.start} ~ ${p.end}</td><td>${bar(p.actual,p.plan)}</td><td class="num">${p.centers}</td>
+        <td>${p.locked?'<span class="badge b-gray">已锁定</span>':'<span class="badge b-green">进行中</span>'}</td>
+        <td class="right"><button class="link" data-action="enter-project" data-code="${p.code}">进入</button>
+        <button class="link" data-action="lock-project" data-code="${p.code}">${p.locked?'解锁':'锁定'}</button></td></tr>`).join('')}</tbody></table></div></div>
+    <div class="g3">
+      <div class="panel"><div class="pb"><div class="tiny muted">当前课题属性</div>
+        <div class="kv"><span class="k">研究类型</span><span class="v">${db.projects[0].type}</span></div>
+        <div class="kv"><span class="k">盲法</span><span class="v">${db.projects[0].blind}</span></div>
+        <div class="kv"><span class="k">计划入组</span><span class="v">${db.projects[0].plan} 例</span></div></div></div>
+      <div class="panel"><div class="pb"><div class="tiny muted">进度口径</div>
+        <div class="kv"><span class="k">整体进度</span><span class="v">实际 / 计划入组</span></div>
+        <div class="kv"><span class="k">活动进度</span><span class="v">完成访视 / 实际入组</span></div>
+        <div class="kv"><span class="k">锁定影响</span><span class="v">所有用户不可操作</span></div></div></div>
+      <div class="panel"><div class="pb"><div class="tiny muted">课题设置</div>
+        <div class="kv"><span class="k">编码生成</span><span class="v"><span class="chip teal">已启用</span></span></div>
+        <div class="kv"><span class="k">随机化</span><span class="v"><span class="chip teal">已启用</span></span></div>
+        <div class="kv"><span class="k">微信接入</span><span class="v"><span class="chip">保留未启用</span></span></div></div></div>
+    </div>`;
+}
+
+/* ================= 文档 ================= */
+function renderDocs(){
+  const folders=['全部','方案文件','操作规范','中心管理'];
+  const rows=db.docs.filter(d=>state.folder==='全部'||d.folder===state.folder).filter(d=>!state.docFilter||d.name.includes(state.docFilter));
+  return `${pageHead('文档管理','按课题管理方案、研究者手册、SOP，与 CRF 数据分离',`
+      <button class="btn btn-p btn-sm" data-action="upload-doc">上传文件</button>`)}
+    <div class="split">
+      <div class="list">${folders.map(f=>`<div class="li ${state.folder===f?'active':''}" data-action="set-folder" data-folder="${f}">
+        <b>${f}</b><span>${f==='全部'?db.docs.length:db.docs.filter(d=>d.folder===f).length} 个文件</span></div>`).join('')}</div>
+      <div class="panel"><div class="pb" style="padding-bottom:0"><div class="toolbar">
+        <input class="input" id="docSearch" placeholder="按名称搜索文件" value="${esc(state.docFilter)}" /></div></div>
+        <div class="tw"><table class="tbl"><thead><tr><th>文件名称</th><th>文件夹</th><th>大小</th><th>上传人</th><th>上传时间</th><th class="right">操作</th></tr></thead>
+        <tbody>${rows.map(d=>`<tr><td class="st">${d.name}</td><td><span class="chip">${d.folder}</span></td><td class="num">${d.size}</td><td>${d.by}</td>
+          <td class="mono">${d.time}</td><td class="right"><button class="link danger" data-action="del-doc" data-name="${d.name}">删除</button></td></tr>`).join('')||`<tr><td colspan="6"><div class="empty">该文件夹暂无文件</div></td></tr>`}</tbody></table></div></div>
+    </div>`;
+}
+
+/* ================= 模板 ================= */
+function renderTemplates(){
+  const t=db.templates.find(x=>x.code===state.template)||db.templates[0];
+  return `${pageHead('模板制作','元数据驱动建库：字段自定义、引用共享数据元、实时预览',`
+      <button class="btn btn-s btn-sm" data-action="export-tpl">导出 JSON</button>
+      <button class="btn btn-p btn-sm" data-action="new-tpl">新增模板</button>`)}
+    <div class="split">
+      <div class="list">${db.templates.map(x=>`<div class="li ${x.code===t.code?'active':''}" data-action="set-tpl" data-code="${x.code}">
+        <b>${x.name}</b><span>${x.code} · ${x.fields.length} 字段 · ${x.shared}</span></div>`).join('')}</div>
+      <div class="g2">
+        <div class="panel"><div class="ph"><h3>字段配置 · ${t.name}</h3><button class="btn btn-s btn-xs" data-action="add-field">+ 添加字段</button></div>
+          <div class="pb" style="max-height:420px;overflow:auto">
+            ${t.fields.map((f,i)=>`<div class="fcard"><b>${f.name}</b><span>${f.type}</span><button class="rm" data-action="rm-field" data-i="${i}">×</button></div>`).join('')}
+            <div class="hint">被活动引用的模板不可删除；共享数据元跨模板复用。</div></div></div>
+        <div class="panel"><div class="ph"><h3>表单预览</h3><span class="more">所见即所得</span></div>
+          <div class="pb">
+            <div class="kv"><span class="k">模板编码</span><span class="v mono">${t.code}</span></div>
+            <div class="kv"><span class="k">共享类型</span><span class="v"><span class="chip ${t.shared==='共享'?'teal':''}">${t.shared}</span></span></div>
+            <div style="border:1px solid #e6edf6;border-radius:9px;padding:11px;margin-top:9px;background:#fbfdff">
+              <div style="font-size:12px;font-weight:700;margin-bottom:7px">${t.name}</div>
+              ${t.fields.map(f=>`<div class="frow" style="grid-template-columns:105px 1fr;padding:3px 0"><label>${f.name}</label>
+                <input class="input" placeholder="${f.type==='日期'?'YYYY-MM-DD':'请输入'}" style="height:26px" /></div>`).join('')}
+              <div style="display:flex;gap:6px;margin-top:9px"><button class="btn btn-p btn-xs" data-action="save-tpl">保存模板</button>
+              <button class="btn btn-s btn-xs" data-action="preview-tpl">预览</button></div>
+            </div></div></div>
+      </div>
+    </div>`;
+}
+
+/* ================= 计划 ================= */
+function renderPlan(){
+  const p=db.plan;
+  return `${pageHead('计划配置','以访视为主线编排活动、窗口期与权限；启用后主干与分支不可编辑',`
+      <button class="btn btn-s btn-sm" data-action="toggle-plan">${p.enabled?'禁用计划':'启用计划'}</button>
+      <button class="btn btn-p btn-sm" data-action="new-activity">新增活动</button>`)}
+    <div class="g2" style="grid-template-columns:minmax(0,1fr) 300px">
+      <div class="panel"><div class="ph"><h3>访视流程</h3><span class="more">${p.enabled?'计划已启用 · 编辑锁定':'计划未启用 · 可编辑'}</span></div>
+        <div class="pb"><div class="vline">${p.activities.map(a=>`
+          <div class="visit ${a.status==='已完成'?'done':''}">
+            <div style="display:flex;align-items:center;gap:7px"><b>${a.code} · ${a.name}</b>
+              <span class="chip ${a.type==='计划访视'?'teal':''}">${a.type}</span>${badge(a.status)}</div>
+            <div class="meta">计划时间点 ${a.schedule} · 窗口期 ${a.window}</div>
+            <div class="chips"><span class="chip">${a.forms} 张表单</span><span class="chip">权限：按角色</span></div></div>`).join('')}</div></div></div>
+      <div class="stack">
+        <div class="panel"><div class="ph"><h3>登记表单</h3></div><div class="pb">
+          <div class="kv"><span class="k">入组登记</span><span class="v">受试者基本信息</span></div>
+          <div class="kv"><span class="k">起点</span><span class="v">入组日期</span></div>
+          <div class="kv"><span class="k">分支</span><span class="v">按 CRF 字段自动入组</span></div></div></div>
+        <div class="panel"><div class="ph"><h3>窗口期规则</h3></div><div class="pb">
+          <div class="kv"><span class="k">随访超窗</span><span class="v">实际 − 计划 − 窗口</span></div>
+          <div class="kv"><span class="k">计算来源</span><span class="v">统一时间轴引擎</span></div>
+          <div class="kv"><span class="k">提醒</span><span class="v">提前 3 天</span></div></div></div>
+      </div>
+    </div>`;
+}
+
+/* ================= 对象列表 ================= */
+function renderSubjects(){
+  const kw=state.subjectFilter.trim();
+  const rows=db.subjects.filter(s=>!kw||s.id.includes(kw)||s.name.includes(kw));
+  return `${pageHead('对象管理','受试者登记、访视状态、数据采集与质询的统一入口',`
+      <button class="btn btn-s btn-sm" data-action="go" data-page="double">双录入比对</button>
+      <button class="btn btn-s btn-sm" data-action="import-subject">批量导入</button>
+      <button class="btn btn-p btn-sm" data-action="new-subject">新增受试者</button>`)}
+    <div class="g4" style="margin-bottom:12px">
+      ${stat('入',db.stats.enrolled,'已入组',`计划 ${currentProject().plan.toLocaleString()} 例`)}
+      ${stat('访',db.plan.activities.length,'随访节点',`${db.queue.name.slice(0,10)}…`)}
+      ${stat('质',db.queries.filter(q=>q.status==='未解决').length,'待处理质询','含更新类 / 方案修改类','down')}
+      ${stat('样',db.samples.length,'样本记录',`${db.samples.filter(s=>s.status==='已采集').length} 例待入库`)}
+    </div>
+    <div class="panel"><div class="pb" style="padding-bottom:0"><div class="toolbar">
+      <input class="input" id="subjectSearch" placeholder="按入组编号或姓名搜索" value="${esc(state.subjectFilter)}" />
+      <span class="chip">共 ${rows.length} 例</span></div></div>
+      <div class="tw"><table class="tbl"><thead><tr><th>入组编号</th><th>姓名</th><th>性别/年龄</th><th>中心</th><th>入组日期</th><th>当前访视</th>${db.queue.randomized?'<th>随机号/组别</th>':''}<th>质询</th><th>状态</th><th class="right">操作</th></tr></thead>
+      <tbody>${rows.map(s=>`<tr class="rowlink" data-action="open-subject" data-id="${s.id}">
+        <td class="mono st">${s.id}</td><td class="st">${s.name}</td><td>${s.gender} / ${s.age}</td><td>${s.site}</td>
+        <td class="mono">${s.enroll}</td><td>${s.visit}</td>
+        ${db.queue.randomized?`<td class="mono">${s.random} <span class="chip ${s.group==='试验组'?'teal':''}">${state.role==='PI'?s.group:'•••'}</span></td>`:''}
+        <td>${s.queries?`<span class="badge b-gold">${s.queries}</span>`:'<span class="muted">—</span>'}</td>
+        <td>${badge(s.status)}</td><td class="right"><button class="btn btn-s btn-xs" data-action="open-subject" data-id="${s.id}">查看</button></td></tr>`).join('')}</tbody></table></div></div>`;
+}
+
+/* ================= 受试者详情 ================= */
+function renderSubjectDetail(){
+  const s=db.subjects.find(x=>x.id===state.subject)||db.subjects[0];
+  const qs=db.queries.filter(q=>q.subject===s.id);
+  const tabs=[['visits','访视信息'],['crf','数据采集'],['samples','样本'],['queries','质询']];
+  let body='';
+  if(state.tab==='visits'){
+    body=`<div class="vline">${db.plan.activities.map(a=>`
+      <div class="visit ${a.status==='已完成'?'done':''}">
+        <div style="display:flex;align-items:center;gap:7px"><b>${a.code} · ${a.name}</b>${badge(a.status)}</div>
+        <div class="meta">计划 ${a.schedule} · 窗口 ${a.window} · ${a.forms} 张表单</div>
+        <div class="chips"><button class="btn btn-s btn-xs" data-action="open-crf" data-visit="${a.code}">进入采集</button>
+        <button class="btn btn-s btn-xs" data-action="raise-query" data-form="${a.name}">发起质询</button></div></div>`).join('')}</div>`;
+  } else if(state.tab==='crf'){
+    const crf=db.queue.crf||{title:'生命体征',fields:[]};
+    body=`
+      <div class="panel" style="border:none;box-shadow:none">
+        <div class="ph" style="padding-left:0"><h3>${s.visit} · ${crf.title}</h3><span class="more">必填项未填将阻断提交</span></div>
+        <div class="pb" style="padding-left:0">
+          ${crf.fields.map(f=>`<div class="frow"><label>${f.req?'<span class="req">*</span>':''}${f.label}</label>
+            <input class="input" id="${f.id}" ${f.type==='date'?'type="date"':''} value="${f.value||''}" placeholder="${f.ph||''}" />
+            <div class="err" id="${f.id}Err" style="display:none">请输入 ${f.label}${f.min!=null?`（${f.min} ~ ${f.max}）`:''}</div></div>`).join('')}
+          <div class="frow"><label>备注</label><input class="input" placeholder="选填" /></div>
+          <div style="display:flex;gap:7px;margin-top:10px;padding-left:128px">
+            <button class="btn btn-s btn-sm" data-action="save-crf">保存</button>
+            <button class="btn btn-p btn-sm" data-action="submit-crf">提交</button>
+            <button class="btn btn-s btn-sm" data-action="raise-query" data-form="${crf.title}">发起质询</button></div>
+          <div class="hint" style="padding-left:128px">提交时按 CRF 规则校验必填与取值范围。</div>
+        </div></div>`;
+  } else if(state.tab==='samples'){
+    const rows=db.samples.filter(x=>x.subject===s.id);
+    body=`<table class="tbl"><thead><tr><th>样本编码</th><th>类型</th><th>访视</th><th>库位</th><th>状态</th><th>采集时间</th><th class="right">操作</th></tr></thead>
+      <tbody>${rows.map(x=>`<tr><td class="mono">${x.code}</td><td>${x.type}</td><td>${x.visit}</td><td class="mono">${x.box}</td>
+        <td>${badge(x.status)}</td><td class="mono">${x.time}</td>
+        <td class="right"><button class="link" data-action="next-sample" data-code="${x.code}">推进状态</button></td></tr>`).join('')||`<tr><td colspan="7"><div class="empty">暂无样本</div></td></tr>`}</tbody></table>
+      <div style="margin-top:9px"><button class="btn btn-p btn-sm" data-action="collect-sample" data-id="${s.id}">采集样本</button></div>`;
+  } else {
+    body=`<table class="tbl"><thead><tr><th>编号</th><th>表单 / 字段</th><th>类型</th><th>状态</th><th>提出人</th><th>时间</th><th class="right">操作</th></tr></thead>
+      <tbody>${qs.map(q=>`<tr><td class="mono">${q.id}</td><td>${q.form} / <b>${q.field}</b></td>
+        <td><span class="chip ${q.type==='更新类'?'gold':'teal'}">${q.type}</span></td><td>${badge(q.status)}</td>
+        <td>${q.from}</td><td class="mono">${q.time}</td>
+        <td class="right">${q.status==='未解决'?`<button class="link" data-action="resolve-query" data-id="${q.id}">解决</button>`:'<span class="tiny muted">已闭环</span>'}</td></tr>`).join('')||`<tr><td colspan="7"><div class="empty">暂无质询</div></td></tr>`}</tbody></table>`;
+  }
+  return `<button class="link" data-action="go" data-page="subjects" style="margin-bottom:8px">← 返回对象列表</button>
+    <div class="hero"><div class="avatar">${s.name.slice(0,1)}</div>
+      <div><h2>${s.id} · ${s.name}</h2><div class="sub">${s.gender} · ${s.age} 岁 · ${s.site} 分中心 · 入组 ${s.enroll}</div>
+        <div style="display:flex;gap:5px;margin-top:5px"><span class="chip">当前 ${s.visit}</span>
+          <span class="chip ${s.status==='有质询'?'red':''}">${s.status}</span>
+          ${db.queue.randomized?`<span class="chip teal">随机号 ${s.random}</span><span class="chip ${state.role==='PI'?'teal':''}">组别 ${state.role==='PI'?s.group:'••• 盲态'}</span>`:`<span class="chip teal">${db.queue.name}</span>`}</div></div>
+      <div class="ops"><button class="btn btn-s btn-sm" data-action="raise-query" data-form="${(db.queue.crf||{}).title||'生命体征'}">发起质询</button>
+        <button class="btn btn-p btn-sm" data-action="open-crf" data-visit="${db.plan.activities[0]?.code||'V1'}">进入采集</button></div></div>
+    <div class="panel"><div class="pb"><div class="tabs">${tabs.map(([k,n])=>`<button class="tab ${state.tab===k?'active':''}" data-action="tab" data-tab="${k}">${n}${k==='queries'&&qs.length?` (${qs.length})`:''}</button>`).join('')}</div>
+      ${body}</div></div>`;
+}
+
+/* ================= 多队列辅助 ================= */
+function archivePeople(a){
+  if(a.people && a.people.length) return a.people;
+  return [{label:'女方',name:a.female,id:a.fid},{label:'男方',name:a.male,id:a.mid}].filter(p=>p.name&&p.name!=='—');
+}
+function archiveNames(a){ return archivePeople(a).map(p=>p.name).join(' / '); }
+function currentProject(){ return db.projects.find(p=>p.short===state.currentQueue)||db.projects[0]; }
+function queueLead(){ return db.queue.lead || currentProject().org; }
+function queueOfSite(code){
+  if(!code) return '—';
+  if(code.startsWith('D')) return 'DEPRESSION';
+  if(code.startsWith('H')) return 'HIP';
+  if(code.startsWith('S')) return 'SAPPHIRE';
+  return '—';
+}
+
+/* ================= 队列工作台 ================= */
+function stCell(v){
+  return v==='已提交' ? '<span class="db ok">已提交</span>' : '<span class="db">未提交</span>';
+}
+function renderCohort(){
+  const p=currentProject();
+  const total=db.archives.length;
+  const pendingSample=db.samples.filter(x=>x.status==='已采集').length;
+  const q=db.queries.filter(x=>x.status==='未解决').length;
+  const cols=db.queue.statusColumns||[];
+  const completion=cols.map(c=>{
+    const done=db.archives.filter(a=>a.status[c]==='已提交').length;
+    return {name:c,pct:total?Math.round(done/total*100):0};
+  });
+  const note=state.currentQueue==='HIP'?'郑州市骨科医院作为分中心成员单位，已完成 56 例':state.currentQueue==='DEPRESSION'?'牵头单位统一方案、培训、质控与考核，57 家分中心协同入组':'';
+  return `${pageHead('队列工作台',`${p.name} · ${state.currentQueue} 队列 · 牵头 ${queueLead()}`,`
+      <button class="btn btn-s btn-sm" data-action="duplicate-check">重复建档查询</button>
+      <button class="btn btn-p btn-sm" data-action="go" data-page="enroll">新建档案</button>`)}
+    <div class="g4" style="margin-bottom:12px">
+      ${stat('档',total,'累计建档',`${p.centers} 家分中心`)}
+      ${stat('入',db.stats?.enrolled??p.actual,'已入组对象',`计划 ${p.plan.toLocaleString()} 例`)}
+      ${stat('样',pendingSample,'待审核样本','入库登记待复核',pendingSample?'down':'up')}
+      ${stat('质',q,'待解决质询','今日新增 2 条','down')}
+    </div>
+    <div class="g4" style="margin-bottom:12px">
+      <div class="panel"><div class="pb"><div class="tiny muted">快捷入口</div>
+        <div class="quick" style="margin-top:7px;flex-direction:column;align-items:stretch">
+          <button data-action="go" data-page="enroll">新建档案</button>
+          <button data-action="duplicate-check">重复建档查询</button>
+          <button data-action="go" data-page="archives">档案管理</button>
+          <button data-action="go" data-page="samples">样本单上传</button>
+        </div></div></div>
+      <div class="panel"><div class="pb"><div class="tiny muted">表单完成率</div>
+        ${completion.map(c=>`<div class="dist" style="margin-top:${c===completion[0]?'8px':'0'}"><span class="dname">${c.name}</span><div class="dwrap"><div class="dfill" style="width:${c.pct}%"></div></div><span class="dval">${c.pct}%</span></div>`).join('')}
+      </div></div>
+      <div class="panel"><div class="pb"><div class="tiny muted">待办事项</div>
+        <div class="kv"><span class="k">待审核样本入库单</span><span class="v">${pendingSample}</span></div>
+        <div class="kv"><span class="k">待解决质询</span><span class="v">${q}</span></div>
+        <div class="kv"><span class="k">超窗任务</span><span class="v">${db.deviations.filter(x=>x.status==='待处理').length}</span></div>
+        <div class="kv"><span class="k">待审核导出</span><span class="v">${db.reviews.filter(r=>r.status==='待审核').length}</span></div></div></div>
+      <div class="panel"><div class="pb"><div class="tiny muted">组织关系</div>
+        <div class="kv"><span class="k">牵头单位</span><span class="v">${queueLead()}</span></div>
+        <div class="kv"><span class="k">分中心</span><span class="v">${p.centers} 家</span></div>
+        <div class="kv"><span class="k">计划入组</span><span class="v">${p.plan.toLocaleString()} 例</span></div>
+        <div style="margin-top:7px"><button class="btn btn-s btn-xs" data-action="go" data-page="qsettings">队列设置 →</button></div></div></div>
+    </div>
+    ${note?`<div class="note" style="margin-bottom:12px"><b>队列说明：</b>${note}。课题负责整体方案、进度、质控与考核；分中心按统一方案筛选、入组、随访；机构承担法人管理与伦理合规责任。</div>`:''}
+    <div class="panel"><div class="ph"><h3>最近建档</h3><button class="link" data-action="go" data-page="archives">全部档案 →</button></div>
+      <div class="tw"><table class="tbl"><thead><tr><th>档案编号</th><th>对象</th><th>建档机构</th><th>建档日期</th><th>完成进度</th><th class="right">操作</th></tr></thead>
+      <tbody>${db.archives.slice(0,4).map(a=>{
+        const done=cols.filter(c=>a.status[c]==='已提交').length;
+        return `<tr class="rowlink" data-action="archive-detail" data-code="${a.code}">
+        <td class="mono st">${a.code}</td><td>${archiveNames(a)}</td><td>${a.org}</td><td class="mono">${a.date}</td>
+        <td>${bar(done,cols.length)}</td><td class="right"><button class="btn btn-s btn-xs" data-action="archive-detail" data-code="${a.code}">查看</button></td></tr>`;}).join('')}</tbody></table></div></div>`;
+}
+
+/* ================= 建档管理 ================= */
+function renderEnroll(){
+  const ppl=db.queue.people||[{key:'p0',label:'受试者'}];
+  const dates=db.queue.keyDates||[];
+  const prefix=(db.queue.codeRule||'ARC-{中心编码}-{流水号}').split('{')[0].replace(/-$/,'');
+  return `${pageHead('建档管理','知情同意 → 对象状态 → 关联对象 → 登记信息；创建后自动生成档案编号',`
+      <button class="btn btn-s btn-sm" data-action="import-archive">批量建档</button>
+      <button class="btn btn-s btn-sm" data-action="duplicate-check">查重</button>`)}
+    <div class="g2" style="grid-template-columns:minmax(0,0.95fr) minmax(0,1.05fr)">
+      <div class="panel"><div class="ph"><h3>建档信息</h3><span class="more">带 * 为必填</span></div>
+        <div class="pb">
+          <div class="frow"><label><span class="req">*</span>知情同意</label>
+            <select class="select" id="aConsent"><option>是</option><option>否</option></select></div>
+          <div class="frow"><label>知情同意书</label>
+            <div class="input" style="display:flex;align-items:center;color:#8ba0b6">上传图片（≤ 6MB）</div></div>
+          <div class="frow"><label>对象状态</label>
+            <select class="select" id="aStatus">${db.queue.statuses.map(x=>`<option>${x}</option>`).join('')}</select></div>
+          ${dates.slice(0,2).map((d,i)=>`<div class="frow"><label>${d}</label><input class="input" type="date" id="aDate${i}" value="2026-11-${String(13+i).padStart(2,'0')}" /></div>`).join('')}
+          <div class="frow"><label><span class="req">*</span>档案编号</label><input class="input" value="创建后自动生成（${prefix}-${db.sites[0]?.code||'S01'}-0006）" disabled /></div>
+          <div class="frow"><label>评估人</label><input class="input" id="aEvaluator" value="李静" /></div>
+          <div class="frow"><label>评估中心</label><select class="select" id="aSite">${db.sites.map(x=>`<option>${x.code}</option>`).join('')}</select></div>
+          <div class="hint">关键日期由「队列设置」决定是否启用与必填。</div>
+        </div></div>
+      <div class="panel"><div class="ph"><h3>关联对象 · ${db.queue.structure}</h3><span class="more">结构可配置</span></div>
+        <div class="pb">
+          ${ppl.map((person,i)=>`
+            <div style="font-size:12px;font-weight:700;margin:${i?'12px':'0'} 0 4px;color:#5b4fb3">${person.label}信息</div>
+            <div class="frow"><label><span class="req">${i===0?'*':''}</span>姓名</label><input class="input" id="p${i}Name" placeholder="${person.label}姓名" /></div>
+            <div class="frow"><label>出生日期</label><input class="input" type="date" id="p${i}Dob" value="${i?'1988-03-15':'1990-06-01'}" /></div>
+            <div class="frow"><label>证件号码</label><input class="input" id="p${i}Id" placeholder="用于查重" /></div>
+          `).join('')}
+          <div style="display:flex;gap:7px;margin-top:12px"><button class="btn btn-s btn-sm" data-action="reset-archive">重置</button>
+            <button class="btn btn-p btn-sm" data-action="create-archive">创建档案</button></div>
+        </div></div>
+    </div>`;
+}
+
+/* ================= 档案管理 ================= */
+function renderArchives(){
+  const kw=(state.archiveFilter||'').trim();
+  const ppl=db.queue.people||[{label:'受试者'}];
+  const rows=db.archives.filter(a=>!kw||a.code.includes(kw)||archivePeople(a).some(p=>String(p.name).includes(kw)||String(p.id||'').includes(kw)));
+  const cols=db.queue.statusColumns||[];
+  return `${pageHead('档案管理','档案检索、CRF 状态矩阵、批量导出与进入采集',`
+      <button class="btn btn-s btn-sm" data-action="duplicate-check">重复建档查询</button>
+      <button class="btn btn-s btn-sm" data-action="archive-export">批量导出</button>
+      <button class="btn btn-p btn-sm" data-action="go" data-page="enroll">新建档案</button>`)}
+    <div class="panel"><div class="pb" style="padding-bottom:0"><div class="toolbar">
+      <input class="input" id="archiveSearch" placeholder="档案编号 / ${ppl.map(p=>p.label).join(' / ')}" value="${esc(kw)}" />
+      <select class="select" style="width:130px"><option>全部机构</option>${db.sites.map(s=>`<option>${s.org}</option>`).join('')}</select>
+      <span class="chip">共 ${rows.length} 份档案</span></div></div>
+      <div class="tw"><table class="tbl"><thead><tr><th>档案编号</th><th>机构 / 对象</th><th>建档日期</th>
+        ${cols.map(c=>`<th>${c}</th>`).join('')}<th class="right">操作</th></tr></thead>
+      <tbody>${rows.map(a=>`<tr class="rowlink" data-action="archive-detail" data-code="${a.code}">
+        <td class="mono st">${a.code}</td>
+        <td><div style="font-weight:600">${archiveNames(a)}</div><div class="tiny muted" style="white-space:nowrap;max-width:170px;overflow:hidden;text-overflow:ellipsis">${a.org}</div></td>
+        <td class="mono">${a.date}</td>
+        ${cols.map(c=>`<td>${stCell(a.status[c])}</td>`).join('')}
+        <td class="right"><button class="btn btn-s btn-xs" data-action="archive-detail" data-code="${a.code}">查看</button></td></tr>`).join('')||`<tr><td colspan="${4+cols.length}"><div class="empty">没有匹配的档案</div></td></tr>`}</tbody></table></div></div>
+    <div class="note" style="margin-top:12px"><b>状态矩阵：</b>每列对应一份 CRF/问卷，已提交/未提交一目了然；点击行查看详情并进入采集。</div>`;
+}
+
+/* ================= 队列设置 ================= */
+function renderQSettings(){
+  return `${pageHead('队列设置','队列级配置中心：状态、结构、查重、时点、类型与编码',`
+      <button class="btn btn-s btn-sm" data-action="go" data-page="questionnaires">问卷配置</button>`)}
+    <div class="g2">
+      <div class="panel"><div class="ph"><h3>建档配置</h3><button class="btn btn-s btn-xs" data-action="add-status">+ 对象状态</button></div>
+        <div class="pb">
+          <div class="kv"><span class="k">牵头单位</span><span class="v">${queueLead()}</span></div>
+          <div class="kv"><span class="k">分中心 / 计划</span><span class="v">${currentProject().centers} 家 / ${currentProject().plan.toLocaleString()} 例</span></div>
+          <div class="kv"><span class="k">关联对象结构</span><span class="v">${db.queue.structure}</span></div>
+          <div class="kv"><span class="k">关键日期</span><span class="v">${db.queue.keyDates.join(' / ')}</span></div>
+          <div class="kv" style="align-items:flex-start"><span class="k">对象状态</span><span class="v" style="text-align:right;display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end">${db.queue.statuses.map(x=>`<span class="chip">${x}</span>`).join('')}</span></div>
+          <div class="hint">新增状态后，建档页的下拉选项立即同步。</div>
+        </div></div>
+      <div class="panel"><div class="ph"><h3>查重配置</h3><button class="btn btn-s btn-xs" data-action="edit-dup">编辑规则</button></div>
+        <div class="pb">
+          <div class="kv"><span class="k">查重字段</span><span class="v">${db.queue.dupRule}</span></div>
+          <div class="kv"><span class="k">匹配级别</span><span class="v">完全匹配 / 模糊匹配</span></div>
+          <div class="kv"><span class="k">处理方式</span><span class="v">合并 / 标记关联 / 非重复</span></div>
+          <div class="hint">保存档案时自动触发查重，命中后可人工确认。</div>
+        </div></div>
+      <div class="panel"><div class="ph"><h3>样本配置</h3><span class="more">时点 × 类型</span></div>
+        <div class="pb">
+          <div class="tiny muted">采样时点</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin:5px 0 10px">${db.queue.timepoints.map(x=>`<span class="chip teal">${x}</span>`).join('')}<button class="btn btn-s btn-xs" data-action="add-timepoint">+ 时点</button></div>
+          <div class="tiny muted">样本类型</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px">${db.queue.sampleTypes.map(x=>`<span class="chip">${x}</span>`).join('')}<button class="btn btn-s btn-xs" data-action="add-type">+ 类型</button></div>
+        </div></div>
+      <div class="panel"><div class="ph"><h3>编码与问卷</h3></div>
+        <div class="pb">
+          <div class="kv"><span class="k">档案编码</span><span class="v mono">${db.queue.codeRule}</span></div>
+          <div class="kv"><span class="k">编码只读</span><span class="v"><span class="chip teal">是</span></span></div>
+          <div class="kv"><span class="k">问卷入口</span><span class="v"><button class="link" data-action="go" data-page="templates">前往模板/问卷 →</button></span></div>
+          <div class="hint">问卷版本通过复制生成，已采集数据保持可追溯。</div>
+        </div></div>
+    </div>`;
+}
+
+/* ================= 问卷配置 ================= */
+function renderQuestionnaires(){
+  return `${pageHead('问卷配置','问卷设计、版本、发布与填写角色；与模板/数据元共用数据字典',`
+      <button class="btn btn-s btn-sm" data-action="go" data-page="templates">模板与数据元</button>
+      <button class="btn btn-p btn-sm" data-action="new-questionnaire">新建问卷</button>`)}
+    <div class="panel"><div class="ph"><h3>问卷列表</h3><span class="more">变更通过复制生成新版本</span></div>
+      <div class="tw"><table class="tbl"><thead><tr><th>问卷编码</th><th>问卷名称</th><th>题目数</th><th>填写角色</th><th>版本</th><th>状态</th><th>更新时间</th><th class="right">操作</th></tr></thead>
+      <tbody>${db.questionnaires.map(q=>`<tr>
+        <td class="mono">${q.code}</td><td class="st">${q.name}</td><td class="num">${q.questions}</td>
+        <td><span class="chip">${q.role}</span></td><td class="mono">${q.version}</td><td>${badge(q.status)}</td><td class="mono">${q.updated}</td>
+        <td class="right"><button class="link" data-action="preview-questionnaire" data-code="${q.code}">预览</button>
+          <button class="link" data-action="publish-questionnaire" data-code="${q.code}">${q.status==='已发布'?'取消发布':'发布'}</button>
+          <button class="link" data-action="copy-questionnaire" data-code="${q.code}">复制新版本</button></td></tr>`).join('')}</tbody></table></div></div>
+    <div class="note" style="margin-top:12px"><b>版本策略：</b>问卷变更不直接覆盖，复制生成新版本；已采集数据仍绑定旧版本，保证可追溯。</div>`;
+}
+
+/* ================= 质询 ================= */
+function renderQueries(){
+  const tabs=['全部','未解决','已解决'];
+  const f=state.qFilter||{};
+  const rows=db.queries
+    .filter(q=>state.queryTab==='全部'||q.status===state.queryTab)
+    .filter(q=>!f.site||q.site===f.site)
+    .filter(q=>!f.code||q.subject.includes(f.code))
+    .filter(q=>!f.from||q.enroll>=f.from)
+    .filter(q=>!f.to||q.enroll<=f.to);
+  return `${pageHead('质询管理','访视质询列表与活动状态；新增质询、锁定数据、多维筛选',`
+      <button class="btn btn-p btn-sm" data-action="raise-query" data-form="生命体征">新增质询</button>`)}
+    <div class="panel"><div class="pb" style="padding-bottom:0">
+      <div class="tabs" style="margin-bottom:10px">
+        ${tabs.map(t=>`<button class="tab ${state.queryTab===t?'active':''}" data-action="qtab" data-tab="${t}">${t}${t!=='全部'?` (${db.queries.filter(q=>q.status===t).length})`:''}</button>`).join('')}
+      </div>
+      <div class="toolbar">
+        <select class="select" id="querySite" style="width:120px"><option value="">全部分中心</option>${['S01','S02','S03'].map(x=>`<option ${f.site===x?'selected':''}>${x}</option>`).join('')}</select>
+        <span class="tiny muted">入组时间</span>
+        <input class="input" id="queryFrom" type="date" value="${f.from||''}" style="width:150px" />
+        <span class="tiny muted">至</span>
+        <input class="input" id="queryTo" type="date" value="${f.to||''}" style="width:150px" />
+        <input class="input" id="queryCode" placeholder="按入组编码搜索" value="${esc(f.code||'')}" style="width:190px" />
+        <button class="btn btn-s btn-sm" data-action="reset-query-filter">重置</button>
+        <span class="chip">${rows.length} 条质询</span>
+      </div>
+    </div>
+    <div class="tw"><table class="tbl"><thead><tr><th>编号</th><th>分中心 / 入组编码</th><th>访视 / 活动状态</th><th>表单 / 字段</th><th>类型</th><th>状态</th><th>数据锁定</th><th>提出人 / 时间</th><th class="right">操作</th></tr></thead>
+      <tbody>${rows.map(q=>`<tr>
+        <td class="mono st">${q.id}</td>
+        <td><div>${q.site}</div><div class="mono">${q.subject}</div><div class="tiny muted">入组 ${q.enroll}</div></td>
+        <td><div>${q.activity}</div><div style="margin-top:2px">${badge(q.activityStatus)}</div></td>
+        <td>${q.form}<div class="tiny muted">${q.field}</div></td>
+        <td><span class="chip ${q.type==='更新类'?'gold':'teal'}">${q.type}</span></td>
+        <td>${badge(q.status)}</td>
+        <td>${q.locked?'<span class="chip red">已锁定</span>':'<span class="chip">未锁定</span>'}</td>
+        <td>${q.from}<div class="tiny mono">${q.time}</div></td>
+        <td class="right">${q.locked?'<span class="tiny muted">锁定中</span>':(q.status==='未解决'?`<button class="btn btn-s btn-xs" data-action="resolve-query" data-id="${q.id}">解决</button>`:'<span class="tiny muted">已闭环</span>')}
+          <button class="btn btn-s btn-xs" data-action="lock-query" data-id="${q.id}">${q.locked?'解锁':'锁定数据'}</button></td></tr>`).join('')||`<tr><td colspan="9"><div class="empty">没有匹配的质询</div></td></tr>`}</tbody></table></div></div>`;
+}
+
+/* ================= 超窗 ================= */
+function renderDeviations(){
+  return `${pageHead('超窗管理','超窗天数统一由访视时间轴引擎计算，列表 / 日历 / 统计口径一致',`
+      <button class="btn btn-s btn-sm" data-action="deviation-rule">查看规则</button>`)}
+    <div class="panel"><div class="pb" style="padding-bottom:0"><div class="toolbar">
+      <span class="chip">超窗 ${db.deviations.length} 例</span><span class="chip gold">待处理 ${db.deviations.filter(x=>x.status==='待处理').length} 例</span></div></div>
+      <div class="tw"><table class="tbl"><thead><tr><th>受试者</th><th>中心</th><th>访视</th><th>计划日期</th><th>实际到访</th><th>窗口期</th><th>超窗天数</th><th>状态</th><th class="right">操作</th></tr></thead>
+      <tbody>${db.deviations.map(d=>`<tr><td class="st">${d.subject}</td><td>${d.site}</td><td>${d.visit}</td><td class="mono">${d.plan}</td>
+        <td class="mono">${d.actual}</td><td>±${d.window} 天</td>
+        <td><span class="badge ${d.days>d.window?'b-red':'b-gold'}">${d.days} 天</span></td><td>${badge(d.status)}</td>
+        <td class="right"><button class="btn btn-s btn-xs" data-action="remind" data-subject="${d.subject}">发送提醒</button></td></tr>`).join('')}</tbody></table></div></div>`;
+}
+
+/* ================= 脱落管理 ================= */
+function renderDropouts(){
+  const kw=(state.dropFilter||'').trim();
+  const site=state.dropSite||'';
+  const rows=db.dropouts.filter(d=>!kw||d.subject.includes(kw)||d.name.includes(kw)).filter(d=>!site||d.site===site);
+  return `${pageHead('脱落管理','查看脱落受试者列表与脱落信息，支持按中心与入组编码检索',`
+      <button class="btn btn-p btn-sm" data-action="new-dropout">登记脱落</button>`)}
+    <div class="panel"><div class="pb" style="padding-bottom:0"><div class="toolbar">
+      <input class="input" id="dropSearch" placeholder="按入组编号或姓名搜索" value="${esc(kw)}" />
+      <select class="select" id="dropSite" style="width:130px"><option value="">全部分中心</option>${['S01','S02','S03'].map(x=>`<option ${site===x?'selected':''}>${x}</option>`).join('')}</select>
+      <span class="chip">共 ${rows.length} 例脱落</span></div></div>
+      <div class="tw"><table class="tbl"><thead><tr><th>入组编号</th><th>姓名</th><th>性别</th><th>分中心</th><th>入组日期</th><th>阶段</th><th>脱落日期</th><th>脱落原因</th><th>操作人</th><th>入组时间</th><th class="right">操作</th></tr></thead>
+      <tbody>${rows.map(d=>`<tr>
+        <td class="mono st">${d.subject}</td><td>${d.name}</td><td>${d.gender}</td><td>${d.site}</td><td class="mono">${d.enroll}</td>
+        <td>${d.stage}</td><td class="mono">${d.date}</td><td style="max-width:220px;white-space:normal">${d.reason}</td>
+        <td>${d.by}</td><td class="mono">${d.enrollTime}</td>
+        <td class="right"><button class="btn btn-s btn-xs" data-action="dropout-detail" data-subject="${d.subject}">查看</button></td></tr>`).join('')||`<tr><td colspan="11"><div class="empty">没有匹配的脱落记录</div></td></tr>`}</tbody></table></div></div>
+    <div class="note" style="margin-top:12px"><b>脱落信息：</b>包含入组编号、姓名、性别、入组日期、阶段、脱落日期、原因、操作人与入组时间，完整保留退出原因。</div>`;
+}
+
+/* ================= 任务日历 ================= */
+function renderCalendar(){
+  const y=state.calYear||2026, m=state.calMonth==null?10:state.calMonth;
+  const first=new Date(y,m,1);
+  const offset=(first.getDay()+6)%7;
+  const days=new Date(y,m+1,0).getDate();
+  const cells=Math.ceil((offset+days)/7)*7;
+  const pad=n=>String(n).padStart(2,'0');
+  const dateStr=d=>`${y}-${pad(m+1)}-${pad(d)}`;
+  const evBy=d=>db.calendar.filter(e=>e.date===dateStr(d));
+  const today='2026-11-13';
+  const statusCls=s=>({'已完成':'green','有质询':'gold','未完成':'red','未开始':'gray'}[s]||'');
+  const todayEvents=db.calendar.filter(e=>e.date===today);
+  const upcoming=db.calendar.filter(e=>e.date>=today).slice(0,5);
+  const list=todayEvents.length?todayEvents:upcoming;
+  return `${pageHead('任务日历',`${y} 年 ${m+1} 月 · 随访任务与到访状态`,`
+      <button class="btn btn-s btn-sm" data-action="cal-today">回到今天</button>
+      <button class="btn btn-s btn-sm" data-action="go" data-page="subjects">对象列表</button>`)}
+    <div class="panel">
+      <div class="ph"><h3>${y} 年 ${m+1} 月</h3>
+        <div style="margin-left:auto;display:flex;gap:6px">
+          <button class="btn btn-s btn-xs" data-action="cal-prev">‹ 上一月</button>
+          <button class="btn btn-s btn-xs" data-action="cal-next">下一月 ›</button>
+        </div></div>
+      <div class="pb">
+        <div class="cal-grid">
+          ${['一','二','三','四','五','六','日'].map(d=>`<div class="cal-dow">周${d}</div>`).join('')}
+          ${Array.from({length:cells}).map((_,i)=>{
+            const d=i-offset+1;
+            if(d<1||d>days) return `<div class="cal-cell out"></div>`;
+            const evs=evBy(d);
+            const isToday=dateStr(d)===today;
+            return `<div class="cal-cell ${isToday?'today':''}">
+              <div class="cal-num">${d}${isToday?' · 今天':''}</div>
+              ${evs.slice(0,2).map(e=>`<button class="cal-ev ${statusCls(e.status)}" data-action="calendar-event" data-id="${e.subject}" title="${e.time} ${e.activity} · ${e.status}">${e.time} ${e.activity} · ${e.subject}</button>`).join('')}
+              ${evs.length>2?`<div class="cal-more">+${evs.length-2} 项</div>`:''}
+            </div>`;
+          }).join('')}
+        </div>
+        <div class="hint">点击日历任务进入受试者详情；颜色对应活动状态（绿=已完成、黄=有质询、红=未完成、灰=未开始）。</div>
+      </div>
+    </div>
+    <div class="panel"><div class="ph"><h3>${todayEvents.length?'今日任务':'近期任务'}</h3><span class="more">${list.length} 项</span></div>
+      <div class="tw"><table class="tbl"><thead><tr><th>时间</th><th>受试者</th><th>活动</th><th>分中心</th><th>状态</th><th class="right">操作</th></tr></thead>
+      <tbody>${list.map(e=>`<tr><td class="mono">${e.date} ${e.time}</td><td class="st">${e.subject}</td><td>${e.activity}</td><td>${e.site}</td>
+        <td>${badge(e.status)}</td><td class="right"><button class="btn btn-s btn-xs" data-action="calendar-event" data-id="${e.subject}">进入采集</button></td></tr>`).join('')||`<tr><td colspan="6"><div class="empty">本月暂无任务</div></td></tr>`}</tbody></table></div></div>`;
+}
+
+/* ================= 审核 ================= */
+function renderReview(){
+  return `${pageHead('数据审核','导出前的闸门：审核通过后方可进入数据导出流程',`
+      <button class="btn btn-s btn-sm" data-action="go" data-page="export">去导出</button>`)}
+    <div class="panel"><div class="tw"><table class="tbl"><thead><tr><th>审核单号</th><th>文件名称</th><th>需求单位</th><th>申请人</th><th>申请时间</th><th>审核状态</th><th>备注</th><th class="right">操作</th></tr></thead>
+      <tbody>${db.reviews.map(r=>`<tr><td class="mono">${r.id}</td><td class="st">${r.file}</td><td>${r.unit}</td><td>${r.by}</td>
+        <td class="mono">${r.time}</td><td>${badge(r.status)}</td><td class="muted tiny" style="max-width:170px;white-space:normal">${r.note||'—'}</td>
+        <td class="right">${r.status==='待审核'?`<button class="link" data-action="approve" data-id="${r.id}">通过</button>
+          <button class="link danger" data-action="reject" data-id="${r.id}">驳回</button>`:'<span class="tiny muted">已处理</span>'}</td></tr>`).join('')}</tbody></table></div></div>`;
+}
+
+/* ================= 统计 ================= */
+function renderStats(){
+  const st=db.stats||{enrolled:0,male:0,female:0,avgAge:'—',provinces:0,trend:[],provinceData:[],age:db.age};
+  const total=(st.male+st.female)||1;
+  const mp=Math.round(st.male/total*100), fp=100-mp;
+  const maxAge=Math.max(...(st.age||db.age).map(a=>a.n),1);
+  const trend=st.trend||[];
+  const tmax=Math.max(...trend,1);
+  const prov=st.provinceData||[];
+  const pmax=Math.max(...prov.map(p=>p[1]),1);
+  const shade=v=>v>=pmax*.7?'#4f44a8':v>=pmax*.5?'#6d5bd0':v>=pmax*.3?'#9b8cf5':v>=pmax*.15?'#b5a8fa':'#e6e1fd';
+  return `${pageHead('队列统计',`${db.queue.name} · 入组趋势、性别、年龄与省份分布`,`
+      <button class="btn btn-s btn-sm" data-action="stat-export">导出统计</button>`)}
+    <div class="g4" style="margin-bottom:12px">
+      ${stat('入',st.enrolled.toLocaleString(),'累计入组',`计划 ${currentProject().plan.toLocaleString()} 例`)}
+      ${stat('男',mp+'%','男性占比',`${st.male.toLocaleString()} 例`)}
+      ${stat('均',st.avgAge,'平均年龄','按入组时年龄')}
+      ${stat('省',st.provinces,'覆盖省份','按中心归属统计')}
+    </div>
+    <div class="g2" style="margin-bottom:12px">
+      <div class="panel"><div class="ph"><h3>入组趋势</h3><span class="more">近 12 个月</span></div>
+        <div class="pb"><div class="trend">${trend.map((m,i)=>`<div class="tcol"><div class="tbar" style="height:${Math.max(4,m/tmax*100)}%"></div><span class="tlb">${i+1}月</span></div>`).join('')}</div></div></div>
+      <div class="panel"><div class="ph"><h3>性别占比</h3><span class="more">${st.enrolled.toLocaleString()} 例</span></div>
+        <div class="pb" style="display:flex;align-items:center;gap:22px">
+          <div class="donut" style="background:conic-gradient(#4f44a8 0 ${mp}%,#8b7cf0 ${mp}% 100%)"><div class="mid"><div><b>${st.enrolled.toLocaleString()}</b><span class="tiny muted">总例数</span></div></div></div>
+          <div style="flex:1"><div class="kv"><span class="k"><i class="ld" style="background:#4f44a8"></i>男性</span><span class="v">${st.male.toLocaleString()} · ${mp}%</span></div>
+            <div class="kv"><span class="k"><i class="ld" style="background:#8b7cf0"></i>女性</span><span class="v">${st.female.toLocaleString()} · ${fp}%</span></div></div></div></div>
+    </div>
+    <div class="g2">
+      <div class="panel"><div class="ph"><h3>年龄段分布</h3><span class="more">按队列人群分组</span></div>
+        <div class="pb">${(st.age||db.age).map(a=>`<div class="dist"><span class="dname">${a.g}</span><div class="dwrap"><div class="dfill" style="width:${a.n/maxAge*100}%"></div></div><span class="dval">${a.n}</span></div>`).join('')}</div></div>
+      <div class="panel"><div class="ph"><h3>省份分布</h3><span class="more">按人数区间着色</span></div>
+        <div class="pb"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px">
+          ${prov.map(([n,v])=>{const c=shade(v);return `<div style="border:1px solid #e6edf6;border-radius:7px;padding:7px 8px;background:${c};color:${v>=pmax*.3?'#fff':'#33475e'}">
+              <div style="font-size:12px;opacity:.85">${n}</div><div style="font-size:15px;font-weight:700">${v}</div></div>`;}).join('')}</div>
+          <div class="hint">颜色越深人数越多；点击区域可下钻（演示）。</div></div></div>
+    </div>`;
+}
+
+/* ================= 表单统计 ================= */
+function renderForms(){
+  const st=db.stats||{trend:[],enrolled:0};
+  const acts=db.plan.activities;
+  const rows=db.questionnaires.map((q,i)=>{
+    const done=Math.max(1,Math.round((st.enrolled||100)*(0.95-i*0.09)));
+    return [acts[i%acts.length]?.name||'随访',q.name,done];
+  });
+  const trend=st.trend||[];
+  const tmax=Math.max(...trend,1);
+  return `${pageHead('表单统计',`${db.queue.name} · 按活动与问卷统计完成情况`,`
+      <button class="btn btn-p btn-sm" data-action="go" data-page="export">导出统计</button>`)}
+    <div class="g2" style="margin-bottom:12px">
+      <div class="panel"><div class="ph"><h3>表单完成数量</h3><span class="more">近 12 个月</span></div>
+        <div class="pb"><div class="trend">${trend.map((m,i)=>`<div class="tcol"><div class="tbar" style="height:${Math.max(4,m/tmax*100)}%"></div><span class="tlb">${i+1}月</span></div>`).join('')}</div></div></div>
+      <div class="panel"><div class="ph"><h3>完成状态</h3><span class="more">${db.questionnaires.length} 份问卷</span></div><div class="pb">
+        <div class="dist"><span class="dname">已完成</span><div class="dwrap"><div class="dfill" style="width:81%;background:#0b7a5b"></div></div><span class="dval">81%</span></div>
+        <div class="dist"><span class="dname">未完成</span><div class="dwrap"><div class="dfill" style="width:14%;background:#c2820f"></div></div><span class="dval">14%</span></div>
+        <div class="dist"><span class="dname">有质询</span><div class="dwrap"><div class="dfill" style="width:5%;background:#c2413b"></div></div><span class="dval">5%</span></div>
+        <div class="hint">完成个数按表单实例统计，与队列工作台口径一致。</div></div></div>
+    </div>
+    <div class="panel"><div class="tw"><table class="tbl"><thead><tr><th>活动名称</th><th>问卷 / 表单名称</th><th>完成个数</th><th>完成率</th><th class="right">操作</th></tr></thead>
+      <tbody>${rows.map(r=>`<tr><td>${r[0]}</td><td class="st">${r[1]}</td><td class="num">${r[2]}</td><td>${bar(r[2],st.enrolled||r[2])}</td>
+        <td class="right"><button class="link" data-action="stat-export">导出</button></td></tr>`).join('')}</tbody></table></div></div>`;
+}
+
+/* ================= 导出 ================= */
+function renderExport(){
+  return `${pageHead('数据导出','条件 → 公式 → 格式三段式配置；导出 Excel / CSV，异步生成不阻塞页面',`
+      <button class="btn btn-p btn-sm" data-action="run-export">生成导出任务</button>`)}
+    <div class="g2" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);margin-bottom:12px">
+      <div class="panel"><div class="ph"><h3>导出条件</h3><button class="btn btn-s btn-xs" data-action="add-cond">+ 添加条件</button></div>
+        <div class="pb">${state.conds.length?state.conds.map((c,i)=>`<div class="fcard"><b>${c.field}</b><span>${c.op} ${c.value}</span>
+          <button class="rm" data-action="rm-cond" data-i="${i}" style="margin-left:auto">×</button></div>`).join(''):`<div class="empty" style="padding:16px">尚未添加条件，默认导出全部已审核数据</div>`}
+          <div class="hint">条件之间为「且」关系；导出前按审核状态过滤。</div></div></div>
+      <div class="panel"><div class="ph"><h3>导出格式</h3></div><div class="pb">
+        <div class="radio" style="margin-bottom:9px"><label><input type="radio" name="fmt" value="xlsx" checked /> Excel (.xlsx)</label>
+          <label><input type="radio" name="fmt" value="csv" /> CSV (.csv)</label></div>
+        <div class="kv"><span class="k">表头格式</span><span class="v">中文标签</span></div>
+        <div class="kv"><span class="k">数据范围</span><span class="v">已审核数据</span></div>
+        <div class="kv"><span class="k">审核状态</span><span class="v"><span class="chip teal">通过才可导出</span></span></div>
+        <div class="kv"><span class="k">导出留痕</span><span class="v">人 / 时间 / 次数</span></div></div></div>
+    </div>
+    <div class="panel"><div class="ph"><h3>下载列表</h3><span class="more">异步任务</span></div>
+      <div class="tw"><table class="tbl"><thead><tr><th>文件名称</th><th>格式</th><th>创建人</th><th>创建时间</th><th>状态</th><th>下载次数</th><th class="right">操作</th></tr></thead>
+      <tbody>${db.exports.map(e=>`<tr><td class="st">${e.name}</td><td><span class="chip ${e.format==='csv'?'teal':''}">${e.format}</span></td>
+        <td>${e.by}</td><td class="mono">${e.time}</td><td>${badge(e.status)}</td><td class="num">${e.count}</td>
+        <td class="right">${e.status==='已完成'?`<button class="link" data-action="download" data-name="${e.name}">下载</button>`:'<span class="tiny muted">生成中…</span>'}</td></tr>`).join('')}</tbody></table></div></div>`;
+}
+
+/* ================= 随机化 ================= */
+function renderRandom(){
+  if(!db.queue.randomized){
+    return `${pageHead('随机化','本队列为观察性队列，未启用随机化',`
+        <button class="btn btn-s btn-sm" data-action="go" data-page="projects">查看课题属性</button>`)}
+      <div class="panel"><div class="pb"><div class="empty" style="padding:46px 20px">
+        当前队列「${db.queue.name}」为观察性队列，按课题属性未启用随机化。<br/>
+        如需随机发号，可在课题属性中开启「启用随机化 / 启用分组」。</div></div></div>`;
+  }
+  return `${pageHead('随机化','分层区组随机、号段管理、盲底保护与紧急揭盲审批',`
+      <button class="btn btn-s btn-sm" data-action="unblind">紧急揭盲</button>`)}
+    <div class="g3" style="margin-bottom:12px">
+      <div class="panel"><div class="pb"><div class="tiny muted">随机方案</div>
+        <div class="kv"><span class="k">分层因素</span><span class="v">中心 + 性别</span></div>
+        <div class="kv"><span class="k">区组长度</span><span class="v">4 / 6 混合</span></div>
+        <div class="kv"><span class="k">分配比例</span><span class="v">1 : 1</span></div></div></div>
+      <div class="panel"><div class="pb"><div class="tiny muted">号段使用</div>
+        <div class="kv"><span class="k">总号段</span><span class="v">R-0001 ~ R-0240</span></div>
+        <div class="kv"><span class="k">已发号</span><span class="v">186</span></div>
+        <div class="kv"><span class="k">作废</span><span class="v">2</span></div>
+        <div style="margin-top:6px">${bar(186,240)}</div></div></div>
+      <div class="panel"><div class="pb"><div class="tiny muted">盲底保护</div>
+        <div class="kv"><span class="k">当前角色</span><span class="v">${state.role}</span></div>
+        <div class="kv"><span class="k">组别可见</span><span class="v">${state.role==='PI'?'<span class="chip teal">可见</span>':'<span class="chip red">盲态</span>'}</span></div>
+        <div class="kv"><span class="k">揭盲</span><span class="v">申请 + 审批</span></div></div></div>
+    </div>
+    <div class="panel"><div class="ph"><h3>受试者发号</h3><span class="more">切换角色为 PI 可查看组别</span></div>
+      <div class="tw"><table class="tbl"><thead><tr><th>入组编号</th><th>姓名</th><th>中心</th><th>随机号</th><th>组别</th><th class="right">操作</th></tr></thead>
+      <tbody>${db.subjects.map(s=>`<tr><td class="mono st">${s.id}</td><td>${s.name}</td><td>${s.site}</td><td class="mono">${s.random}</td>
+        <td>${state.role==='PI'?`<span class="chip ${s.group==='试验组'?'teal':''}">${s.group}</span>`:'<span class="chip red">•••</span>'}</td>
+        <td class="right"><button class="link" data-action="randomize" data-id="${s.id}">重新发号</button></td></tr>`).join('')}</tbody></table></div></div>`;
+}
+
+/* ================= 双录入 ================= */
+function renderDouble(){
+  const pending=db.doubleEntry.filter(x=>x.status==='待仲裁').length;
+  return `${pageHead('双录入','双人独立录入后字段级比对，差异由第三方仲裁并保留原始值',`
+      <button class="btn btn-s btn-sm" data-action="double-check">重新比对</button>`)}
+    <div class="g4" style="margin-bottom:12px">
+      ${stat('表','4','比对表单','V2 基线')}${stat('字','4','比对字段','字段级')}
+      ${stat('差',pending,'待仲裁','差异项','down')}${stat('致','2','一致字段','无需处理')}
+    </div>
+    <div class="panel"><div class="ph"><h3>差异清单</h3><span class="more">保留两次原始值与仲裁过程</span></div>
+      <div class="tw"><table class="tbl"><thead><tr><th>表单</th><th>字段</th><th>第一次录入</th><th>录入人</th><th>第二次录入</th><th>录入人</th><th>状态</th><th>仲裁结果</th><th class="right">操作</th></tr></thead>
+      <tbody>${db.doubleEntry.map((d,i)=>`<tr><td>${d.form}</td><td class="st">${d.field}</td>
+        <td class="mono">${d.v1}</td><td>${d.by1}</td><td class="mono">${d.v2}</td><td>${d.by2}</td>
+        <td>${badge(d.status)}</td><td class="mono">${d.final||'—'}</td>
+        <td class="right">${d.status==='待仲裁'?`<button class="link" data-action="arbitrate" data-i="${i}" data-val="${d.v1}">取 ${d.v1}</button>
+          <button class="link" data-action="arbitrate" data-i="${i}" data-val="${d.v2}">取 ${d.v2}</button>`:'<span class="tiny muted">—</span>'}</td></tr>`).join('')}</tbody></table></div></div>`;
+}
+
+/* ================= 样本管理 ================= */
+function renderSamples(){
+  const tabs=['全部','已采集','已入库','已出库','已销毁'];
+  const tab=state.sampleTab||'全部';
+  const rows=db.samples.filter(x=>tab==='全部'||x.status===tab);
+  const tps=db.queue.timepoints;
+  const types=db.queue.sampleTypes.slice(0,6);
+  const cell=(i,j)=>{
+    const n=(i*3+j*2)%5;
+    return `<button class="btn btn-s btn-xs" data-action="collect-sample" data-tp="${tps[i]}" data-type="${types[j]}" title="采集 / 登记">${n?n+' 份':'＋'}</button>`;
+  };
+  return `${pageHead('样本管理','按「采样时点 × 样本类型」组织登记，入库审核后完成闭环',`
+      <button class="btn btn-s btn-sm" data-action="sample-review">入库审核</button>
+      <button class="btn btn-p btn-sm" data-action="collect-sample">采集样本</button>`)}
+    <div class="g4" style="margin-bottom:12px">
+      ${stat('样',db.samples.length,'样本总数',db.queue.sampleTypes.slice(0,3).join(' / '))}
+      ${stat('采',db.samples.filter(x=>x.status==='已采集').length,'待入库','待审核',db.samples.some(x=>x.status==='已采集')?'down':'up')}
+      ${stat('库',db.samples.filter(x=>x.status==='已入库').length,'已入库','样本库')}
+      ${stat('出',db.samples.filter(x=>x.status==='已出库').length,'已出库','待检测')}
+    </div>
+    <div class="panel" style="margin-bottom:12px"><div class="ph"><h3>时点 × 类型登记矩阵</h3><span class="more">点击单元格采集 / 登记</span></div>
+      <div class="tw"><table class="tbl"><thead><tr><th>采样时点</th>${types.map(t=>`<th>${t}</th>`).join('')}</tr></thead>
+      <tbody>${tps.map((tp,i)=>`<tr><td class="st">${tp}</td>${types.map((ty,j)=>`<td>${cell(i,j)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+      <div class="pb"><div class="hint">每个「时点 × 类型」组合对应一张处理与暂存登记表；上传后进入入库登记表，审核通过完成入库。</div></div>
+    </div>
+    <div class="panel"><div class="ph"><h3>最近样本</h3><span class="more">${rows.length} 条</span></div>
+      <div class="pb" style="padding-bottom:0"><div class="tabs" style="margin-bottom:0;border-bottom:none">
+        ${tabs.map(t=>`<button class="tab ${tab===t?'active':''}" data-action="sample-tab" data-tab="${t}">${t}</button>`).join('')}</div></div>
+      <div class="tw"><table class="tbl"><thead><tr><th>样本编码</th><th>受试者</th><th>类型</th><th>时点 / 访视</th><th>库位</th><th>状态</th><th>采集时间</th><th class="right">操作</th></tr></thead>
+      <tbody>${rows.map(x=>`<tr><td class="mono st">${x.code}</td><td>${x.subject}</td><td>${x.type}</td><td>${x.visit}</td>
+        <td class="mono">${x.box}</td><td>${badge(x.status)}</td><td class="mono">${x.time}</td>
+        <td class="right"><button class="btn btn-s btn-xs" data-action="next-sample" data-code="${x.code}">推进状态</button></td></tr>`).join('')||`<tr><td colspan="8"><div class="empty">该状态下暂无样本</div></td></tr>`}</tbody></table></div></div>`;
+}
+
+/* ================= 集成 ================= */
+function renderIntegration(){
+  return `${pageHead('HIS/LIS 集成','院内集成网关：患者主索引、就诊、检验结果与字典同步',`
+      <button class="btn btn-s btn-sm" data-action="manual-entry">手工补录</button>`)}
+    <div class="g3" style="margin-bottom:12px">
+      <div class="panel"><div class="pb"><div class="tiny muted">患者主索引</div>
+        <div class="kv"><span class="k">今日同步</span><span class="v">128 条</span></div>
+        <div class="kv"><span class="k">失败</span><span class="v" style="color:${db.logs.some(l=>l.dir.startsWith('HIS')&&l.status==='失败')?'#c2413b':'#0b7a5b'}">${db.logs.filter(l=>l.dir.startsWith('HIS')&&l.status==='失败').length} 条</span></div>
+        <div class="kv"><span class="k">平均耗时</span><span class="v">126 ms</span></div></div></div>
+      <div class="panel"><div class="pb"><div class="tiny muted">检验结果</div>
+        <div class="kv"><span class="k">今日同步</span><span class="v">342 条</span></div>
+        <div class="kv"><span class="k">失败</span><span class="v" style="color:${db.logs.some(l=>l.dir.startsWith('LIS')&&l.status==='失败')?'#c2413b':'#0b7a5b'}">${db.logs.filter(l=>l.dir.startsWith('LIS')&&l.status==='失败').length} 条</span></div>
+        <div class="kv"><span class="k">平均耗时</span><span class="v">238 ms</span></div></div></div>
+      <div class="panel"><div class="pb"><div class="tiny muted">接口策略</div>
+        <div class="kv"><span class="k">幂等</span><span class="v">业务主键</span></div>
+        <div class="kv"><span class="k">重试</span><span class="v">3 次 · 指数退避</span></div>
+        <div class="kv"><span class="k">兜底</span><span class="v">手工录入 / 导入</span></div></div></div>
+    </div>
+    <div class="panel"><div class="ph"><h3>集成日志</h3><span class="more">可按接口 / 时间 / 受试者检索</span></div>
+      <div class="tw"><table class="tbl"><thead><tr><th>时间</th><th>接口</th><th>方向</th><th>业务主键</th><th>状态</th><th>耗时</th><th class="right">操作</th></tr></thead>
+      <tbody>${db.logs.map((l,i)=>`<tr><td class="mono">${l.time}</td><td class="st">${l.iface}</td><td>${l.dir}</td><td class="mono">${l.subject}</td>
+        <td>${badge(l.status)}</td><td class="num">${l.ms} ms</td>
+        <td class="right">${l.status==='失败'?`<button class="link" data-action="retry" data-i="${i}">重试</button>`:'<span class="tiny muted">—</span>'}</td></tr>`).join('')}</tbody></table></div></div>`;
+}
+
+/* ================= 取值 / 表单工具 ================= */
+const val = id => ($('#'+id)?.value || '').trim();
+function formFields(){ return $('#modalRoot .mb'); }
+
+/* ================= 事件委托 ================= */
+document.addEventListener('click', e=>{
+  const t=e.target.closest('[data-action]');
+  if(!t) return;
+  const a=t.dataset.action;
+  const d=t.dataset;
+
+  switch(a){
+    case 'close-modal': closeModal(); break;
+    case 'reset':
+      modal('重置演示数据','所有模拟操作将恢复初始状态，确定继续？',
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-p btn-sm" data-action="do-reset">确定重置</button>`); break;
+    case 'do-reset': location.reload(); break;
+    case 'toggle-panel': {
+      const p=$('#panelR');
+      p.style.display = getComputedStyle(p).display==='none' ? 'flex' : 'none';
+      p.style.position = p.style.display==='flex' ? 'fixed' : '';
+      if(p.style.display==='flex'){ p.style.top='62px'; p.style.right='12px'; p.style.bottom='12px'; p.style.width='300px'; p.style.zIndex='60'; }
+      break;
+    }
+    case 'guide':
+      modal('演示路线', `
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <div class="fcard" style="cursor:pointer" data-action="flow" data-flow="build"><b>1. 平台</b><span>平台工作台 → 课题 → 进入队列</span></div>
+          <div class="fcard" style="cursor:pointer" data-action="flow" data-flow="enroll"><b>2. 建档</b><span>知情同意 → 双方信息 → 查重</span></div>
+          <div class="fcard" style="cursor:pointer" data-action="flow" data-flow="collect"><b>3. 采集</b><span>档案矩阵 → CRF → 质询</span></div>
+          <div class="fcard" style="cursor:pointer" data-action="flow" data-flow="deliver"><b>4. 交付</b><span>导出任务 → 审核 → 下载</span></div>
+        </div>
+        <div class="hint">点击任一环节自动跳转；页面右侧「演示说明」会给出当前页可试操作。</div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">关闭</button>`); break;
+    case 'flow': {
+      closeModal();
+      const f=d.flow;
+      if(f==='build'){ go('home'); toast('先建课题；观察型课题会自动挂载队列模块'); }
+      if(f==='enroll'){ go('enroll'); toast('填写知情同意与双方信息，创建时自动查重'); }
+      if(f==='collect'){ go('archives'); toast('从档案列表进入采集；状态矩阵显示每份 CRF'); }
+      if(f==='deliver'){ go('export'); toast('生成导出任务后，到数据审核通过才能下载'); }
+      break;
+    }
+    case 'go': closeModal(); go(d.page); break;
+    case 'profile': toast('当前演示账号：李静 · CRC · S01 心血管内科'); break;
+    case 'help':
+      modal('帮助中心', `
+        <div class="kv"><span class="k">平台工作台</span><span class="v">多队列/多课题总览</span></div>
+        <div class="kv"><span class="k">队列工作台</span><span class="v">单队列建档、查重、档案、样本</span></div>
+        <div class="kv"><span class="k">我的任务</span><span class="v">质询 + 导出审核 + 超窗待办</span></div>
+        <div class="hint">本原型为模拟数据；切换右上角角色可体验权限与盲底差异。</div>`,
+        `<button class="btn btn-p btn-sm" data-action="close-modal">知道了</button>`); break;
+    case 'logout':
+      modal('退出登录', `<div class="hint">演示环境不会真正退出，确认后回到平台工作台。</div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-p btn-sm" data-action="do-logout">退出</button>`); break;
+    case 'do-logout': closeModal(); state.page='home'; render(); toast('已退出登录（演示）','warn'); break;
+    case 'notify':
+      modal('待办提醒', `
+        <div style="font-size:12px;margin-bottom:8px"><b>未解决质询 ${db.queries.filter(q=>q.status==='未解决').length} 条</b></div>
+        <div style="font-size:12px;margin-bottom:8px"><b>待审核导出 ${db.reviews.filter(r=>r.status==='待审核').length} 条</b></div>
+        <div style="font-size:12px"><b>超窗待处理 ${db.deviations.filter(x=>x.status==='待处理').length} 条</b></div>
+        <div class="hint">点击下方按钮直达对应页面。</div>`,
+        `<button class="btn btn-s btn-sm" data-action="go" data-page="queries">去质询</button>
+         <button class="btn btn-p btn-sm" data-action="go" data-page="review">去审核</button>`); break;
+
+    /* ---- 机构 ---- */
+    case 'new-org':
+      modal('新增机构', `
+        <div class="fg">
+          <div class="field"><label>机构编码 *</label><input class="input" id="oCode" placeholder="ORG-005" /></div>
+          <div class="field"><label>机构名称 *</label><input class="input" id="oName" placeholder="请输入机构名称" /></div>
+          <div class="field"><label>机构等级</label><select class="select" id="oLevel"><option>三级甲等</option><option>三级乙等</option><option>二级甲等</option></select></div>
+          <div class="field"><label>地址</label><input class="input" id="oAddr" placeholder="上海市 / 区" /></div>
+        </div><div class="hint">机构下有用户时禁止删除。</div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-p btn-sm" data-action="save-org">保存</button>`); break;
+    case 'edit-org': {
+      const o=db.orgs.find(x=>x.code===d.code);
+      modal('编辑机构', `<div class="fg">
+          <div class="field"><label>机构编码</label><input class="input" value="${o.code}" disabled /></div>
+          <div class="field"><label>机构名称</label><input class="input" id="oName" value="${esc(o.name)}" /></div>
+          <div class="field"><label>等级</label><select class="select" id="oLevel"><option ${o.level==='三级甲等'?'selected':''}>三级甲等</option><option ${o.level==='三级乙等'?'selected':''}>三级乙等</option></select></div>
+          <div class="field"><label>地址</label><input class="input" id="oAddr" value="${esc(o.addr)}" /></div>
+        </div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-p btn-sm" data-action="save-edit-org" data-code="${o.code}">保存</button>`); break;
+    }
+    case 'save-org': {
+      const code=val('oCode'), name=val('oName');
+      if(!code||!name){ toast('机构编码与名称必填','err'); break; }
+      db.orgs.push({code,name,level:val('oLevel'),addr:val('oAddr')||'—',users:0});
+      closeModal(); render(); toast('机构已新增：'+name);
+      break;
+    }
+    case 'save-edit-org': {
+      const o=db.orgs.find(x=>x.code===d.code);
+      if(o){ o.name=val('oName')||o.name; o.level=val('oLevel'); o.addr=val('oAddr')||o.addr; }
+      closeModal(); render(); toast('机构信息已更新'); break;
+    }
+    case 'del-org': {
+      const o=db.orgs.find(x=>x.code===d.code);
+      if(o.users>0){ toast(`「${o.name}」下有 ${o.users} 名用户，不可删除`,'err'); break; }
+      db.orgs=db.orgs.filter(x=>x.code!==d.code); render(); toast('机构已删除','warn'); break;
+    }
+    case 'import-org': toast('已下载导入模板，示例文件解析成功（演示）'); break;
+
+    /* ---- 分中心 ---- */
+    case 'new-site':
+      modal('新增分中心', `<div class="fg">
+          <div class="field"><label>中心编码 *</label><input class="input" id="sCode" placeholder="S05" /></div>
+          <div class="field"><label>中心名称 *</label><input class="input" id="sName" placeholder="心内科" /></div>
+          <div class="field full"><label>从属机构</label><select class="select" id="sOrg">${db.orgs.map(o=>`<option>${o.name}</option>`).join('')}</select></div>
+          <div class="field"><label>负责人</label><input class="input" id="sPi" placeholder="姓名" /></div>
+          <div class="field"><label>计划入组</label><input class="input" id="sPlan" type="number" value="40" /></div>
+        </div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-p btn-sm" data-action="save-site">保存</button>`); break;
+    case 'save-site': {
+      const code=val('sCode'), name=val('sName');
+      if(!code||!name){ toast('中心编码与名称必填','err'); break; }
+      db.sites.push({code,org:val('sOrg'),name,pi:val('sPi')||'—',plan:+val('sPlan')||40,actual:0});
+      closeModal(); render(); toast('分中心已新增：'+code); break;
+    }
+    case 'add-site': toast(`已将 ${d.code} 添加到 ${state.currentQueue} 队列，计划入组与角色权限按课题配置`); break;
+
+    /* ---- 人员 ---- */
+    case 'new-user':
+      modal('新增人员', `<div class="fg">
+          <div class="field"><label>工号 *</label><input class="input" id="uNo" placeholder="U1029" /></div>
+          <div class="field"><label>姓名 *</label><input class="input" id="uName" placeholder="姓名" /></div>
+          <div class="field"><label>角色</label><select class="select" id="uRole"><option>CRC</option><option>PI</option><option>DM</option><option>CRA</option></select></div>
+          <div class="field"><label>分中心</label><select class="select" id="uSite">${db.sites.map(s=>`<option>${s.code}</option>`).join('')}</select></div>
+          <div class="field"><label>手机号</label><input class="input" id="uPhone" placeholder="138****0000" /></div>
+          <div class="field"><label>职称</label><input class="input" id="uTitle" placeholder="研究护士" /></div>
+        </div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-p btn-sm" data-action="save-user">保存</button>`); break;
+    case 'save-user': {
+      const no=val('uNo'), name=val('uName');
+      if(!no||!name){ toast('工号与姓名必填','err'); break; }
+      db.users.push({no,name,gender:'男',phone:val('uPhone')||'—',title:val('uTitle')||'—',role:val('uRole'),site:val('uSite'),status:'启用'});
+      closeModal(); render(); toast('人员已新增：'+name); break;
+    }
+    case 'import-users': toast('已解析 Excel 模板，成功导入 12 名人员（演示）'); break;
+    case 'reset-pwd': toast(`已重置「${d.name}」密码，初始密码已发送至邮箱（演示）`); break;
+
+    /* ---- 角色 ---- */
+    case 'new-role':
+      modal('新增角色', `<div class="fg">
+          <div class="field"><label>角色编码 *</label><input class="input" id="rCode" placeholder="R06" /></div>
+          <div class="field"><label>角色名称 *</label><input class="input" id="rName" placeholder="样本管理员" /></div>
+          <div class="field"><label>级别</label><select class="select" id="rLevel"><option>课题</option><option>中心</option><option>平台</option></select></div>
+          <div class="field"><label>数据权限</label><select class="select" id="rData"><option>课题数据</option><option>本人中心</option><option>全部数据</option></select></div>
+        </div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-p btn-sm" data-action="save-role">保存</button>`); break;
+    case 'save-role': {
+      const code=val('rCode'), name=val('rName');
+      if(!code||!name){ toast('角色编码与名称必填','err'); break; }
+      db.roles.push({code,name,level:val('rLevel'),pages:'待配置',data:val('rData'),export:'待配置'});
+      closeModal(); render(); toast('角色已新增：'+name); break;
+    }
+    case 'perm-role': {
+      const r=db.roles.find(x=>x.code===d.code);
+      modal(`配置权限 · ${r.name}`, `
+        <div style="font-size:12px;font-weight:600;margin-bottom:6px">页面权限</div>
+        <div class="cbs" style="margin-bottom:12px">${['对象管理','随访管理','质询管理','统计报表','数据导出','系统配置'].map((x,i)=>`<label><input type="checkbox" ${i<4?'checked':''}/>${x}</label>`).join('')}</div>
+        <div style="font-size:12px;font-weight:600;margin-bottom:6px">操作权限</div>
+        <div class="cbs" style="margin-bottom:12px">${['数据录入','打印','脱落','锁定数据','导出'].map((x,i)=>`<label><input type="checkbox" ${i<3?'checked':''}/>${x}</label>`).join('')}</div>
+        <div style="font-size:12px;font-weight:600;margin-bottom:6px">数据 / 导出权限</div>
+        <div class="fg">
+          <div class="field"><label>数据范围</label><select class="select" id="pData"><option>本人中心</option><option>课题数据</option><option>全部数据</option></select></div>
+          <div class="field"><label>导出范围</label><select class="select" id="pExp"><option>不可导出</option><option>按授权字段</option><option>全部字段</option></select></div>
+        </div><div class="hint">盲底与揭盲权限不随普通权限继承。</div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-p btn-sm" data-action="save-perm" data-code="${r.code}">保存权限</button>`); break;
+    }
+    case 'save-perm': {
+      const r=db.roles.find(x=>x.code===d.code);
+      if(r){ r.data=val('pData'); r.export=val('pExp'); r.pages='按配置生效'; }
+      closeModal(); render(); toast('角色权限已保存'); break;
+    }
+
+    /* ---- 课题 ---- */
+    case 'new-project':
+      modal('新建课题', `<div class="fg">
+          <div class="field"><label>课题编码 *</label><input class="input" id="pCode" placeholder="EDC-2026-001" /></div>
+          <div class="field"><label>课题简称 *</label><input class="input" id="pShort" placeholder="LOTUS" /></div>
+          <div class="field full"><label>课题名称 *</label><input class="input" id="pName" placeholder="请输入研究全称" /></div>
+          <div class="field"><label>PI</label><input class="input" id="pPi" placeholder="姓名" /></div>
+          <div class="field"><label>计划入组</label><input class="input" id="pPlan" type="number" value="120" /></div>
+          <div class="field"><label>研究类型</label><select class="select" id="pType"><option>干预性</option><option>观察性</option><option>注册性</option></select></div>
+          <div class="field"><label>盲法</label><select class="select" id="pBlind"><option>双盲</option><option>单盲</option><option>开放</option></select></div>
+        </div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-p btn-sm" data-action="save-project">创建课题</button>`); break;
+    case 'save-project': {
+      const code=val('pCode'), short=val('pShort'), name=val('pName');
+      if(!code||!short||!name){ toast('课题编码、简称、名称必填','err'); break; }
+      db.projects.unshift({code,short,name,pi:val('pPi')||'—',org:'上海市第一人民医院',start:'2026-01-01',end:'2027-12-31',
+        plan:+val('pPlan')||120,actual:0,centers:1,status:'进行中',locked:false,type:val('pType'),blind:val('pBlind')});
+      closeModal(); render(); toast('课题已创建：'+short); break;
+    }
+    case 'lock-project': {
+      const p=db.projects.find(x=>x.code===d.code);
+      p.locked=!p.locked; render(); toast(p.locked?'课题已锁定，所有用户不可操作':'课题已解锁，恢复操作','warn'); break;
+    }
+    case 'enter-project': {
+      const p=db.projects.find(x=>x.code===d.code);
+      if(p&&activateQueue(p.short)){ go('cohort'); toast(`已进入 ${p.short} 队列`); }
+      else toast('该课题为干预型研究，未挂载队列演示数据','warn');
+      break;
+    }
+
+    /* ---- 文档 ---- */
+    case 'upload-doc':
+      modal('上传文件', `<div class="fg">
+          <div class="field full"><label>文件名称 *</label><input class="input" id="dName" placeholder="SAPPHIRE_新增文件.pdf" /></div>
+          <div class="field"><label>文件夹</label><select class="select" id="dFolder"><option>方案文件</option><option>操作规范</option><option>中心管理</option></select></div>
+          <div class="field"><label>文件大小</label><input class="input" value="1.2 MB" disabled /></div>
+        </div><div class="hint">支持 txt / xls / xlsx / csv / jpg / png / docx / pdf / pptx / zip / rar，批量上传。</div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-p btn-sm" data-action="save-doc">上传</button>`); break;
+    case 'save-doc': {
+      const name=val('dName');
+      if(!name){ toast('请输入文件名称','err'); break; }
+      db.docs.push({name,size:'1.2 MB',by:'李静',time:'2026-11-10',folder:val('dFolder')});
+      closeModal(); render(); toast('文件已上传'); break;
+    }
+    case 'del-doc': db.docs=db.docs.filter(x=>x.name!==d.name); render(); toast('文件已删除','warn'); break;
+    case 'set-folder': state.folder=d.folder; render(); break;
+
+    /* ---- 模板 ---- */
+    case 'set-tpl': state.template=d.code; render(); break;
+    case 'add-field':
+      modal('添加字段', `<div class="fg">
+          <div class="field full"><label>字段名称 *</label><input class="input" id="fName" placeholder="如：吸烟史" /></div>
+          <div class="field"><label>字段类型</label><select class="select" id="fType"><option>文本</option><option>数值</option><option>日期</option><option>单选</option><option>多选</option></select></div>
+          <div class="field"><label>数据元来源</label><select class="select"><option>新建数据元</option><option>引用共享数据元</option></select></div>
+        </div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-p btn-sm" data-action="save-field">添加</button>`); break;
+    case 'save-field': {
+      const name=val('fName');
+      if(!name){ toast('字段名称必填','err'); break; }
+      const t=db.templates.find(x=>x.code===state.template);
+      t.fields.push({name,type:val('fType')});
+      closeModal(); render(); toast('字段已添加，预览同步更新'); break;
+    }
+    case 'rm-field': {
+      const t=db.templates.find(x=>x.code===state.template);
+      t.fields.splice(+d.i,1); render(); toast('字段已移除','warn'); break;
+    }
+    case 'save-tpl': toast('模板已保存（演示）'); break;
+    case 'preview-tpl': toast('已打开预览，与右侧表单一致（演示）'); break;
+    case 'export-tpl': toast('模板与数据元 JSON 已导出（演示）'); break;
+    case 'new-tpl':
+      modal('新增模板', `<div class="fg">
+          <div class="field"><label>模板编码 *</label><input class="input" id="tCode" placeholder="T-FORM-004" /></div>
+          <div class="field"><label>模板名称 *</label><input class="input" id="tName" placeholder="合并用药" /></div>
+          <div class="field"><label>共享类型</label><select class="select" id="tShared"><option>私有</option><option>共享</option></select></div>
+        </div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-p btn-sm" data-action="save-tpl-new">创建</button>`); break;
+    case 'save-tpl-new': {
+      const code=val('tCode'), name=val('tName');
+      if(!code||!name){ toast('编码与名称必填','err'); break; }
+      db.templates.push({code,name,shared:val('tShared'),fields:[]});
+      state.template=code; closeModal(); render(); toast('模板已创建，可添加字段'); break;
+    }
+
+    /* ---- 计划 ---- */
+    case 'toggle-plan': {
+      db.plan.enabled=!db.plan.enabled;
+      render(); toast(db.plan.enabled?'计划已启用，主干与分支编辑锁定':'计划已禁用，可编辑','warn'); break;
+    }
+    case 'new-activity': {
+      if(db.plan.enabled){ toast('计划已启用，不可新增或编辑主干 / 分支；请先禁用计划','err'); break; }
+      modal('新增活动', `<div class="fg">
+          <div class="field"><label>活动编码 *</label><input class="input" id="aCode" placeholder="V6" /></div>
+          <div class="field"><label>活动名称 *</label><input class="input" id="aName" placeholder="第 36 周随访" /></div>
+          <div class="field"><label>访视类型</label><select class="select" id="aType"><option>计划访视</option><option>非计划访视</option><option>循环访视</option></select></div>
+          <div class="field"><label>计划时间点</label><input class="input" id="aSchedule" placeholder="D252" /></div>
+          <div class="field"><label>窗口期</label><input class="input" id="aWindow" placeholder="±7 天" /></div>
+          <div class="field"><label>表单数量</label><input class="input" id="aForms" type="number" value="3" /></div>
+        </div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-p btn-sm" data-action="save-activity">保存</button>`); break;
+    }
+    case 'save-activity': {
+      const code=val('aCode'), name=val('aName');
+      if(!code||!name){ toast('活动编码与名称必填','err'); break; }
+      db.plan.activities.push({code,name,type:val('aType'),schedule:val('aSchedule')||'—',window:val('aWindow')||'—',forms:+val('aForms')||1,status:'未开始'});
+      closeModal(); render(); toast('活动已新增'); break;
+    }
+
+    /* ---- 受试者 ---- */
+    case 'new-subject': openNewSubject(); break;
+    case 'save-subject': {
+      const id=val('subId'), name=val('subName');
+      if(!id||!name){ toast('入组编号与姓名必填','err'); break; }
+      db.subjects.unshift({id,name,gender:val('subGender'),age:+val('subAge')||50,site:val('subSite'),enroll:'2026-11-13',
+        visit:db.plan.activities[0]?.name||'V1 基线',status:'未完成',queries:0,
+        random:db.queue.randomized?'待发号':'—',group:db.queue.randomized?'待分组':'—',samples:0});
+      closeModal(); render(); toast('受试者已登记：'+id); break;
+    }
+    case 'import-subject': toast('已导入 16 例受试者，入组编码自动生成（演示）'); break;
+    case 'open-subject': state.subject=d.id; state.tab='visits'; state.page='subject-detail'; renderSubjectDetailPage(); break;
+    case 'tab': state.tab=d.tab; renderSubjectDetailPage(); break;
+    case 'open-crf': state.tab='crf'; renderSubjectDetailPage(); break;
+    case 'save-crf': toast('表单已保存，可稍后继续录入'); break;
+    case 'submit-crf': {
+      const crf=db.queue.crf||{fields:[]};
+      let ok=true, first='';
+      crf.fields.forEach(f=>{
+        const el=$('#'+f.id), err=$('#'+f.id+'Err');
+        const v=el?.value??'';
+        let bad=false;
+        if(f.req && !v) bad=true;
+        if(f.min!=null && v!=='' && (+v<f.min||+v>f.max)) bad=true;
+        if(err) err.style.display=bad?'block':'none';
+        if(bad&&!first){ ok=false; first=f.label; }
+      });
+      if(!ok){ toast(`提交失败：${first} 校验未通过`,'err'); break; }
+      const s=db.subjects.find(x=>x.id===state.subject);
+      if(s&&s.status!=='有质询') s.status='已完成';
+      renderSubjectDetailPage();
+      toast('表单已提交并通过 CRF 规则校验','ok');
+      break;
+    }
+    case 'raise-query': openRaiseQuery(d.form||'生命体征'); break;
+    case 'save-query': {
+      const field=val('qField'), msg=val('qMsg');
+      if(!field||!msg){ toast('字段与说明必填','err'); break; }
+      const subId=val('qSubject')||state.subject||db.subjects[0]?.id||'S01-0001';
+      const s=db.subjects.find(x=>x.id===subId);
+      db.queries.unshift({id:'Q-'+(1000+db.queries.length+1),subject:subId,site:s?.site||'S01',enroll:s?.enroll||'2026-01-01',
+        activity:val('qActivity')||'V3 随访',activityStatus:'待质询',form:val('qForm'),field,
+        type:val('qType'),from:'李静',time:'2026-11-13 10:30',status:'未解决',locked:false,msg});
+      if(s){ s.queries=(s.queries||0)+1; s.status='有质询'; }
+      closeModal(); render(); toast('质询已发出，等待研究者处理'); break;
+    }
+    case 'lock-query': {
+      const q=db.queries.find(x=>x.id===d.id);
+      q.locked=!q.locked;
+      q.activityStatus=q.locked?'锁定':'有质询';
+      render(); toast(q.locked?`${q.id} 数据已锁定，禁止修改`:`${q.id} 已解锁`,'warn'); break;
+    }
+    case 'reset-query-filter':
+      state.qFilter={site:'',from:'',to:'',code:''}; render(); toast('筛选条件已重置','warn'); break;
+
+    /* ---- 平台 → 队列切换 ---- */
+    case 'switch-project': {
+      const qs=db.projects.filter(p=>QUEUE_SETS[p.short]);
+      modal('切换队列 / 课题', `
+        <div class="tiny muted" style="margin-bottom:6px">当前平台下可进入的队列（观察型课题）</div>
+        ${qs.map(p=>`<div class="fcard" style="cursor:pointer" data-action="enter-queue" data-code="${p.code}">
+          <b>${p.short}</b><span>${p.type} · PI ${p.pi} · ${p.centers} 中心</span>
+          <span class="chip ${p.short===state.currentQueue?'teal':''}" style="margin-left:6px">${p.short===state.currentQueue?'当前':'进入'}</span></div>`).join('')}
+        <div class="hint">介入型课题不挂载队列模块；本原型仅展开队列课题 SAPPHIRE。</div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-p btn-sm" data-action="go" data-page="projects">课题管理</button>`); break;
+    }
+    case 'enter-queue': {
+      const p=db.projects.find(x=>x.code===d.code)||db.projects[0];
+      if(!activateQueue(p.short)){ toast('该队列的演示数据暂未展开','warn'); break; }
+      closeModal(); go('cohort');
+      toast(`已进入队列：${p.short} · ${p.name}`);
+      break;
+    }
+
+    /* ---- 问卷配置 ---- */
+    case 'publish-questionnaire': {
+      const q=db.questionnaires.find(x=>x.code===d.code);
+      q.status=q.status==='已发布'?'未发布':'已发布';
+      render(); toast(`问卷「${q.name}」${q.status==='已发布'?'已发布':'已取消发布'}`); break;
+    }
+    case 'copy-questionnaire': {
+      const q=db.questionnaires.find(x=>x.code===d.code);
+      const v=q.version.replace(/V(\d+)\.(\d+)/,(m,a,b)=>`V${+a+1}.0`);
+      db.questionnaires.unshift({...q,code:q.code+'-N',version:v,status:'未发布',updated:'2026-11-13',name:q.name+'（新版本）'});
+      render(); toast(`已复制生成 ${v}，请修改后发布`); break;
+    }
+    case 'preview-questionnaire': {
+      const q=db.questionnaires.find(x=>x.code===d.code);
+      modal(`预览 · ${q.name}`, `
+        <div class="kv"><span class="k">填写角色</span><span class="v">${q.role}</span></div>
+        <div class="kv"><span class="k">版本</span><span class="v mono">${q.version}</span></div>
+        <div style="border:1px solid #e6edf6;border-radius:9px;padding:12px;margin-top:10px;background:#fbfdff">
+          <div style="font-size:12px;font-weight:700;margin-bottom:8px">题目预览（示例 4 题）</div>
+          <div class="frow" style="grid-template-columns:1fr"><label style="text-align:left">1. 姓名</label><input class="input" value="张*华" disabled /></div>
+          <div class="frow" style="grid-template-columns:1fr"><label style="text-align:left">2. 出生日期</label><input class="input" value="1992-06-01" disabled /></div>
+          <div class="frow" style="grid-template-columns:1fr"><label style="text-align:left">3. 是否签署知情同意</label><input class="input" value="是" disabled /></div>
+          <div class="frow" style="grid-template-columns:1fr"><label style="text-align:left">4. 目前所处阶段</label><input class="input" value="孕期" disabled /></div>
+        </div><div class="hint">共 ${q.questions} 题；完整设计请在「模板与数据元」中维护字段与校验。</div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">关闭</button>
+         <button class="btn btn-p btn-sm" data-action="go" data-page="templates">进入设计器</button>`); break;
+    }
+    case 'new-questionnaire':
+      modal('新建问卷', `<div class="fg">
+          <div class="field"><label>问卷编码 *</label><input class="input" id="qCode" placeholder="Q-NEW-01" /></div>
+          <div class="field"><label>问卷名称 *</label><input class="input" id="qName" placeholder="如：产后 6 个月随访" /></div>
+          <div class="field"><label>填写角色</label><select class="select" id="qRole"><option>医生</option><option>女方</option><option>男方</option><option>女方 / 男方</option></select></div>
+          <div class="field"><label>题目数</label><input class="input" id="qCount" type="number" value="20" /></div>
+        </div><div class="hint">创建后进入设计器维护题目；发布前不影响采集。</div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-p btn-sm" data-action="save-questionnaire">创建</button>`); break;
+    case 'save-questionnaire': {
+      const code=val('qCode'), name=val('qName');
+      if(!code||!name){ toast('问卷编码与名称必填','err'); break; }
+      db.questionnaires.unshift({code,name,questions:+val('qCount')||20,role:val('qRole'),version:'V1.0',status:'未发布',updated:'2026-11-13'});
+      closeModal(); render(); toast('问卷已创建：'+name); break;
+    }
+
+    /* ---- 脱落管理 / 任务日历 ---- */
+    case 'new-dropout': {
+      const opts=db.subjects.filter(x=>!db.dropouts.some(d=>d.subject===x.id));
+      modal('登记脱落', `<div class="fg">
+          <div class="field"><label>受试者 *</label><select class="select" id="dropSubject">${opts.map(x=>`<option value="${x.id}">${x.id} · ${x.name} · ${x.site}</option>`).join('')}</select></div>
+          <div class="field"><label>脱落日期</label><input class="input" id="dropDate" type="date" value="2026-11-13" /></div>
+          <div class="field full"><label>脱落原因 *</label><textarea id="dropReason" placeholder="如：受试者撤回知情同意 / 失访 / 研究者判断"></textarea></div>
+          <div class="field"><label>操作人</label><input class="input" id="dropBy" value="李静" /></div>
+        </div><div class="hint">登记后受试者状态同步为「脱落」，记录保留在脱落列表。</div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-p btn-sm" data-action="save-dropout">确认登记</button>`); break;
+    }
+    case 'save-dropout': {
+      const id=val('dropSubject'); const sub=db.subjects.find(x=>x.id===id);
+      const reason=val('dropReason');
+      if(!id||!reason){ toast('受试者与脱落原因必填','err'); break; }
+      db.dropouts.unshift({subject:id,name:sub?.name||'—',gender:sub?.gender||'—',site:sub?.site||'S01',
+        enroll:sub?.enroll||'—',stage:sub?.visit||'—',date:val('dropDate')||'2026-11-13',reason,by:val('dropBy')||'李静',
+        enrollTime:(sub?.enroll||'2026-01-01')+' 09:00'});
+      if(sub) sub.status='脱落';
+      closeModal(); render(); toast(`已登记 ${id} 脱落`,'warn'); break;
+    }
+    case 'dropout-detail': {
+      const d=db.dropouts.find(x=>x.subject===d.subject);
+      if(!d) break;
+      modal(`脱落信息 · ${d.subject}`, `
+        <div class="kv"><span class="k">姓名 / 性别</span><span class="v">${d.name} / ${d.gender}</span></div>
+        <div class="kv"><span class="k">分中心</span><span class="v">${d.site}</span></div>
+        <div class="kv"><span class="k">入组日期 / 阶段</span><span class="v">${d.enroll} / ${d.stage}</span></div>
+        <div class="kv"><span class="k">脱落日期</span><span class="v mono">${d.date}</span></div>
+        <div class="kv"><span class="k">脱落原因</span><span class="v" style="font-weight:400">${d.reason}</span></div>
+        <div class="kv"><span class="k">操作人 / 入组时间</span><span class="v">${d.by} / ${d.enrollTime}</span></div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">关闭</button>
+         <button class="btn btn-p btn-sm" data-action="go" data-page="subjects">查看对象</button>`); break;
+    }
+    case 'cal-prev': {
+      let y=state.calYear||2026,m=state.calMonth==null?10:state.calMonth;
+      m--; if(m<0){m=11;y--;} state.calYear=y; state.calMonth=m; render(); break;
+    }
+    case 'cal-next': {
+      let y=state.calYear||2026,m=state.calMonth==null?10:state.calMonth;
+      m++; if(m>11){m=0;y++;} state.calYear=y; state.calMonth=m; render(); break;
+    }
+    case 'cal-today':
+      state.calYear=2026; state.calMonth=10; render(); toast('已回到今天（2026-11-13）'); break;
+    case 'calendar-event':
+      state.subject=d.id; state.tab='crf'; state.page='subject-detail'; render();
+      toast('已打开受试者数据采集'); break;
+
+    /* ---- 队列：建档 / 查重 / 档案 / 设置 ---- */
+    case 'duplicate-check':
+      modal('重复建档查询', `
+        <div class="frow" style="grid-template-columns:80px 1fr;padding-top:0"><label>查重条件</label>
+          <div style="display:flex;gap:6px"><input class="input" id="dupKw" placeholder="证件号码 / 姓名 / 档案编号" />
+          <button class="btn btn-p btn-sm" data-action="do-dup" style="height:31px">查询</button></div></div>
+        <div class="hint">规则：${db.queue.dupRule}；命中后支持合并档案或标记关联。</div>
+        <div id="dupResult" style="margin-top:10px"></div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">关闭</button>`); break;
+    case 'do-dup': {
+      const kw=val('dupKw');
+      const list=db.archives.filter(a=>!kw||a.code.includes(kw)||archivePeople(a).some(p=>String(p.name).includes(kw)||String(p.id||'').includes(kw)));
+      const labels=(db.queue.people||[{label:'受试者'}]).map(p=>p.label);
+      $('#dupResult').innerHTML = list.length ? `<div class="tw"><table class="tbl"><thead><tr><th>档案编号</th>${labels.map(l=>`<th>${l}</th>`).join('')}<th>建档日期</th></tr></thead><tbody>
+        ${list.map(a=>`<tr><td class="mono">${a.code}</td>${labels.map((l,i)=>`<td>${archivePeople(a)[i]?.name||'—'}</td>`).join('')}<td class="mono">${a.date}</td></tr>`).join('')}
+        </tbody></table></div><div class="hint">命中 ${list.length} 份档案；如确认重复，可合并或标记关联。</div>`
+        : `<div class="empty">未发现疑似重复档案</div>`;
+      break;
+    }
+    case 'create-archive': {
+      if(val('aConsent')==='否'){ toast('未签署知情同意，不能创建档案','err'); break; }
+      const ppl=db.queue.people||[{key:'p0',label:'受试者'}];
+      const names=ppl.map((p,i)=>val(`p${i}Name`));
+      const ids=ppl.map((p,i)=>val(`p${i}Id`)).filter(Boolean);
+      if(!names[0]){ toast(`${ppl[0].label}姓名必填`,'err'); break; }
+      const dup=db.archives.some(a=>archivePeople(a).some(ap=> (ap.id&&ids.includes(ap.id)) || (ap.name&&names.includes(ap.name))));
+      if(dup){
+        modal('发现疑似重复档案', `<div class="note"><b>查重命中：</b>姓名或证件号码与既有档案重复。请确认是继续建档，还是返回合并/关联。</div>
+          <div class="hint">继续创建后，建议在档案管理中标记关联关系。</div>`,
+          `<button class="btn btn-s btn-sm" data-action="close-modal">返回修改</button>
+           <button class="btn btn-d btn-sm" data-action="confirm-archive">仍然创建</button>`);
+      } else { saveArchive(); }
+      break;
+    }
+    case 'confirm-archive': saveArchive(); break;
+    case 'reset-archive': {
+      const ppl=db.queue.people||[{key:'p0',label:'受试者'}];
+      ppl.forEach((p,i)=>{ ['Name','Id'].forEach(k=>{ const el=$(`#p${i}${k}`); if(el) el.value=''; }); });
+      toast('建档表单已重置','warn'); break;
+    }
+    case 'archive-detail': {
+      const a=db.archives.find(x=>x.code===d.code);
+      if(!a) break;
+      modal(`档案详情 · ${a.code}`, `
+        <div class="kv"><span class="k">建档机构</span><span class="v">${a.org}</span></div>
+        <div class="kv"><span class="k">建档日期</span><span class="v mono">${a.date}</span></div>
+        ${archivePeople(a).map(p=>`<div class="kv"><span class="k">${p.label}</span><span class="v">${p.name}</span></div><div class="kv"><span class="k">${p.label}证件号码</span><span class="v mono">${p.id||'—'}</span></div>`).join('')}
+        <div style="margin-top:10px;font-size:12px;font-weight:700">CRF 完成状态</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${Object.entries(a.status).map(([k,v])=>`<span class="chip ${v==='已提交'?'teal':''}">${k} · ${v}</span>`).join('')}</div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">关闭</button>
+         <button class="btn btn-p btn-sm" data-action="go" data-page="subjects">进入数据采集</button>`); break;
+    }
+    case 'archive-export':
+      toast('已生成批量导出任务：全量导出 + 问卷导出（Excel）'); break;
+    case 'import-archive':
+      toast('已解析建档模板，成功导入 8 份档案（演示）'); break;
+    case 'add-status':
+      modal('添加对象状态', `<div class="field"><label>状态名称 *</label><input class="input" id="newStatus" placeholder="如：产后" /></div>
+        <div class="hint">状态用于标识对象所处研究阶段，可随时增删。</div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-p btn-sm" data-action="save-status">添加</button>`); break;
+    case 'save-status': {
+      const v=val('newStatus');
+      if(!v){ toast('请输入状态名称','err'); break; }
+      db.queue.statuses.push(v); closeModal(); render(); toast('对象状态已添加：'+v); break;
+    }
+    case 'add-timepoint':
+      modal('添加采样时点', `<div class="field"><label>时点名称 *</label><input class="input" id="newTp" placeholder="如：产后 6 个月" /></div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-p btn-sm" data-action="save-timepoint">添加</button>`); break;
+    case 'save-timepoint': {
+      const v=val('newTp');
+      if(!v){ toast('请输入时点名称','err'); break; }
+      db.queue.timepoints.push(v); closeModal(); render(); toast('采样时点已添加：'+v); break;
+    }
+    case 'add-type':
+      modal('添加样本类型', `<div class="field"><label>类型名称 *</label><input class="input" id="newType" placeholder="如：血浆" /></div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-p btn-sm" data-action="save-type">添加</button>`); break;
+    case 'save-type': {
+      const v=val('newType');
+      if(!v){ toast('请输入样本类型','err'); break; }
+      db.queue.sampleTypes.push(v); closeModal(); render(); toast('样本类型已添加：'+v); break;
+    }
+    case 'edit-dup':
+      modal('编辑查重规则', `<div class="field"><label>查重字段组合</label><input class="input" id="dupRule" value="${esc(db.queue.dupRule)}" /></div>
+        <div class="hint">示例：证件号码 + 姓名/出生日期；可按队列实际数据质量调整。</div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-p btn-sm" data-action="save-dup">保存</button>`); break;
+    case 'save-dup': {
+      const v=val('dupRule');
+      if(!v){ toast('查重规则不能为空','err'); break; }
+      db.queue.dupRule=v; closeModal(); render(); toast('查重规则已更新'); break;
+    }
+
+    /* ---- 质询 ---- */
+    case 'qtab': state.queryTab=d.tab; render(); break;
+    case 'resolve-query': {
+      const q=db.queries.find(x=>x.id===d.id);
+      if(q.locked){ toast('数据已锁定，请先解锁后再解决质询','err'); break; }
+      modal(`解决质询 · ${q.id}`, `
+        <div class="kv"><span class="k">受试者</span><span class="v">${q.subject}</span></div>
+        <div class="kv"><span class="k">表单 / 字段</span><span class="v">${q.form} / ${q.field}</span></div>
+        <div class="kv"><span class="k">质询说明</span><span class="v" style="font-weight:400">${q.msg}</span></div>
+        <div class="field" style="margin-top:10px"><label>处理说明 *</label><textarea id="qReply" placeholder="说明修改内容或无需修改的原因"></textarea></div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-p btn-sm" data-action="do-resolve" data-id="${q.id}">确认解决</button>`); break;
+    }
+    case 'do-resolve': {
+      const q=db.queries.find(x=>x.id===d.id);
+      if(!val('qReply')){ toast('请填写处理说明','err'); break; }
+      q.status='已解决'; q.activityStatus='已解决';
+      const s=db.subjects.find(x=>x.id===q.subject);
+      if(s){ s.queries=Math.max(0,(s.queries||1)-1); if(!s.queries) s.status='已完成'; }
+      closeModal(); render(); toast('质询已解决并闭环'); break;
+    }
+
+    /* ---- 超窗 / 审核 ---- */
+    case 'remind': toast(`已向 ${d.subject} 的责任研究者发送超窗提醒`); break;
+    case 'deviation-rule':
+      modal('超窗计算规则', `<div class="kv"><span class="k">公式</span><span class="v">实际到访 − 计划日期 − 窗口期</span></div>
+        <div class="kv"><span class="k">计划日期来源</span><span class="v">访视时间轴引擎</span></div>
+        <div class="kv"><span class="k">口径一致性</span><span class="v">列表 / 日历 / 统计同源</span></div>
+        <div class="hint">例如：计划 11-04，窗口 ±3 天，实际 11-12 → 超窗 5 天。</div>`,
+        `<button class="btn btn-p btn-sm" data-action="close-modal">知道了</button>`); break;
+    case 'approve':
+    case 'reject': {
+      const r=db.reviews.find(x=>x.id===d.id);
+      const pass=a==='approve';
+      modal(pass?'审核通过':'审核驳回', `<div class="kv"><span class="k">文件</span><span class="v">${r.file}</span></div>
+        <div class="field" style="margin-top:10px"><label>审核备注 ${pass?'（选填）':'*'}</label><textarea id="rNote" placeholder="填写审核意见"></textarea></div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn ${pass?'btn-p':'btn-d'} btn-sm" data-action="do-review" data-id="${r.id}" data-pass="${pass}">${pass?'确认通过':'确认驳回'}</button>`); break;
+    }
+    case 'do-review': {
+      const r=db.reviews.find(x=>x.id===d.id);
+      const note=val('rNote');
+      if(d.pass!=='true' && !note){ toast('驳回必须填写备注','err'); break; }
+      r.status=d.pass==='true'?'通过':'驳回'; r.note=note||'符合导出授权';
+      closeModal(); render(); toast(d.pass==='true'?'审核已通过，可进入导出':'已驳回，申请人会收到通知','warn'); break;
+    }
+
+    /* ---- 统计 / 导出 ---- */
+    case 'stat-export': go('export'); toast('已带入统计筛选条件，请确认导出格式'); break;
+    case 'add-cond':
+      modal('添加导出条件', `<div class="fg">
+          <div class="field"><label>字段</label><select class="select" id="cField"><option>入组日期</option><option>分中心</option><option>受试者状态</option><option>访视</option></select></div>
+          <div class="field"><label>操作符</label><select class="select" id="cOp"><option>等于</option><option>大于</option><option>包含</option><option>介于</option></select></div>
+          <div class="field full"><label>值</label><input class="input" id="cVal" placeholder="如：S01" /></div>
+        </div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-p btn-sm" data-action="save-cond">添加</button>`); break;
+    case 'save-cond': {
+      const v=val('cVal');
+      if(!v){ toast('请填写条件值','err'); break; }
+      state.conds.push({field:val('cField'),op:val('cOp'),value:v});
+      closeModal(); render(); toast('条件已添加'); break;
+    }
+    case 'rm-cond': state.conds.splice(+d.i,1); render(); break;
+    case 'run-export': {
+      const fmt=document.querySelector('input[name="fmt"]:checked')?.value||'xlsx';
+      const name=`${state.currentQueue}_导出_${Date.now().toString().slice(-6)}.${fmt}`;
+      db.exports.unshift({name,by:'李静',time:'2026-11-10 10:32',status:'生成中',count:0,format:fmt});
+      render(); toast('导出任务已提交，异步生成中…');
+      setTimeout(()=>{
+        const e=db.exports.find(x=>x.name===name);
+        if(e) e.status='已完成';
+        if(state.page==='export') render();
+        toast('导出完成：'+name);
+      },1600);
+      break;
+    }
+    case 'download': {
+      const e=db.exports.find(x=>x.name===d.name);
+      if(e) e.count++;
+      render(); toast('文件已开始下载（演示）'); break;
+    }
+
+    /* ---- 随机化 / 双录 / 样本 ---- */
+    case 'randomize': {
+      const s=db.subjects.find(x=>x.id===d.id);
+      const n=Math.floor(Math.random()*200+30);
+      s.random='R-00'+n; s.group=n%2?'试验组':'对照组';
+      render(); toast(`已为 ${s.id} 发号：${s.random}（${state.role==='PI'?s.group:'盲态'}）`); break;
+    }
+    case 'unblind':
+      modal('紧急揭盲', `<div class="field"><label>揭盲理由 *</label><textarea id="uReason" placeholder="如：受试者发生严重不良事件，需紧急揭盲"></textarea></div>
+        <div class="hint">提交后进入 PI 审批；揭盲记录不可删除并写入审计日志。</div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-d btn-sm" data-action="do-unblind">提交申请</button>`); break;
+    case 'do-unblind':
+      if(!val('uReason')){ toast('请填写揭盲理由','err'); break; }
+      closeModal(); toast('揭盲申请已提交，等待 PI 审批（演示）','warn'); break;
+    case 'arbitrate': {
+      const r=db.doubleEntry[+d.i];
+      r.status='已仲裁'; r.final=d.val;
+      if(!db.doubleEntry.some(x=>x.status==='待仲裁')) toast('全部差异已仲裁完成');
+      render(); break;
+    }
+    case 'double-check':
+      db.doubleEntry.forEach(x=>{ if(x.v1!==x.v2 && x.status==='一致') x.status='待仲裁'; });
+      render(); toast('已重新比对，差异项已识别'); break;
+    case 'collect-sample': openCollectSample(d.id, d.tp, d.type); break;
+    case 'sample-tab': state.sampleTab=d.tab; render(); break;
+    case 'sample-review': openSampleReview(); break;
+    case 'approve-sample': { const sp=db.samples.find(x=>x.code===d.code); if(sp){ sp.status='已入库'; } closeModal(); render(); toast('样本已审核入库：'+d.code); break; }
+    case 'save-sample': {
+      const sub=val('spSubject'), type=val('spType'), box=val('spBox');
+      if(!sub||!type){ toast('受试者与样本类型必填','err'); break; }
+      const spPrefix=(db.queue.codeRule||'ARC-{中心编码}-{流水号}').split('{')[0].replace(/-$/,'');
+      db.samples.unshift({code:spPrefix+'-'+sub+'-'+String(db.samples.length+1).padStart(3,'0'),subject:sub,type,
+        visit:val('spVisit'),box:box||'待分配',status:'已采集',time:'2026-11-10 10:35'});
+      const s=db.subjects.find(x=>x.id===sub); if(s) s.samples=(s.samples||0)+1;
+      closeModal(); render(); toast('样本已采集并生成唯一条码'); break;
+    }
+    case 'next-sample': {
+      const s=db.samples.find(x=>x.code===d.code);
+      const flow=['已采集','已入库','已出库','已销毁'];
+      const i=flow.indexOf(s.status);
+      s.status=flow[Math.min(i+1,flow.length-1)];
+      render(); toast(`样本 ${s.code} 状态更新为「${s.status}」`); break;
+    }
+
+    /* ---- 集成 ---- */
+    case 'retry': {
+      const l=db.logs[+d.i]; l.status='成功'; l.ms=184;
+      render(); toast('接口重试成功，集成日志已更新'); break;
+    }
+    case 'manual-entry':
+      modal('手工补录', `<div class="field"><label>补录内容 *</label><textarea id="mText" placeholder="粘贴或输入检验结果 / 患者信息"></textarea></div>
+        <div class="hint">接口不可用时启用，补录数据同样进入审计留痕。</div>`,
+        `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+         <button class="btn btn-p btn-sm" data-action="do-manual">提交补录</button>`); break;
+    case 'do-manual':
+      if(!val('mText')){ toast('请输入补录内容','err'); break; }
+      closeModal(); toast('补录已保存并记录操作人'); break;
+  }
+});
+
+/* ---- 动态详情页（不经过 render 的 page 映射） ---- */
+function renderSubjectDetailPage(){
+  state.page='subject-detail';
+  render();
+}
+
+/* ---- 搜索：输入后保持焦点 ---- */
+document.addEventListener('input', e=>{
+  const id=e.target.id;
+  if(!['orgSearch','userSearch','subjectSearch','docSearch','archiveSearch','queryCode','dropSearch'].includes(id)) return;
+  if(id==='orgSearch') state.orgFilter=e.target.value;
+  if(id==='userSearch') state.userFilter=e.target.value;
+  if(id==='subjectSearch') state.subjectFilter=e.target.value;
+  if(id==='docSearch') state.docFilter=e.target.value;
+  if(id==='archiveSearch') state.archiveFilter=e.target.value;
+  if(id==='queryCode') state.qFilter={...(state.qFilter||{}),code:e.target.value};
+  if(id==='dropSearch') state.dropFilter=e.target.value;
+  render();
+  const el=$('#'+id);
+  if(el){ el.focus(); const v=el.value; el.setSelectionRange(v.length,v.length); }
+});
+
+/* ---- 角色切换 ---- */
+document.addEventListener('change', e=>{
+  if(['querySite','queryFrom','queryTo'].includes(e.target.id)){
+    const key={querySite:'site',queryFrom:'from',queryTo:'to'}[e.target.id];
+    state.qFilter={...(state.qFilter||{}),[key]:e.target.value};
+    render(); return;
+  }
+  if(e.target.id==='dropSite'){ state.dropSite=e.target.value; render(); return; }
+  if(e.target.id==='roleSelect'){
+    state.role=e.target.value;
+    render();
+    toast(`已切换为 ${state.role}${state.role==='PI'?'，可查看随机组别':'，随机组别保持盲态'}`);
+  }
+});
+
+/* ---- 全局搜索 / Esc / 遮罩 ---- */
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape') closeModal();
+  if(e.key==='Enter' && e.target.id==='globalSearch'){
+    const v=e.target.value.trim();
+    if(v){ state.subjectFilter=v; state.page='subjects'; render(); toast('已按「'+v+'」筛选受试者'); }
+  }
+});
+document.addEventListener('click', e=>{
+  if(e.target.matches('[data-mask]')) closeModal();
+});
+
+/* ================= 弹窗构造 ================= */
+function openSampleReview(){
+  const list=db.samples.filter(x=>x.status==='已采集');
+  modal('样本入库审核', list.length ? `
+    <div class="hint" style="margin-bottom:8px">审核通过后状态变为「已入库」并记录审核人。</div>
+    <div class="tw"><table class="tbl"><thead><tr><th>样本编码</th><th>类型</th><th>受试者</th><th>库位</th><th class="right">操作</th></tr></thead>
+    <tbody>${list.map(x=>`<tr><td class="mono">${x.code}</td><td>${x.type}</td><td>${x.subject}</td><td class="mono">${x.box}</td>
+      <td class="right"><button class="btn btn-p btn-xs" data-action="approve-sample" data-code="${x.code}">审核入库</button></td></tr>`).join('')}</tbody></table></div>`
+    : `<div class="empty">暂无待入库样本</div>`,
+    `<button class="btn btn-s btn-sm" data-action="close-modal">关闭</button>`);
+}
+function saveArchive(){
+  const site=val('aSite')||db.sites[0]?.code||'S01';
+  const prefix=(db.queue.codeRule||'ARC-{中心编码}-{流水号}').split('{')[0].replace(/-$/,'');
+  const code=prefix+'-'+site+'-'+String(db.archives.length+1).padStart(4,'0');
+  const status={}; (db.queue.statusColumns||[]).forEach(k=>status[k]='未提交');
+  const ppl=db.queue.people||[{key:'p0',label:'受试者'}];
+  const people=ppl.map((p,i)=>({label:p.label,name:val(`p${i}Name`)||'—',id:val(`p${i}Id`)||'—'}));
+  const org=db.sites.find(s=>s.code===site)?.org||queueLead();
+  const date=val('aDate0')||'2026-11-13';
+  db.archives.unshift({code,org,people,female:people[0]?.name||'—',male:people[1]?.name||'—',
+    fid:people[0]?.id||'—',mid:people[1]?.id||'—',date,status});
+  closeModal();
+  state.page='archives';
+  render();
+  toast('档案已创建：'+code+'，已自动生成档案编号');
+}
+
+function openNewSubject(){
+  modal('登记受试者', `<div class="fg">
+      <div class="field"><label>入组编号 *</label><input class="input" id="subId" placeholder="S01-0004" /></div>
+      <div class="field"><label>姓名 *</label><input class="input" id="subName" placeholder="姓名" /></div>
+      <div class="field"><label>性别</label><select class="select" id="subGender"><option>男</option><option>女</option></select></div>
+      <div class="field"><label>年龄</label><input class="input" id="subAge" type="number" value="55" /></div>
+      <div class="field"><label>分中心</label><select class="select" id="subSite">${db.sites.map(s=>`<option>${s.code}</option>`).join('')}</select></div>
+      <div class="field"><label>随机号</label><input class="input" value="${db.queue.randomized?'登记后自动发号':'本队列不适用'}" disabled /></div>
+    </div><div class="hint">受试者登记后进入筛选期；批量导入支持 Excel 模板。</div>`,
+    `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+     <button class="btn btn-p btn-sm" data-action="save-subject">登记入组</button>`);
+}
+function openRaiseQuery(form){
+  const sub=state.page==='subject-detail'?state.subject:(db.subjects[0]?.id||'S01-0001');
+  const acts=db.plan.activities.map(a=>`${a.code} ${a.name}`);
+  modal('新增访视质询', `<div class="fg">
+      <div class="field"><label>受试者 *</label><select class="select" id="qSubject">${db.subjects.map(s=>`<option value="${s.id}" ${s.id===sub?'selected':''}>${s.id} · ${s.name}</option>`).join('')}</select></div>
+      <div class="field"><label>访视 / 活动 *</label><select class="select" id="qActivity">${acts.map(a=>`<option>${a}</option>`).join('')}</select></div>
+      <div class="field"><label>所在表单</label><select class="select" id="qForm">${[...new Set([(db.queue.crf||{}).title,...db.questionnaires.map(q=>q.name),'合并用药'].filter(Boolean))].map(f=>`<option ${f===form?'selected':''}>${f}</option>`).join('')}</select></div>
+      <div class="field"><label>字段 *</label><input class="input" id="qField" placeholder="如：收缩压" /></div>
+      <div class="field"><label>质询类型</label><select class="select" id="qType"><option>更新类</option><option>方案修改类</option></select></div>
+      <div class="field full"><label>质询说明 *</label><textarea id="qMsg" placeholder="备注原因，便于研究者处理"></textarea></div>
+    </div><div class="hint">质询将出现在列表与受试者详情，并计入质询率；提出后可锁定数据防止修改。</div>`,
+    `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+     <button class="btn btn-p btn-sm" data-action="save-query">发出质询</button>`);
+}
+function openCollectSample(subject, tp, type){
+  modal('采集样本', `<div class="fg">
+      <div class="field"><label>受试者 *</label><select class="select" id="spSubject">${db.subjects.map(s=>`<option ${s.id===subject?'selected':''}>${s.id}</option>`).join('')}</select></div>
+      <div class="field"><label>样本类型 *</label><select class="select" id="spType">${db.queue.sampleTypes.map(x=>`<option ${x===type?'selected':''}>${x}</option>`).join('')}</select></div>
+      <div class="field"><label>采样时点 / 访视</label><select class="select" id="spVisit">${db.queue.timepoints.map(x=>`<option ${x===tp?'selected':''}>${x}</option>`).join('')}</select></div>
+      <div class="field"><label>库位</label><input class="input" id="spBox" placeholder="A-05-01" /></div>
+    </div><div class="hint">样本编码按「课题-中心-受试者-类型-流水号」自动生成，全局唯一。</div>`,
+    `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
+     <button class="btn btn-p btn-sm" data-action="save-sample">确认采集</button>`);
+}
+
+/* ================= 启动（支持 #page 深链） ================= */
+const initPage=(location.hash||'').replace('#','');
+if(PANEL[initPage]) state.page=initPage;
+render();
+window.addEventListener('hashchange',()=>{
+  const p=(location.hash||'').replace('#','');
+  if(PANEL[p]){ state.page=p; render(); }
+});
+
+</script>
+</body>
+</html>
