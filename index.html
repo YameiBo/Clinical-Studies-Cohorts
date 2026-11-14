@@ -779,7 +779,7 @@ function activateQueue(short){
 }
 
 const state = {
-  page:'home', role:'CRC', currentQueue:'SAPPHIRE',
+  page:'home', role:'CRC', currentQueue:'HIP',
   qFilter:{site:'',from:'',to:'',code:''}, dropSite:'', collapsedGroups:{}, subject:'S01-0001', tab:'visits',
   queryTab:'全部', template:'T-FORM-001', folder:'全部',
   orgFilter:'', userFilter:'', subjectFilter:'', docFilter:'', conds:[]
@@ -787,9 +787,9 @@ const state = {
 
 const NAV = [
   {group:'平台管理',items:[{id:'orgs',name:'机构管理'},{id:'projects',name:'课题管理'},{id:'docs',name:'文档管理'},{id:'sites',name:'分中心管理'},{id:'users',name:'人员管理'},{id:'roles',name:'角色管理'}]},
-  {group:'当前队列',items:[{id:'cohort',name:'队列工作台'},{id:'enroll',name:'建档管理'},{id:'archives',name:'档案管理'},{id:'qsettings',name:'队列设置'}]},
+  {group:'当前队列',items:[{id:'cohort',name:'队列工作台'},{id:'archives',name:'档案管理'},{id:'qsettings',name:'队列设置'}]},
+  {group:'数据采集管理',items:[{id:'subjects',name:'对象管理'},{id:'dropouts',name:'脱落管理'},{id:'queries',name:'质询管理',badge:'3'},{id:'deviations',name:'超窗管理'},{id:'review',name:'数据审核',badge:'2'},{id:'random',name:'随机化'}]},
   {group:'研究方案配置',items:[{id:'questionnaires',name:'问卷配置'},{id:'plan',name:'随访计划'},{id:'calendar',name:'任务日历'},{id:'samples',name:'样本管理'},{id:'templates',name:'模板与数据元'}]},
-  {group:'数据采集与质控',items:[{id:'subjects',name:'对象管理'},{id:'dropouts',name:'脱落管理'},{id:'queries',name:'质询管理',badge:'3'},{id:'deviations',name:'超窗管理'},{id:'review',name:'数据审核',badge:'2'},{id:'random',name:'随机化'}]},
   {group:'统计与交付',items:[{id:'stats',name:'队列统计'},{id:'forms',name:'表单统计'},{id:'export',name:'数据导出'}]},
   {group:'外部集成',items:[{id:'integration',name:'HIS/LIS 集成'}]}
 ];
@@ -866,7 +866,7 @@ function stat(ico,v,l,d,cls='up'){
 }
 function go(page){
   if(!PANEL[page]) return;
-  const g=NAV.find(x=>x.items.some(it=>it.id===page));
+  const g=page==='enroll'?NAV.find(x=>x.group==='当前队列'):NAV.find(x=>x.items.some(it=>it.id===page));
   if(g && state.collapsedGroups && state.collapsedGroups[g.group]) state.collapsedGroups[g.group]=false;
   state.page=page; render();
 }
@@ -917,7 +917,7 @@ function renderNav(){
     ${NAV.map(g=>{
       const title=g.group==='当前队列'?state.currentQueue+' 队列':g.group;
       const collapsed=!!(state.collapsedGroups||{})[g.group];
-      const groupActive=g.items.some(it=>it.id===state.page||(it.id==='subjects'&&state.page==='subject-detail'));
+      const groupActive=g.items.some(it=>it.id===state.page||(it.id==='subjects'&&state.page==='subject-detail'))||(g.group==='当前队列'&&state.page==='enroll');
       return `<div class="sb-group">
         <div class="nav-group ${groupActive?'active':''}" data-action="toggle-group" data-group="${g.group}">
           <svg class="chev-svg ${collapsed?'closed':''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg><span>${title}</span>
@@ -953,6 +953,7 @@ function renderPanel(){
 }
 function groupOf(page){
   if(page==='subject-detail') return '对象管理';
+  if(page==='enroll') return state.currentQueue+' 队列';
   for(const g of NAV){ if(g.items.some(it=>it.id===page)) return g.group==='当前队列'?state.currentQueue+' 队列':g.group; }
   return '总览';
 }
@@ -2628,11 +2629,12 @@ function openCollectSample(subject, tp, type){
 }
 
 /* ================= 启动（支持 #page 深链） ================= */
+activateQueue('HIP');
 const initPage=(location.hash||'').replace('#','');
 if(PANEL[initPage]) go(initPage); else render();
 window.addEventListener('hashchange',()=>{
   const p=(location.hash||'').replace('#','');
-  if(PANEL[p]){ state.page=p; render(); }
+  if(PANEL[p]) go(p);
 });
 
 </script>
