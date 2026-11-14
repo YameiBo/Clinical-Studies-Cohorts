@@ -69,6 +69,19 @@
   .sb-foot .nav{color:rgba(255,255,255,.75);padding:8px 10px}
   .sb-foot .nav:hover{color:#fff}
 
+
+  /* ---------- 一级 / 二级菜单 ---------- */
+  .nav-group{display:flex;align-items:center;gap:8px;padding:8px 9px;margin-top:3px;border-radius:9px;color:rgba(255,255,255,.72);font-size:14px;font-weight:700;cursor:pointer;transition:background .15s,color .15s}
+  .nav-group:hover{background:rgba(255,255,255,.06);color:#fff}
+  .nav-group.active{background:rgba(255,255,255,.08);color:#fff}
+  .nav-group .chev-svg{width:14px;height:14px;flex-shrink:0;opacity:.9;transition:transform .15s}
+  .nav-group .chev-svg.closed{transform:rotate(-90deg)}
+  .nav-group .gcount{margin-left:auto;font-size:12px;font-weight:500;color:rgba(255,255,255,.45)}
+  .sb-sub{display:flex;flex-direction:column;gap:1px;margin:0 0 5px 7px;padding-left:9px;border-left:1px solid rgba(255,255,255,.14)}
+  .sb-sub.collapsed{display:none}
+  .nav.sub{padding:7px 9px;border-radius:9px}
+  .nav.sub svg{width:17px;height:17px}
+  .nav.sub .cnt{margin-left:auto}
   /* ---------- chrome ---------- */
   .chrome{grid-column:2;grid-row:1;display:flex;align-items:center;gap:12px;padding:0 20px;background:#fff;border-bottom:1px solid var(--line);min-width:0}
   .crumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);white-space:nowrap}
@@ -767,7 +780,7 @@ function activateQueue(short){
 
 const state = {
   page:'home', role:'CRC', currentQueue:'SAPPHIRE',
-  qFilter:{site:'',from:'',to:'',code:''}, dropSite:'', subject:'S01-0001', tab:'visits',
+  qFilter:{site:'',from:'',to:'',code:''}, dropSite:'', collapsedGroups:{}, subject:'S01-0001', tab:'visits',
   queryTab:'全部', template:'T-FORM-001', folder:'全部',
   orgFilter:'', userFilter:'', subjectFilter:'', docFilter:'', conds:[]
 };
@@ -775,8 +788,8 @@ const state = {
 const NAV = [
   {group:'平台管理',items:[{id:'orgs',name:'机构管理'},{id:'projects',name:'课题管理'},{id:'docs',name:'文档管理'},{id:'sites',name:'分中心管理'},{id:'users',name:'人员管理'},{id:'roles',name:'角色管理'}]},
   {group:'当前队列',items:[{id:'cohort',name:'队列工作台'},{id:'enroll',name:'建档管理'},{id:'archives',name:'档案管理'},{id:'qsettings',name:'队列设置'}]},
-  {group:'队列配置',items:[{id:'questionnaires',name:'问卷配置'},{id:'plan',name:'随访计划'},{id:'samples',name:'样本管理'},{id:'templates',name:'模板与数据元'}]},
-  {group:'数据采集与质控',items:[{id:'subjects',name:'对象管理'},{id:'dropouts',name:'脱落管理'},{id:'calendar',name:'任务日历'},{id:'queries',name:'质询管理',badge:'3'},{id:'deviations',name:'超窗管理'},{id:'review',name:'数据审核',badge:'2'},{id:'random',name:'随机化'}]},
+  {group:'队列配置',items:[{id:'questionnaires',name:'问卷配置'},{id:'plan',name:'随访计划'},{id:'calendar',name:'任务日历'},{id:'samples',name:'样本管理'},{id:'templates',name:'模板与数据元'}]},
+  {group:'数据采集与质控',items:[{id:'subjects',name:'对象管理'},{id:'dropouts',name:'脱落管理'},{id:'queries',name:'质询管理',badge:'3'},{id:'deviations',name:'超窗管理'},{id:'review',name:'数据审核',badge:'2'},{id:'random',name:'随机化'}]},
   {group:'统计与交付',items:[{id:'stats',name:'队列统计'},{id:'forms',name:'表单统计'},{id:'export',name:'数据导出'}]},
   {group:'外部集成',items:[{id:'integration',name:'HIS/LIS 集成'}]}
 ];
@@ -851,6 +864,8 @@ function stat(ico,v,l,d,cls='up'){
 }
 function go(page){
   if(!PANEL[page]) return;
+  const g=NAV.find(x=>x.items.some(it=>it.id===page));
+  if(g && state.collapsedGroups && state.collapsedGroups[g.group]) state.collapsedGroups[g.group]=false;
   state.page=page; render();
 }
 
@@ -898,14 +913,25 @@ function renderNav(){
     <div class="sb-pin">${pin('home',ICON.zap,'平台工作台')}
       <div class="nav" data-action="notify">${ICON.task}<span>我的任务</span><span class="cnt">${todo}</span></div></div>
     <div class="sb-sep"></div>
-    ${NAV.map(g=>`<div class="sb-group"><div class="sb-title">${g.group==='当前队列'?state.currentQueue+' 队列':g.group}</div>
-      ${g.items.map(it=>{
-        const cnt = it.id==='queries'? db.queries.filter(q=>q.status==='未解决').length
-          : it.id==='review'? db.reviews.filter(r=>r.status==='待审核').length : 0;
-        const active=it.id===state.page||(it.id==='subjects'&&state.page==='subject-detail');
-        return `<div class="nav ${active?'active':''}" data-action="go" data-page="${it.id}">
-          ${ICON[ICON_OF[it.id]]||ICON.grid}<span>${it.name}</span>${cnt?`<span class="cnt">${cnt}</span>`:''}</div>`;
-      }).join('')}</div>`).join('')}`;
+    ${NAV.map(g=>{
+      const title=g.group==='当前队列'?state.currentQueue+' 队列':g.group;
+      const collapsed=!!(state.collapsedGroups||{})[g.group];
+      const groupActive=g.items.some(it=>it.id===state.page||(it.id==='subjects'&&state.page==='subject-detail'));
+      return `<div class="sb-group">
+        <div class="nav-group ${groupActive?'active':''}" data-action="toggle-group" data-group="${g.group}">
+          <svg class="chev-svg ${collapsed?'closed':''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg><span>${title}</span><span class="gcount">${g.items.length}</span>
+        </div>
+        <div class="sb-sub ${collapsed?'collapsed':''}">
+          ${g.items.map(it=>{
+            const cnt = it.id==='queries'? db.queries.filter(q=>q.status==='未解决').length
+              : it.id==='review'? db.reviews.filter(r=>r.status==='待审核').length : 0;
+            const active=it.id===state.page||(it.id==='subjects'&&state.page==='subject-detail');
+            return `<div class="nav sub ${active?'active':''}" data-action="go" data-page="${it.id}">
+              ${ICON[ICON_OF[it.id]]||ICON.grid}<span>${it.name}</span>${cnt?`<span class="cnt">${cnt}</span>`:''}</div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    }).join('')}`;
   $('#sbFoot').innerHTML=`<div class="nav" data-action="help">${ICON.help}<span>帮助中心</span></div>
     <div class="nav" data-action="logout">${ICON.logout}<span>退出登录</span></div>`;
 }
@@ -1816,6 +1842,14 @@ document.addEventListener('click', e=>{
       if(f==='enroll'){ go('enroll'); toast('填写知情同意与双方信息，创建时自动查重'); }
       if(f==='collect'){ go('archives'); toast('从档案列表进入采集；状态矩阵显示每份 CRF'); }
       if(f==='deliver'){ go('export'); toast('生成导出任务后，到数据审核通过才能下载'); }
+      break;
+    }
+    case 'toggle-group': {
+      state.collapsedGroups=state.collapsedGroups||{};
+      state.collapsedGroups[d.group]=!state.collapsedGroups[d.group];
+      const top=$('#nav')?.scrollTop||0;
+      renderNav();
+      if($('#nav')) $('#nav').scrollTop=top;
       break;
     }
     case 'go': closeModal(); go(d.page); break;
