@@ -301,6 +301,13 @@
   .cal-ev.red{background:#fdecea;color:#a33630}
   .cal-ev.gray{background:#f2f5f9;color:#5b6b7f}
   .cal-more{font-size:12px;color:#8ba0b6;margin-top:3px}
+
+  .form-sec{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+  .form-sec b{font-size:14px}
+  .form-sec span{font-size:12px;color:#8ba0b6}
+  .validate-note{margin-top:12px;padding:11px 13px;border-radius:9px;background:#f7f4ff;border:1px solid #c4b5fd;color:#4f44a8;font-size:13px;line-height:1.65}
+  .validate-note b{display:block;font-size:14px;margin-bottom:2px}
+  .tbl th.center,.tbl td.center{text-align:center}
   /* ---------- readability: 提示 >=12px, 正文 >=14px ---------- */
   body{font-size:14px}
   .tbl,.tbl tbody td{font-size:14px}
@@ -380,13 +387,13 @@
 /* ================= 演示数据 ================= */
 const db = {
   orgs:[
-    {code:'ORG-001',name:'上海市第一人民医院',level:'三级甲等',addr:'上海市 / 虹口区',users:42},
-    {code:'ORG-002',name:'复旦大学附属华山医院',level:'三级甲等',addr:'上海市 / 静安区',users:28},
-    {code:'ORG-003',name:'上海交通大学医学院附属瑞金医院',level:'三级甲等',addr:'上海市 / 黄浦区',users:35},
-    {code:'ORG-004',name:'上海市第六人民医院',level:'三级甲等',addr:'上海市 / 徐汇区',users:0},
-    {code:'ORG-005',name:'北京安定医院',level:'三级甲等',addr:'北京市 / 西城区',users:56},
-    {code:'ORG-006',name:'郑州市骨科医院',level:'三级甲等',addr:'河南省 / 郑州市',users:38},
-    {code:'ORG-007',name:'北京积水潭医院',level:'三级甲等',addr:'北京市 / 西城区',users:44}
+    {code:'ORG-001',name:'上海市第一人民医院',level:'三级甲等',region:'上海市 / 虹口区',addr:'武进路 100 号',admin:'王建国',users:42},
+    {code:'ORG-002',name:'复旦大学附属华山医院',level:'三级甲等',region:'上海市 / 静安区',addr:'乌鲁木齐中路 12 号',admin:'周敏',users:28},
+    {code:'ORG-003',name:'上海交通大学医学院附属瑞金医院',level:'三级甲等',region:'上海市 / 黄浦区',addr:'瑞金二路 197 号',admin:'陈立',users:35},
+    {code:'ORG-004',name:'上海市第六人民医院',level:'三级甲等',region:'上海市 / 徐汇区',addr:'宜山路 600 号',admin:'赵敏',users:0},
+    {code:'ORG-005',name:'北京安定医院',level:'三级甲等',region:'北京市 / 西城区',addr:'安康胡同 5 号',admin:'张明',users:56},
+    {code:'ORG-006',name:'郑州市骨科医院',level:'三级甲等',region:'河南省 / 郑州市',addr:'陇海中路 58 号',admin:'刘伟',users:38},
+    {code:'ORG-007',name:'北京积水潭医院',level:'三级甲等',region:'北京市 / 西城区',addr:'新街口东街 31 号',admin:'陈刚',users:44}
   ],
   archives:[
     {code:'ARC-S01-0001',org:'上海市第一人民医院',female:'张*华',male:'李*明',fid:'3101**********1234',mid:'3101**********5678',date:'2026-09-12',status:{'基线问卷':'已提交','早孕随访':'已提交','中晚孕随访':'已提交','妊娠结局':'未提交'}},
@@ -433,11 +440,11 @@ const db = {
     {code:'R05',name:'DM 数据管理员',level:'课题',pages:'模板 / 计划 / 质询 / 导出',data:'课题数据',export:'全部字段'}
   ],
   projects:[
-    {code:'EDC-2024-001',short:'SAPPHIRE',name:'华东地区育龄人群生殖健康队列研究',pi:'王建国',org:'上海市第一人民医院',start:'2024-03-01',end:'2026-02-28',plan:240,actual:186,centers:6,status:'进行中',locked:false,type:'观察性（队列）',blind:'开放',queue:true},
-    {code:'EDC-2024-002',short:'ORCHID',name:'XX 单抗治疗晚期非小细胞肺癌的 II 期研究',pi:'周敏',org:'复旦大学附属华山医院',start:'2024-06-15',end:'2026-06-30',plan:120,actual:64,centers:4,status:'进行中',locked:false,type:'干预性',blind:'开放',queue:false},
-    {code:'EDC-2023-018',short:'MAGNOLIA',name:'心血管疾病队列随访研究',pi:'陈立',org:'瑞金医院',start:'2023-09-01',end:'2025-08-31',plan:800,actual:812,centers:8,status:'已锁库',locked:true,type:'观察性（队列）',blind:'开放',queue:true},
-    {code:'EDC-2026-003',short:'DEPRESSION',name:'全国多中心抑郁症前瞻性队列研究',pi:'张明',org:'北京安定医院',start:'2026-01-01',end:'2029-12-31',plan:10000,actual:1286,centers:57,status:'进行中',locked:false,type:'观察性（队列）',blind:'开放',queue:true},
-    {code:'EDC-2025-007',short:'HIP',name:'老年髋部骨折全国专病队列研究',pi:'陈刚',org:'北京积水潭医院',start:'2025-03-01',end:'2028-02-28',plan:3000,actual:1876,centers:47,status:'进行中',locked:false,type:'观察性（队列）',blind:'开放',queue:true}
+    {code:'EDC-2024-001',short:'SAPPHIRE',name:'华东地区育龄人群生殖健康队列研究',pi:'王建国',org:'上海市第一人民医院',start:'2024-03-01',end:'2026-02-28',plan:240,actual:186,centers:6,status:'进行中',locked:false,type:'观察性（队列）',blind:'开放',queue:true,updated:'2026-11-12'},
+    {code:'EDC-2024-002',short:'ORCHID',name:'XX 单抗治疗晚期非小细胞肺癌的 II 期研究',pi:'周敏',org:'复旦大学附属华山医院',start:'2024-06-15',end:'2026-06-30',plan:120,actual:64,centers:4,status:'进行中',locked:false,type:'干预性',blind:'开放',queue:false,updated:'2026-11-08'},
+    {code:'EDC-2023-018',short:'MAGNOLIA',name:'心血管疾病队列随访研究',pi:'陈立',org:'瑞金医院',start:'2023-09-01',end:'2025-08-31',plan:800,actual:812,centers:8,status:'已锁库',locked:true,type:'观察性（队列）',blind:'开放',queue:true,updated:'2025-09-01'},
+    {code:'EDC-2026-003',short:'DEPRESSION',name:'全国多中心抑郁症前瞻性队列研究',pi:'张明',org:'北京安定医院',start:'2026-01-01',end:'2029-12-31',plan:10000,actual:1286,centers:57,status:'进行中',locked:false,type:'观察性（队列）',blind:'开放',queue:true,updated:'2026-11-13'},
+    {code:'EDC-2025-007',short:'HIP',name:'老年髋部骨折全国专病队列研究',pi:'陈刚',org:'北京积水潭医院',start:'2025-03-01',end:'2028-02-28',plan:3000,actual:1876,centers:47,status:'进行中',locked:false,type:'观察性（队列）',blind:'开放',queue:true,updated:'2026-11-11'}
   ],
   docs:[
     {name:'SAPPHIRE_研究方案_V3.0.pdf',size:'4.2 MB',by:'王建国',time:'2026-10-08',folder:'方案文件'},
@@ -1042,11 +1049,12 @@ function renderOrgs(){
     <div class="panel"><div class="pb" style="padding-bottom:0"><div class="toolbar">
       <input class="input" id="orgSearch" placeholder="按机构名称或编码搜索" value="${esc(state.orgFilter)}" />
       <span class="chip">共 ${rows.length} 家机构</span></div></div>
-      <div class="tw"><table class="tbl"><thead><tr><th>机构编码</th><th>机构名称</th><th>等级</th><th>地址</th><th>用户数</th><th class="right">操作</th></tr></thead>
-      <tbody>${rows.length?rows.map(o=>`<tr><td class="mono">${o.code}</td><td class="st">${esc(o.name)}</td><td>${o.level}</td><td class="muted">${o.addr}</td>
+      <div class="tw"><table class="tbl"><thead><tr><th>机构编码</th><th>机构名称</th><th>等级</th><th>地址</th><th>管理员</th><th>用户数</th><th class="center">操作</th></tr></thead>
+      <tbody>${rows.length?rows.map(o=>`<tr><td class="mono">${o.code}</td><td class="st">${esc(o.name)}</td><td>${o.level}</td>
+        <td class="muted">${esc((o.region||'')+' '+(o.addr||''))}</td><td>${o.admin||'—'}</td>
         <td><span class="db ${o.users?'info':''}">${o.users} 人</span></td>
-        <td class="right"><button class="link" data-action="edit-org" data-code="${o.code}">编辑</button>
-        <button class="link danger" data-action="del-org" data-code="${o.code}">删除</button></td></tr>`).join(''):`<tr><td colspan="6"><div class="empty">没有匹配的机构</div></td></tr>`}</tbody></table></div></div>`;
+        <td class="center"><button class="link" data-action="edit-org" data-code="${o.code}">编辑</button>
+        <button class="link danger" data-action="del-org" data-code="${o.code}">删除</button></td></tr>`).join(''):`<tr><td colspan="7"><div class="empty">没有匹配的机构</div></td></tr>`}</tbody></table></div></div>`;
 }
 
 /* ================= 分中心 ================= */
@@ -1102,28 +1110,31 @@ function renderRoles(){
 
 /* ================= 课题 ================= */
 function renderProjects(){
+  const cp=currentProject();
+  const rnd=QUEUE_SETS[cp.short]?.queue.randomized;
   return `${pageHead('课题管理','课题建档、属性配置、进度与锁定；锁定后所有用户不可操作',`
       <button class="btn btn-p btn-sm" data-action="new-project">新建课题</button>`)}
-    <div class="panel"><div class="tw"><table class="tbl"><thead><tr><th>课题编码</th><th>简称</th><th>课题名称</th><th>PI</th><th>起止日期</th><th>入组进度</th><th>中心</th><th>状态</th><th class="right">操作</th></tr></thead>
+    <div class="panel"><div class="tw"><table class="tbl"><thead><tr><th>课题编码</th><th>简称</th><th>课题名称</th><th>PI</th><th>起止日期</th><th>入组进度</th><th>中心</th><th>状态</th><th>更新时间</th><th class="right">操作</th></tr></thead>
       <tbody>${db.projects.map(p=>`<tr><td class="mono">${p.code}</td><td class="st">${p.short}</td>
         <td style="max-width:300px"><div style="overflow:hidden;text-overflow:ellipsis">${p.name}</div><div class="tiny muted">牵头 ${p.org}</div></td>
         <td>${p.pi} ${QUEUE_SETS[p.short]?'<span class="chip teal" style="margin-left:4px">队列</span>':''}</td>
-        <td class="mono tiny">${p.start} ~ ${p.end}</td><td>${bar(p.actual,p.plan)}</td><td class="num">${p.centers}</td>
+        <td class="mono tiny">${p.start} ~ ${p.end}</td><td class="mono">${p.actual}/${p.plan}</td><td class="num">${p.centers}</td>
         <td>${p.locked?'<span class="badge b-gray">已锁定</span>':'<span class="badge b-green">进行中</span>'}</td>
+        <td class="mono">${p.updated||'—'}</td>
         <td class="right"><button class="link" data-action="enter-project" data-code="${p.code}">进入</button>
         <button class="link" data-action="lock-project" data-code="${p.code}">${p.locked?'解锁':'锁定'}</button></td></tr>`).join('')}</tbody></table></div></div>
     <div class="g3">
-      <div class="panel"><div class="pb"><div class="tiny muted">当前课题属性</div>
-        <div class="kv"><span class="k">研究类型</span><span class="v">${db.projects[0].type}</span></div>
-        <div class="kv"><span class="k">盲法</span><span class="v">${db.projects[0].blind}</span></div>
-        <div class="kv"><span class="k">计划入组</span><span class="v">${db.projects[0].plan} 例</span></div></div></div>
+      <div class="panel"><div class="pb"><div class="tiny muted">当前课题属性 · ${cp.short}</div>
+        <div class="kv"><span class="k">研究类型</span><span class="v">${cp.type}</span></div>
+        <div class="kv"><span class="k">盲法</span><span class="v">${cp.blind}</span></div>
+        <div class="kv"><span class="k">计划入组</span><span class="v">${cp.plan.toLocaleString()} 例</span></div></div></div>
       <div class="panel"><div class="pb"><div class="tiny muted">进度口径</div>
         <div class="kv"><span class="k">整体进度</span><span class="v">实际 / 计划入组</span></div>
         <div class="kv"><span class="k">活动进度</span><span class="v">完成访视 / 实际入组</span></div>
         <div class="kv"><span class="k">锁定影响</span><span class="v">所有用户不可操作</span></div></div></div>
       <div class="panel"><div class="pb"><div class="tiny muted">课题设置</div>
         <div class="kv"><span class="k">编码生成</span><span class="v"><span class="chip teal">已启用</span></span></div>
-        <div class="kv"><span class="k">随机化</span><span class="v"><span class="chip teal">已启用</span></span></div>
+        <div class="kv"><span class="k">随机化</span><span class="v">${rnd?'<span class="chip teal">已启用</span>':'<span class="chip">未启用</span>'}</span></div>
         <div class="kv"><span class="k">微信接入</span><span class="v"><span class="chip">保留未启用</span></span></div></div></div>
     </div>`;
 }
@@ -1880,35 +1891,43 @@ document.addEventListener('click', e=>{
     /* ---- 机构 ---- */
     case 'new-org':
       modal('新增机构', `
+        <div class="form-sec"><b>基本信息</b><span>带 * 为必填项</span></div>
         <div class="fg">
-          <div class="field"><label>机构编码 *</label><input class="input" id="oCode" placeholder="ORG-005" /></div>
-          <div class="field"><label>机构名称 *</label><input class="input" id="oName" placeholder="请输入机构名称" /></div>
-          <div class="field"><label>机构等级</label><select class="select" id="oLevel"><option>三级甲等</option><option>三级乙等</option><option>二级甲等</option></select></div>
-          <div class="field"><label>地址</label><input class="input" id="oAddr" placeholder="上海市 / 区" /></div>
-        </div><div class="hint">机构下有用户时禁止删除。</div>`,
+          <div class="field"><label>机构编码 *</label><input class="input" id="oCode" placeholder="例如：ORG-019" /></div>
+          <div class="field"><label>机构名称 *</label><input class="input" id="oName" placeholder="请输入完整名称" /></div>
+          <div class="field"><label>机构等级 *</label><select class="select" id="oLevel"><option value="">请选择</option><option>三级甲等</option><option>三级乙等</option><option>二级甲等</option><option>二级乙等</option></select></div>
+          <div class="field"><label>所在地区 *</label><select class="select" id="oRegion"><option value="">请选择</option><option>上海市 / 虹口区</option><option>上海市 / 静安区</option><option>上海市 / 黄浦区</option><option>上海市 / 徐汇区</option><option>北京市 / 西城区</option><option>河南省 / 郑州市</option><option>浙江省 / 杭州市</option><option>天津市 / 和平区</option><option>广东省 / 广州市</option></select></div>
+          <div class="field full"><label>详细地址 *</label><input class="input" id="oAddr" placeholder="请输入省、市、区及详细地址" /></div>
+          <div class="field"><label>机构管理员 *</label><input class="input" id="oAdmin" placeholder="姓名或工号" /></div>
+        </div>
+        <div class="hint">机构下有用户时禁止删除；机构编码全局唯一。</div>`,
         `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
          <button class="btn btn-p btn-sm" data-action="save-org">保存</button>`); break;
     case 'edit-org': {
       const o=db.orgs.find(x=>x.code===d.code);
+      const regions=['上海市 / 虹口区','上海市 / 静安区','上海市 / 黄浦区','上海市 / 徐汇区','北京市 / 西城区','河南省 / 郑州市','浙江省 / 杭州市','天津市 / 和平区','广东省 / 广州市'];
       modal('编辑机构', `<div class="fg">
           <div class="field"><label>机构编码</label><input class="input" value="${o.code}" disabled /></div>
-          <div class="field"><label>机构名称</label><input class="input" id="oName" value="${esc(o.name)}" /></div>
-          <div class="field"><label>等级</label><select class="select" id="oLevel"><option ${o.level==='三级甲等'?'selected':''}>三级甲等</option><option ${o.level==='三级乙等'?'selected':''}>三级乙等</option></select></div>
-          <div class="field"><label>地址</label><input class="input" id="oAddr" value="${esc(o.addr)}" /></div>
+          <div class="field"><label>机构名称 *</label><input class="input" id="oName" value="${esc(o.name)}" /></div>
+          <div class="field"><label>机构等级 *</label><select class="select" id="oLevel"><option ${o.level==='三级甲等'?'selected':''}>三级甲等</option><option ${o.level==='三级乙等'?'selected':''}>三级乙等</option><option ${o.level==='二级甲等'?'selected':''}>二级甲等</option></select></div>
+          <div class="field"><label>所在地区 *</label><select class="select" id="oRegion">${regions.map(r=>`<option ${r===o.region?'selected':''}>${r}</option>`).join('')}</select></div>
+          <div class="field full"><label>详细地址 *</label><input class="input" id="oAddr" value="${esc(o.addr||'')}" /></div>
+          <div class="field"><label>机构管理员 *</label><input class="input" id="oAdmin" value="${esc(o.admin||'')}" placeholder="姓名或工号" /></div>
         </div>`,
         `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
          <button class="btn btn-p btn-sm" data-action="save-edit-org" data-code="${o.code}">保存</button>`); break;
     }
     case 'save-org': {
-      const code=val('oCode'), name=val('oName');
-      if(!code||!name){ toast('机构编码与名称必填','err'); break; }
-      db.orgs.push({code,name,level:val('oLevel'),addr:val('oAddr')||'—',users:0});
+      const code=val('oCode'), name=val('oName'), level=val('oLevel'), region=val('oRegion'), addr=val('oAddr'), admin=val('oAdmin');
+      if(!code||!name||!level||!region||!addr||!admin){ toast('请完整填写带 * 的必填项','err'); break; }
+      if(db.orgs.some(o=>o.code===code)){ toast(`机构编码 ${code} 已存在，请更换`,'err'); break; }
+      db.orgs.push({code,name,level,region,addr,admin,users:0});
       closeModal(); render(); toast('机构已新增：'+name);
       break;
     }
     case 'save-edit-org': {
       const o=db.orgs.find(x=>x.code===d.code);
-      if(o){ o.name=val('oName')||o.name; o.level=val('oLevel'); o.addr=val('oAddr')||o.addr; }
+      if(o){ o.name=val('oName')||o.name; o.level=val('oLevel'); o.region=val('oRegion')||o.region; o.addr=val('oAddr')||o.addr; o.admin=val('oAdmin')||o.admin; }
       closeModal(); render(); toast('机构信息已更新'); break;
     }
     case 'del-org': {
@@ -2005,19 +2024,21 @@ document.addEventListener('click', e=>{
           <div class="field"><label>计划入组</label><input class="input" id="pPlan" type="number" value="120" /></div>
           <div class="field"><label>研究类型</label><select class="select" id="pType"><option>干预性</option><option>观察性</option><option>注册性</option></select></div>
           <div class="field"><label>盲法</label><select class="select" id="pBlind"><option>双盲</option><option>单盲</option><option>开放</option></select></div>
-        </div>`,
+        </div>
+        <div class="validate-note"><b>保存前将进行配置校验</b>系统会检查编码唯一性、时间点冲突及必填字段完整性。</div>`,
         `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
          <button class="btn btn-p btn-sm" data-action="save-project">创建课题</button>`); break;
     case 'save-project': {
       const code=val('pCode'), short=val('pShort'), name=val('pName');
       if(!code||!short||!name){ toast('课题编码、简称、名称必填','err'); break; }
+      if(db.projects.some(p=>p.code===code)){ toast(`课题编码 ${code} 已存在，请更换`,'err'); break; }
       db.projects.unshift({code,short,name,pi:val('pPi')||'—',org:'上海市第一人民医院',start:'2026-01-01',end:'2027-12-31',
-        plan:+val('pPlan')||120,actual:0,centers:1,status:'进行中',locked:false,type:val('pType'),blind:val('pBlind')});
+        plan:+val('pPlan')||120,actual:0,centers:1,status:'进行中',locked:false,type:val('pType'),blind:val('pBlind'),updated:'2026-11-13'});
       closeModal(); render(); toast('课题已创建：'+short); break;
     }
     case 'lock-project': {
       const p=db.projects.find(x=>x.code===d.code);
-      p.locked=!p.locked; render(); toast(p.locked?'课题已锁定，所有用户不可操作':'课题已解锁，恢复操作','warn'); break;
+      p.locked=!p.locked; p.updated='2026-11-13'; render(); toast(p.locked?'课题已锁定，所有用户不可操作':'课题已解锁，恢复操作','warn'); break;
     }
     case 'enter-project': {
       const p=db.projects.find(x=>x.code===d.code);
