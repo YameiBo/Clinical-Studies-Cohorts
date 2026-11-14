@@ -315,7 +315,7 @@
   .vtab:hover{color:#4f44a8}
   .vtab.active{color:#4f44a8;font-weight:600;border-bottom-color:#4f44a8}
   .vtab.done{color:#0b7a5b}
-  .vtab .vcount{background:#fdf5e3;color:#8a6415;border:1px solid #f0dfb8;border-radius:999px;font-size:12px;line-height:18px;padding:0 6px}
+  .vtab .vcount,.tab-count{background:#fdf5e3;color:#8a6415;border:1px solid #f0dfb8;border-radius:999px;font-size:12px;line-height:18px;padding:0 6px;font-weight:600}
   .vf-card{border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:#fff;margin-bottom:14px}
   .vf-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border-bottom:1px solid #eef3f9;padding-bottom:10px;margin-bottom:14px}
   .vf-head h3{margin:0;font-size:15px}
@@ -1307,8 +1307,8 @@ const VISIT_FORMS={
     {id:'vfOutcome',label:'转归',type:'select',value:'恢复中',options:['恢复中','已恢复','未恢复','死亡','未知'],req:true}
   ]}
 };
-function renderVisitForm(){
-  const key=state.visitForm||'vitals';
+function renderVisitForm(key){
+  key=key||'vitals';
   const form=VISIT_FORMS[key]||VISIT_FORMS.vitals;
   return `<div class="vf-card" id="visitForm">
     <div class="vf-head"><div><h3>${form.title}</h3><p>请填写本次访视测量结果，带 <span class="req">*</span> 为必填项</p></div>
@@ -1336,28 +1336,19 @@ function renderVisitForm(){
 function renderSubjectDetail(){
   const s=db.subjects.find(x=>x.id===state.subject)||db.subjects[0];
   const qs=db.queries.filter(q=>q.subject===s.id);
-  const tabs=[['visits','访视信息'],['crf','数据采集'],['samples','样本'],['queries','质询']];
+  const tabs=[
+    ['visits','访视信息'],['crf','数据采集'],['samples','样本'],
+    ['vitals','生命体征',1],['labs','实验室检查',1],['meds','合并用药'],['ae','不良事件'],
+    ['queries','质询',qs.length]
+  ];
   let body='';
   if(state.tab==='visits'){
-    const vf=state.visitForm||'vitals';
-    body=`
-      <div class="vtabs">
-        <button class="vtab done ${vf==='visit'?'active':''}" data-action="visit-form" data-form="visit">✓ 访视日期</button>
-        <button class="vtab ${vf==='vitals'?'active':''}" data-action="visit-form" data-form="vitals">生命体征 <span class="vcount">1</span></button>
-        <button class="vtab ${vf==='labs'?'active':''}" data-action="visit-form" data-form="labs">实验室检查 <span class="vcount">1</span></button>
-        <button class="vtab ${vf==='meds'?'active':''}" data-action="visit-form" data-form="meds">合并用药</button>
-        <button class="vtab ${vf==='ae'?'active':''}" data-action="visit-form" data-form="ae">不良事件</button>
-      </div>
-      ${renderVisitForm()}
-      <div class="vf-timeline">
-        <div class="tiny muted" style="margin:4px 0 8px">访视计划</div>
-        <div class="vline">${db.plan.activities.map(a=>`
-          <div class="visit ${a.status==='已完成'?'done':''}">
-            <div style="display:flex;align-items:center;gap:7px"><b>${a.code} · ${a.name}</b>${badge(a.status)}</div>
-            <div class="meta">计划 ${a.schedule} · 窗口 ${a.window} · ${a.forms} 张表单</div>
-            <div class="chips"><button class="btn btn-s btn-xs" data-action="open-crf" data-visit="${a.code}">进入采集</button>
-            <button class="btn btn-s btn-xs" data-action="raise-query" data-form="${a.name}">发起质询</button></div></div>`).join('')}</div>
-      </div>`;
+    body=`<div class="vline">${db.plan.activities.map(a=>`
+      <div class="visit ${a.status==='已完成'?'done':''}">
+        <div style="display:flex;align-items:center;gap:7px"><b>${a.code} · ${a.name}</b>${badge(a.status)}</div>
+        <div class="meta">计划 ${a.schedule} · 窗口 ${a.window} · ${a.forms} 张表单</div>
+        <div class="chips"><button class="btn btn-s btn-xs" data-action="open-crf" data-visit="${a.code}">进入采集</button>
+        <button class="btn btn-s btn-xs" data-action="raise-query" data-form="${a.name}">发起质询</button></div></div>`).join('')}</div>`;
   } else if(state.tab==='crf'){
     const crf=db.queue.crf||{title:'生命体征',fields:[]};
     body=`
@@ -1374,6 +1365,8 @@ function renderSubjectDetail(){
             <button class="btn btn-s btn-sm" data-action="raise-query" data-form="${crf.title}">发起质询</button></div>
           <div class="hint" style="padding-left:128px">提交时按 CRF 规则校验必填与取值范围。</div>
         </div></div>`;
+  } else if(['vitals','labs','meds','ae'].includes(state.tab)){
+    body=renderVisitForm(state.tab);
   } else if(state.tab==='samples'){
     const rows=db.samples.filter(x=>x.subject===s.id);
     body=`<table class="tbl"><thead><tr><th>样本编码</th><th>类型</th><th>访视</th><th>库位</th><th>状态</th><th>采集时间</th><th class="right">操作</th></tr></thead>
@@ -1396,7 +1389,7 @@ function renderSubjectDetail(){
           ${db.queue.randomized?`<span class="chip teal">随机号 ${s.random}</span><span class="chip ${state.role==='PI'?'teal':''}">组别 ${state.role==='PI'?s.group:'••• 盲态'}</span>`:`<span class="chip teal">${db.queue.name}</span>`}</div></div>
       <div class="ops"><button class="btn btn-s btn-sm" data-action="raise-query" data-form="${(db.queue.crf||{}).title||'生命体征'}">发起质询</button>
         <button class="btn btn-p btn-sm" data-action="open-crf" data-visit="${db.plan.activities[0]?.code||'V1'}">进入采集</button></div></div>
-    <div class="panel"><div class="pb"><div class="tabs">${tabs.map(([k,n])=>`<button class="tab ${state.tab===k?'active':''}" data-action="tab" data-tab="${k}">${n}${k==='queries'&&qs.length?` (${qs.length})`:''}</button>`).join('')}</div>
+    <div class="panel"><div class="pb"><div class="tabs">${tabs.map(([k,n,c])=>`<button class="tab ${state.tab===k?'active':''}" data-action="tab" data-tab="${k}">${n}${c?`<span class="tab-count">${c}</span>`:''}</button>`).join('')}</div>
       ${body}</div></div>`;
 }
 
