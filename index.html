@@ -308,6 +308,31 @@
   .validate-note{margin-top:12px;padding:11px 13px;border-radius:9px;background:#f7f4ff;border:1px solid #c4b5fd;color:#4f44a8;font-size:13px;line-height:1.65}
   .validate-note b{display:block;font-size:14px;margin-bottom:2px}
   .tbl th.center,.tbl td.center{text-align:center}
+
+  /* ---------- 访视表单 ---------- */
+  .vtabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:12px;overflow:auto}
+  .vtab{border:none;background:none;padding:9px 12px;font-size:14px;color:#61748a;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:5px}
+  .vtab:hover{color:#4f44a8}
+  .vtab.active{color:#4f44a8;font-weight:600;border-bottom-color:#4f44a8}
+  .vtab.done{color:#0b7a5b}
+  .vtab .vcount{background:#fdf5e3;color:#8a6415;border:1px solid #f0dfb8;border-radius:999px;font-size:12px;line-height:18px;padding:0 6px}
+  .vf-card{border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:#fff;margin-bottom:14px}
+  .vf-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border-bottom:1px solid #eef3f9;padding-bottom:10px;margin-bottom:14px}
+  .vf-head h3{margin:0;font-size:15px}
+  .vf-head p{margin:2px 0 0;font-size:12px;color:#8ba0b6}
+  .autosave{font-size:12px;color:#8ba0b6;white-space:nowrap;padding-top:4px}
+  .vf-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 24px}
+  .vf-field.full{grid-column:1/-1}
+  .vf-field label{display:block;font-size:14px;font-weight:600;color:#33475e;margin-bottom:5px}
+  .vf-input{position:relative}
+  .vf-input input,.vf-input select{height:38px;font-size:14px;padding-right:54px}
+  .vf-input .unit{position:absolute;right:12px;top:10px;font-size:13px;color:#8ba0b6;pointer-events:none}
+  .vf-field textarea{width:100%;min-height:66px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-family:inherit;font-size:14px;outline:none;resize:vertical}
+  .vf-field textarea:focus{border-color:#7c6ae0;box-shadow:0 0 0 3px rgba(124,106,224,.15)}
+  .normal{font-size:12px;color:#8ba0b6;margin-top:4px}
+  .query-alert{margin-top:6px;background:#fff7e8;border:1px solid #f0dfb8;color:#a8690c;border-radius:6px;padding:6px 9px;font-size:12px}
+  .vf-actions{display:flex;gap:7px;margin-top:14px;justify-content:flex-end}
+  .vf-timeline{border-top:1px dashed #e6edf6;padding-top:10px}
   /* ---------- readability: 提示 >=12px, 正文 >=14px ---------- */
   body{font-size:14px}
   .tbl,.tbl tbody td{font-size:14px}
@@ -781,14 +806,14 @@ function activateQueue(short){
   state.subject=set.subjects[0]?.id||'';
   state.subjectFilter=''; state.queryTab='全部'; state.qFilter={site:'',from:'',to:'',code:''};
   state.dropSite=''; state.dropFilter=''; state.archiveFilter=''; state.sampleTab='全部'; state.template=set.templates[0]?.code||'T-FORM-001';
-  state.tab='visits'; state.folder='全部'; state.docFilter=''; state.conds=[];
+  state.tab='visits'; state.visitForm='vitals'; state.folder='全部'; state.docFilter=''; state.conds=[];
   return true;
 }
 
 const state = {
   page:'home', role:'CRC', currentQueue:'HIP',
   qFilter:{site:'',from:'',to:'',code:''}, dropSite:'', collapsedGroups:{}, subject:'S01-0001', tab:'visits',
-  queryTab:'全部', template:'T-FORM-001', folder:'全部',
+  queryTab:'全部', visitForm:'vitals', template:'T-FORM-001', folder:'全部',
   orgFilter:'', userFilter:'', subjectFilter:'', docFilter:'', conds:[]
 };
 
@@ -797,7 +822,7 @@ const NAV = [
   {group:'当前队列',items:[{id:'cohort',name:'队列工作台'},{id:'archives',name:'档案管理'},{id:'qsettings',name:'队列设置'}]},
   {group:'数据采集管理',items:[{id:'subjects',name:'对象管理'},{id:'dropouts',name:'脱落管理'},{id:'queries',name:'质询管理',badge:'3'},{id:'deviations',name:'超窗管理'},{id:'review',name:'数据审核',badge:'2'},{id:'random',name:'随机化'}]},
   {group:'随访配置',items:[{id:'questionnaires',name:'问卷配置'},{id:'plan',name:'随访计划'},{id:'calendar',name:'任务日历'},{id:'templates',name:'模板与数据元'}]},
-  {group:'统计与交付',items:[{id:'stats',name:'队列统计'},{id:'forms',name:'表单统计'},{id:'export',name:'数据导出'}]},
+  {group:'统计与导出',items:[{id:'stats',name:'队列统计'},{id:'forms',name:'表单统计'},{id:'export',name:'数据导出'}]},
   {group:'外部集成',items:[{id:'integration',name:'HIS/LIS 集成'}]}
 ];
 
@@ -1239,6 +1264,74 @@ function renderSubjects(){
         <td>${badge(s.status)}</td><td class="right"><button class="btn btn-s btn-xs" data-action="open-subject" data-id="${s.id}">查看</button></td></tr>`).join('')}</tbody></table></div></div>`;
 }
 
+/* ================= 访视表单 ================= */
+const VISIT_FORMS={
+  visit:{title:'访视日期',fields:[
+    {id:'vfVisitDate',label:'访视日期',type:'date',value:'2026-11-13',req:true},
+    {id:'vfVisitType',label:'访视类型',type:'select',value:'计划访视',options:['计划访视','非计划访视','循环访视'],req:true},
+    {id:'vfVisitStatus',label:'访视状态',type:'select',value:'已完成',options:['未开始','未完成','已完成','有质询'],req:true},
+    {id:'vfActualDate',label:'实际到访日期',type:'date',value:'2026-11-13',req:true}
+  ]},
+  vitals:{title:'生命体征',fields:[
+    {id:'vfMeasureDate',label:'测量日期',type:'date',value:'2026-11-13',req:true},
+    {id:'vfMeasureTime',label:'测量时间',type:'time',value:'09:45',req:true},
+    {id:'vfTemp',label:'体温',unit:'℃',value:'36.7',req:true,normal:'正常范围：35.0—37.5 ℃'},
+    {id:'vfHr',label:'心率',unit:'次/分',value:'78',req:true,normal:'正常范围：60—100 次/分'},
+    {id:'vfSbp',label:'收缩压',unit:'mmHg',value:'138',req:true},
+    {id:'vfDbp',label:'舒张压',unit:'mmHg',value:'86',req:true},
+    {id:'vfRr',label:'呼吸频率',unit:'次/分',value:'18',req:true},
+    {id:'vfPos',label:'测量体位',type:'select',value:'',options:['请选择','坐位','卧位','立位'],req:true,query:'请补充本次测量体位'}
+  ]},
+  labs:{title:'实验室检查',fields:[
+    {id:'vfHb',label:'血红蛋白',unit:'g/L',value:'108',req:true},
+    {id:'vfWbc',label:'白细胞计数',unit:'×10⁹/L',value:'6.8',req:true},
+    {id:'vfPlt',label:'血小板计数',unit:'×10⁹/L',value:'186',req:true},
+    {id:'vfAlt',label:'丙氨酸转氨酶',unit:'U/L',value:'32',req:true},
+    {id:'vfCr',label:'肌酐',unit:'μmol/L',value:'76',req:true},
+    {id:'vfLabDate',label:'检查日期',type:'date',value:'2026-11-13',req:true}
+  ]},
+  meds:{title:'合并用药',fields:[
+    {id:'vfDrug',label:'药物名称',value:'二甲双胍',req:true},
+    {id:'vfDose',label:'单次剂量',unit:'mg',value:'500',req:true},
+    {id:'vfFreq',label:'给药频次',type:'select',value:'每日两次',options:['每日一次','每日两次','每日三次','每周一次','其他'],req:true},
+    {id:'vfRoute',label:'给药途径',type:'select',value:'口服',options:['口服','静脉注射','肌肉注射','皮下注射','外用'],req:true},
+    {id:'vfStart',label:'开始日期',type:'date',value:'2026-10-21',req:true},
+    {id:'vfEnd',label:'结束日期',type:'date',value:'',req:false}
+  ]},
+  ae:{title:'不良事件',fields:[
+    {id:'vfAeName',label:'事件名称',value:'',ph:'请输入',req:true},
+    {id:'vfAeDate',label:'发生日期',type:'date',value:'',req:true},
+    {id:'vfSeverity',label:'严重程度',type:'select',value:'轻度',options:['轻度','中度','重度'],req:true},
+    {id:'vfRelated',label:'与研究相关性',type:'select',value:'可能相关',options:['无关','可能无关','可能相关','肯定相关'],req:true},
+    {id:'vfSae',label:'是否严重不良事件',type:'select',value:'否',options:['否','是'],req:true},
+    {id:'vfOutcome',label:'转归',type:'select',value:'恢复中',options:['恢复中','已恢复','未恢复','死亡','未知'],req:true}
+  ]}
+};
+function renderVisitForm(){
+  const key=state.visitForm||'vitals';
+  const form=VISIT_FORMS[key]||VISIT_FORMS.vitals;
+  return `<div class="vf-card" id="visitForm">
+    <div class="vf-head"><div><h3>${form.title}</h3><p>请填写本次访视测量结果，带 <span class="req">*</span> 为必填项</p></div>
+      <div class="autosave">◷ 自动保存于 10:32</div></div>
+    <div class="vf-grid">
+      ${form.fields.map(f=>`<div class="vf-field">
+        <label>${f.label}${f.req?' <span class="req">*</span>':''}</label>
+        <div class="vf-input">
+          ${f.type==='select'
+            ? `<select class="select" id="${f.id}" ${f.req?'data-req="1"':''}>${f.options.map(o=>`<option ${o===f.value?'selected':''}>${o}</option>`).join('')}</select>`
+            : `<input class="input" id="${f.id}" type="${f.type||'text'}" value="${esc(f.value||'')}" placeholder="${f.ph||''}" ${f.req?'data-req="1"':''} />`}
+          ${f.unit?`<span class="unit">${f.unit}</span>`:''}
+        </div>
+        ${f.normal?`<div class="normal">${f.normal}</div>`:''}
+        ${f.query?`<div class="query-alert" id="${f.id}Alert">数据质询　${f.query}</div>`:''}
+      </div>`).join('')}
+      <div class="vf-field full"><label>备注</label><textarea id="vfNote" placeholder="请输入需要说明的其他信息（选填）"></textarea></div>
+    </div>
+    <div class="vf-actions"><button class="btn btn-s btn-sm" data-action="save-visit-form">保存</button>
+      <button class="btn btn-p btn-sm" data-action="submit-visit-form">提交</button></div>
+  </div>`;
+}
+
 /* ================= 受试者详情 ================= */
 function renderSubjectDetail(){
   const s=db.subjects.find(x=>x.id===state.subject)||db.subjects[0];
@@ -1246,12 +1339,25 @@ function renderSubjectDetail(){
   const tabs=[['visits','访视信息'],['crf','数据采集'],['samples','样本'],['queries','质询']];
   let body='';
   if(state.tab==='visits'){
-    body=`<div class="vline">${db.plan.activities.map(a=>`
-      <div class="visit ${a.status==='已完成'?'done':''}">
-        <div style="display:flex;align-items:center;gap:7px"><b>${a.code} · ${a.name}</b>${badge(a.status)}</div>
-        <div class="meta">计划 ${a.schedule} · 窗口 ${a.window} · ${a.forms} 张表单</div>
-        <div class="chips"><button class="btn btn-s btn-xs" data-action="open-crf" data-visit="${a.code}">进入采集</button>
-        <button class="btn btn-s btn-xs" data-action="raise-query" data-form="${a.name}">发起质询</button></div></div>`).join('')}</div>`;
+    const vf=state.visitForm||'vitals';
+    body=`
+      <div class="vtabs">
+        <button class="vtab done ${vf==='visit'?'active':''}" data-action="visit-form" data-form="visit">✓ 访视日期</button>
+        <button class="vtab ${vf==='vitals'?'active':''}" data-action="visit-form" data-form="vitals">生命体征 <span class="vcount">1</span></button>
+        <button class="vtab ${vf==='labs'?'active':''}" data-action="visit-form" data-form="labs">实验室检查 <span class="vcount">1</span></button>
+        <button class="vtab ${vf==='meds'?'active':''}" data-action="visit-form" data-form="meds">合并用药</button>
+        <button class="vtab ${vf==='ae'?'active':''}" data-action="visit-form" data-form="ae">不良事件</button>
+      </div>
+      ${renderVisitForm()}
+      <div class="vf-timeline">
+        <div class="tiny muted" style="margin:4px 0 8px">访视计划</div>
+        <div class="vline">${db.plan.activities.map(a=>`
+          <div class="visit ${a.status==='已完成'?'done':''}">
+            <div style="display:flex;align-items:center;gap:7px"><b>${a.code} · ${a.name}</b>${badge(a.status)}</div>
+            <div class="meta">计划 ${a.schedule} · 窗口 ${a.window} · ${a.forms} 张表单</div>
+            <div class="chips"><button class="btn btn-s btn-xs" data-action="open-crf" data-visit="${a.code}">进入采集</button>
+            <button class="btn btn-s btn-xs" data-action="raise-query" data-form="${a.name}">发起质询</button></div></div>`).join('')}</div>
+      </div>`;
   } else if(state.tab==='crf'){
     const crf=db.queue.crf||{title:'生命体征',fields:[]};
     body=`
@@ -2141,7 +2247,7 @@ document.addEventListener('click', e=>{
       closeModal(); render(); toast('受试者已登记：'+id); break;
     }
     case 'import-subject': toast('已导入 16 例受试者，入组编码自动生成（演示）'); break;
-    case 'open-subject': state.subject=d.id; state.tab='visits'; state.page='subject-detail'; renderSubjectDetailPage(); break;
+    case 'open-subject': state.subject=d.id; state.tab='visits'; state.visitForm='vitals'; state.page='subject-detail'; renderSubjectDetailPage(); break;
     case 'tab': state.tab=d.tab; renderSubjectDetailPage(); break;
     case 'open-crf': state.tab='crf'; renderSubjectDetailPage(); break;
     case 'save-crf': toast('表单已保存，可稍后继续录入'); break;
@@ -2163,6 +2269,13 @@ document.addEventListener('click', e=>{
       renderSubjectDetailPage();
       toast('表单已提交并通过 CRF 规则校验','ok');
       break;
+    }
+    case 'visit-form': state.visitForm=d.form; renderSubjectDetailPage(); break;
+    case 'save-visit-form': toast('本次访视表单已保存'); break;
+    case 'submit-visit-form': {
+      const missing=[...document.querySelectorAll('#visitForm [data-req]')].filter(el=>!el.value||el.value==='请选择');
+      if(missing.length){ toast('请完整填写必填项后再提交','err'); break; }
+      toast('本次访视表单已提交并通过规则校验','ok'); break;
     }
     case 'raise-query': openRaiseQuery(d.form||'生命体征'); break;
     case 'save-query': {
@@ -2560,6 +2673,9 @@ document.addEventListener('input', e=>{
 
 /* ---- 角色切换 ---- */
 document.addEventListener('change', e=>{
+  if(e.target.id==='vfPos' && e.target.value && e.target.value!=='请选择'){
+    const a=$('#vfPosAlert'); if(a) a.style.display='none';
+  }
   if(['querySite','queryFrom','queryTo'].includes(e.target.id)){
     const key={querySite:'site',queryFrom:'from',queryTo:'to'}[e.target.id];
     state.qFilter={...(state.qFilter||{}),[key]:e.target.value};
