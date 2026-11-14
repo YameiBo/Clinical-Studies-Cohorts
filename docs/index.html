@@ -65,7 +65,7 @@
   .nav svg{width:18px;height:18px;stroke-width:1.8;opacity:.85;flex-shrink:0}
   .nav.active svg{opacity:1}
   .nav .cnt{margin-left:auto;font-family:var(--mono);font-size:12px;background:#ef2b4f;color:#fff;border-radius:999px;padding:0 6px;line-height:18px;font-weight:600}
-  .sb-foot{margin-top:auto;padding:8px 10px 14px;border-top:1px solid rgba(255,255,255,.14)}
+  .sb-foot{margin-top:auto;padding:8px 10px 14px;border-top:none}
   .sb-foot .nav{color:rgba(255,255,255,.75);padding:8px 10px}
   .sb-foot .nav:hover{color:#fff}
 
@@ -77,7 +77,7 @@
   .nav-group .chev-svg{width:14px;height:14px;flex-shrink:0;opacity:.9;transition:transform .15s}
   .nav-group .chev-svg.closed{transform:rotate(-90deg)}
   .nav-group .gcount{margin-left:auto;font-size:12px;font-weight:500;color:rgba(255,255,255,.45)}
-  .sb-sub{display:flex;flex-direction:column;gap:1px;margin:0 0 5px 7px;padding-left:9px;border-left:1px solid rgba(255,255,255,.14)}
+  .sb-sub{display:flex;flex-direction:column;gap:1px;margin:0 0 5px;padding-left:14px}
   .sb-sub.collapsed{display:none}
   .nav.sub{padding:7px 9px;border-radius:9px}
   .nav.sub svg{width:17px;height:17px}
@@ -788,11 +788,13 @@ const state = {
 const NAV = [
   {group:'平台管理',items:[{id:'orgs',name:'机构管理'},{id:'projects',name:'课题管理'},{id:'docs',name:'文档管理'},{id:'sites',name:'分中心管理'},{id:'users',name:'人员管理'},{id:'roles',name:'角色管理'}]},
   {group:'当前队列',items:[{id:'cohort',name:'队列工作台'},{id:'enroll',name:'建档管理'},{id:'archives',name:'档案管理'},{id:'qsettings',name:'队列设置'}]},
-  {group:'队列配置',items:[{id:'questionnaires',name:'问卷配置'},{id:'plan',name:'随访计划'},{id:'calendar',name:'任务日历'},{id:'samples',name:'样本管理'},{id:'templates',name:'模板与数据元'}]},
+  {group:'研究方案配置',items:[{id:'questionnaires',name:'问卷配置'},{id:'plan',name:'随访计划'},{id:'calendar',name:'任务日历'},{id:'samples',name:'样本管理'},{id:'templates',name:'模板与数据元'}]},
   {group:'数据采集与质控',items:[{id:'subjects',name:'对象管理'},{id:'dropouts',name:'脱落管理'},{id:'queries',name:'质询管理',badge:'3'},{id:'deviations',name:'超窗管理'},{id:'review',name:'数据审核',badge:'2'},{id:'random',name:'随机化'}]},
   {group:'统计与交付',items:[{id:'stats',name:'队列统计'},{id:'forms',name:'表单统计'},{id:'export',name:'数据导出'}]},
   {group:'外部集成',items:[{id:'integration',name:'HIS/LIS 集成'}]}
 ];
+
+NAV.forEach(g=>{ if(state.collapsedGroups[g.group]===undefined) state.collapsedGroups[g.group]=true; });
 
 const PANEL = {
   home:{title:'平台工作台',desc:'多课题、多队列的统一入口：查看在研项目、入组进度与待办，进入单个队列操作台。',tips:['点击「进入队列」切换到单队列工作台','「切换课题」可体验多队列隔离','机构/角色/文档等平台能力都在左侧平台管理组']},
@@ -912,14 +914,13 @@ function renderNav(){
   $('#nav').innerHTML=`
     <div class="sb-pin">${pin('home',ICON.zap,'平台工作台')}
       <div class="nav" data-action="notify">${ICON.task}<span>我的任务</span><span class="cnt">${todo}</span></div></div>
-    <div class="sb-sep"></div>
     ${NAV.map(g=>{
       const title=g.group==='当前队列'?state.currentQueue+' 队列':g.group;
       const collapsed=!!(state.collapsedGroups||{})[g.group];
       const groupActive=g.items.some(it=>it.id===state.page||(it.id==='subjects'&&state.page==='subject-detail'));
       return `<div class="sb-group">
         <div class="nav-group ${groupActive?'active':''}" data-action="toggle-group" data-group="${g.group}">
-          <svg class="chev-svg ${collapsed?'closed':''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg><span>${title}</span><span class="gcount">${g.items.length}</span>
+          <svg class="chev-svg ${collapsed?'closed':''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg><span>${title}</span>
         </div>
         <div class="sb-sub ${collapsed?'collapsed':''}">
           ${g.items.map(it=>{
@@ -2628,8 +2629,7 @@ function openCollectSample(subject, tp, type){
 
 /* ================= 启动（支持 #page 深链） ================= */
 const initPage=(location.hash||'').replace('#','');
-if(PANEL[initPage]) state.page=initPage;
-render();
+if(PANEL[initPage]) go(initPage); else render();
 window.addEventListener('hashchange',()=>{
   const p=(location.hash||'').replace('#','');
   if(PANEL[p]){ state.page=p; render(); }
