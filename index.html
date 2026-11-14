@@ -796,7 +796,7 @@ const NAV = [
   {group:'平台管理',items:[{id:'orgs',name:'机构管理'},{id:'projects',name:'课题管理'},{id:'docs',name:'文档管理'},{id:'sites',name:'分中心管理'},{id:'users',name:'人员管理'},{id:'roles',name:'角色管理'}]},
   {group:'当前队列',items:[{id:'cohort',name:'队列工作台'},{id:'archives',name:'档案管理'},{id:'qsettings',name:'队列设置'}]},
   {group:'数据采集管理',items:[{id:'subjects',name:'对象管理'},{id:'dropouts',name:'脱落管理'},{id:'queries',name:'质询管理',badge:'3'},{id:'deviations',name:'超窗管理'},{id:'review',name:'数据审核',badge:'2'},{id:'random',name:'随机化'}]},
-  {group:'研究方案配置',items:[{id:'questionnaires',name:'问卷配置'},{id:'plan',name:'随访计划'},{id:'calendar',name:'任务日历'},{id:'samples',name:'样本管理'},{id:'templates',name:'模板与数据元'}]},
+  {group:'随访配置',items:[{id:'questionnaires',name:'问卷配置'},{id:'plan',name:'随访计划'},{id:'calendar',name:'任务日历'},{id:'templates',name:'模板与数据元'}]},
   {group:'统计与交付',items:[{id:'stats',name:'队列统计'},{id:'forms',name:'表单统计'},{id:'export',name:'数据导出'}]},
   {group:'外部集成',items:[{id:'integration',name:'HIS/LIS 集成'}]}
 ];
@@ -961,6 +961,7 @@ function renderPanel(){
 function groupOf(page){
   if(page==='subject-detail') return '对象管理';
   if(page==='enroll') return state.currentQueue+' 队列';
+  if(page==='samples') return '随访配置';
   for(const g of NAV){ if(g.items.some(it=>it.id===page)) return g.group==='当前队列'?state.currentQueue+' 队列':g.group; }
   return '总览';
 }
@@ -2633,7 +2634,7 @@ function openRaiseQuery(form){
       <div class="field"><label>所在表单</label><select class="select" id="qForm">${[...new Set([(db.queue.crf||{}).title,...db.questionnaires.map(q=>q.name),'合并用药'].filter(Boolean))].map(f=>`<option ${f===form?'selected':''}>${f}</option>`).join('')}</select></div>
       <div class="field"><label>字段 *</label><input class="input" id="qField" placeholder="如：收缩压" /></div>
       <div class="field"><label>质询类型</label><select class="select" id="qType"><option>更新类</option><option>方案修改类</option></select></div>
-      <div class="field full"><label>质询说明 *</label><textarea id="qMsg" placeholder="备注原因，便于研究者处理"></textarea></div>
+      <div class="field full"><label>质询内容 *</label><textarea id="qMsg" placeholder="清晰描述需要研究者确认的问题。"></textarea></div>
     </div><div class="hint">质询将出现在列表与受试者详情，并计入质询率；提出后可锁定数据防止修改。</div>`,
     `<button class="btn btn-s btn-sm" data-action="close-modal">取消</button>
      <button class="btn btn-p btn-sm" data-action="save-query">发出质询</button>`);
