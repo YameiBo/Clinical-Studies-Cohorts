@@ -84,6 +84,16 @@
   .nav.sub{padding:7px 9px;border-radius:9px}
   .nav.sub svg{width:17px;height:17px}
   .nav.sub .cnt{margin-left:auto}
+
+  .nav-parent{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:8px;color:#d9cdea;font-size:14px;cursor:pointer;position:relative}
+  .nav-parent:hover{background:rgba(255,255,255,.08);color:#fff}
+  .nav-parent.active{background:rgba(255,255,255,.07);color:#fff}
+  .nav-parent > svg:first-child{width:17px;height:17px;opacity:.85;flex-shrink:0}
+  .nav-parent .chev-svg{margin-left:auto;width:14px;height:14px;opacity:.8;transition:transform .15s}
+  .nav-parent .chev-svg.closed{transform:rotate(-90deg)}
+  .sb-sub2{display:flex;flex-direction:column;gap:1px;margin-left:14px;padding-left:8px}
+  .sb-sub2.collapsed{display:none}
+  .nav.leaf{padding:6px 9px}
   /* ---------- chrome ---------- */
   .chrome{grid-column:2;grid-row:1;display:flex;align-items:center;gap:12px;padding:0 20px;background:#fff;border-bottom:1px solid var(--line);min-width:0}
   .crumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);white-space:nowrap}
@@ -814,25 +824,58 @@ function activateQueue(short){
 
 const state = {
   page:'home', role:'CRC', currentQueue:'HIP',
-  qFilter:{site:'',from:'',to:'',code:''}, dropSite:'', collapsedGroups:{}, subject:'S01-0001', tab:'visits',
+  qFilter:{site:'',from:'',to:'',code:''}, dropSite:'', collapsedGroups:{}, collapsedSubs:{}, subject:'S01-0001', tab:'visits',
   queryTab:'全部', visitForm:'vitals', template:'T-FORM-001', folder:'全部',
   orgFilter:'', userFilter:'', subjectFilter:'', docFilter:'', conds:[]
 };
 
 const NAV = [
-  {group:'当前队列',items:[{id:'cohort',name:'队列工作台'},{id:'archives',name:'档案管理'},{id:'qsettings',name:'队列设置'}]},
-  {group:'数据采集管理',items:[{id:'subjects',name:'对象管理'},{id:'dropouts',name:'脱落管理'},{id:'queries',name:'质询管理',badge:'3'},{id:'deviations',name:'超窗管理'},{id:'review',name:'数据审核',badge:'2'},{id:'random',name:'随机化'}]},
-  {group:'随访配置',items:[{id:'questionnaires',name:'问卷配置'},{id:'plan',name:'随访计划'},{id:'calendar',name:'任务日历'},{id:'templates',name:'模板与数据元'}]},
-  {group:'统计与导出',items:[{id:'stats',name:'队列统计'},{id:'forms',name:'表单统计'},{id:'export',name:'数据导出'}]},
-  {group:'外部集成',items:[{id:'integration',name:'HIS/LIS 集成'}]},
-  {group:'平台管理',items:[{id:'orgs',name:'机构管理'},{id:'projects',name:'课题管理'},{id:'docs',name:'文档管理'},{id:'sites',name:'分中心管理'},{id:'users',name:'人员管理'},{id:'roles',name:'角色管理'}]}
+  {group:'平台管理',items:[
+    {id:'home',name:'平台首页'},
+    {id:'orgs',name:'机构管理'},
+    {id:'projects',name:'队列列表'},
+    {id:'roles',name:'权限管理'}
+  ]},
+  {group:'当前队列',items:[
+    {id:'cohort',name:'队列工作台'},
+    {id:'archives',name:'档案管理'},
+    {id:'plan',name:'随访计划'},
+    {id:'questionnaires',name:'问卷配置'},
+    {id:'samples',name:'样本关联'},
+    {id:'data',name:'数据管理',children:[
+      {id:'entry',name:'数据采集端'},
+      {id:'subjects',name:'对象管理'}
+    ]},
+    {id:'qc',name:'数据质控',children:[
+      {id:'dropouts',name:'脱落管理'},
+      {id:'deviations',name:'超窗管理'},
+      {id:'queries',name:'质询管理'}
+    ]}
+  ]},
+  {group:'设置',items:[
+    {id:'sites',name:'分中心管理'},
+    {id:'users',name:'人员管理'},
+    {id:'docs',name:'文档管理'},
+    {id:'calendar',name:'任务日历'},
+    {id:'templates',name:'模板与数据元'},
+    {id:'enroll',name:'建档管理'},
+    {id:'review',name:'数据审核'},
+    {id:'random',name:'随机化'},
+    {id:'double',name:'双录入'},
+    {id:'stats',name:'队列统计'},
+    {id:'forms',name:'表单统计'},
+    {id:'export',name:'数据导出'},
+    {id:'integration',name:'HIS/LIS 集成'},
+    {id:'qsettings',name:'队列设置'}
+  ]}
 ];
 
 NAV.forEach(g=>{ if(state.collapsedGroups[g.group]===undefined) state.collapsedGroups[g.group]=true; });
 
 const PANEL = {
-  home:{title:'平台工作台',desc:'多课题、多队列的统一入口：查看在研项目、入组进度与待办，进入单个队列操作台。',tips:['点击「进入队列」切换到单队列工作台','「切换课题」可体验多队列隔离','机构/角色/文档等平台能力都在左侧平台管理组']},
+  home:{title:'平台首页',desc:'多课题、多队列的统一入口：查看在研项目、入组进度与待办，进入单个队列操作台。',tips:['点击「进入队列」切换到单队列工作台','「切换课题」可体验多队列隔离','机构/角色/文档等平台能力都在左侧平台管理组']},
   questionnaires:{title:'问卷配置',desc:'问卷设计、版本、发布与填写角色；与模板/数据元共用一套数据字典。',tips:['点击「发布」切换问卷状态','「复制新版本」保留已采集数据可追溯','设计器入口与模板字段打通']},
+  entry:{title:'数据采集端',desc:'按访视任务进入 CRF 录入，提交后进入质控流程。',tips:['点击「进入采集」打开受试者详情','表单按访视与 CRF 规则校验','提交后可发起质询或锁定数据']},
   dropouts:{title:'脱落管理',desc:'查看脱落受试者列表与脱落信息，支持按中心与入组编码检索。',tips:['点击「登记脱落」新增一条脱落记录','可按中心筛选或按编号/姓名搜索','登记后受试者状态同步为脱落']},
   calendar:{title:'任务日历',desc:'通过日历查看随访活动与到访状态，点击任务直接进入数据采集。',tips:['上一月/下一月切换月份','点击日历中的任务跳转受试者详情','今日任务列表可快速进入采集']},
   cohort:{title:'队列工作台',desc:'单队列的一站式操作台：建档、查重、档案、样本与待办在这里聚合。',tips:['点击「新建档案」进入建档流程','点击「重复建档查询」验证查重','待办可直接跳转质询或样本']},
@@ -842,8 +885,8 @@ const PANEL = {
   orgs:{title:'机构管理',desc:'维护机构主数据与机构用户；机构下有用户时不可删除。',tips:['搜索「华山」实时过滤','新增机构会做必填校验','删除有用户的机构会被拦截']},
   sites:{title:'分中心管理',desc:'分中心为研究执行单元，可为课题关联并设置编码与计划入组数。',tips:['点击「添加至课题」关联当前课题','新增后列表实时更新','按编码或名称搜索']},
   users:{title:'人员管理',desc:'人员档案与账号分离，支持批量导入、重置密码与角色绑定。',tips:['模拟批量导入 12 人','重置密码给出初始密码','人员状态区分启用/停用']},
-  roles:{title:'角色管理',desc:'页面、操作、数据、导出四维权限；盲底与揭盲单独授权。',tips:['点击「配置权限」勾选四维权限','保存后摘要实时更新','导出权限精确到字段']},
-  projects:{title:'课题管理',desc:'课题即项目容器；研究类型决定挂载队列或随机化模块。',tips:['新建课题会校验必填','锁定/解锁即时生效','点击「进入」回到对象管理']},
+  roles:{title:'权限管理',desc:'页面、操作、数据、导出四维权限；盲底与揭盲单独授权。',tips:['点击「配置权限」勾选四维权限','保存后摘要实时更新','导出权限精确到字段']},
+  projects:{title:'队列列表',desc:'课题/队列容器列表：查看队列类型、牵头单位、入组进度与更新时间。',tips:['新建课题会校验必填','锁定/解锁即时生效','点击「进入」回到对象管理']},
   docs:{title:'文档管理',desc:'按课题管理方案、手册、SOP，与 CRF 数据分离。',tips:['左侧切换文件夹','上传文件后列表新增','支持删除与搜索']},
   templates:{title:'模板与数据元',desc:'EDC 内核：字段、共享数据元、模板版本与影响分析。',tips:['左侧切换模板，右侧同步','添加/移除字段会更新预览','保存模板给出提示']},
   plan:{title:'计划配置',desc:'以访视为主线编排活动、窗口期与权限；启用后不可编辑主干。',tips:['启用/禁用计划切换锁定','启用状态下新增活动被拦截','超窗口径来自时间轴引擎']},
@@ -856,7 +899,7 @@ const PANEL = {
   export:{title:'数据导出',desc:'条件→公式→格式三段式配置，导出 Excel/CSV，异步生成。',tips:['添加检索条件','选择 xlsx 或 csv 生成任务','完成后下载并记录次数']},
   random:{title:'随机化',desc:'分层区组随机、号段管理、盲底保护与紧急揭盲审批。',tips:['CRC 角色下组别为掩码','重新发号即时更新','PI 可查看组别']},
   double:{title:'双录入',desc:'双人独立录入后字段级比对，差异由第三方仲裁并保留原始值。',tips:['对待仲裁字段选择正确值','全部仲裁后提示完成','一致字段无需处理']},
-  samples:{title:'样本管理',desc:'按采样时点 × 样本类型组织登记，入库审核后闭环。',tips:['采集样本登记新记录','状态可逐级推进','库位精确到盒/孔']},
+  samples:{title:'样本关联',desc:'按采样时点 × 样本类型关联受试者与样本，入库审核后闭环。',tips:['采集样本登记新记录','状态可逐级推进','库位精确到盒/孔']},
   integration:{title:'HIS/LIS 集成',desc:'院内集成网关：患者主索引、就诊、检验结果与字典同步。',tips:['失败记录可重试','接口不可用可手工补录','日志含耗时与业务主键']},
   'subject-detail':{title:'受试者详情',desc:'单个受试者的访视、CRF、样本与质询聚合视图，是数据采集的主战场。',tips:['切换访视/数据采集/样本/质询标签','提交 CRF 会校验必填与体温范围','发起质询后可在质询管理闭环']}
 };
@@ -900,8 +943,12 @@ function stat(ico,v,l,d,cls='up'){
 }
 function go(page){
   if(!PANEL[page]) return;
-  const g=page==='enroll'?NAV.find(x=>x.group==='当前队列'):NAV.find(x=>x.items.some(it=>it.id===page));
-  if(g && state.collapsedGroups && state.collapsedGroups[g.group]) state.collapsedGroups[g.group]=false;
+  const found=findNav(page);
+  if(found){
+    state.collapsedGroups=state.collapsedGroups||{};
+    state.collapsedGroups[found.group.group]=false;
+    if(found.parent){ state.collapsedSubs=state.collapsedSubs||{}; state.collapsedSubs[found.parent.id]=false; }
+  }
   state.page=page; render();
 }
 
@@ -939,34 +986,55 @@ const ICON={
   logout:SVG('<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>')
 };
 const ICON_OF={home:'home',projects:'folder',orgs:'building',sites:'pin',users:'users',roles:'shield',docs:'file',
+  entry:'form',data:'dashboard',qc:'shield',
   cohort:'dashboard',enroll:'userplus',archives:'archive',qsettings:'sliders',questionnaires:'clipboard',plan:'calendar',
   samples:'flask',templates:'form',subjects:'activity',queries:'message',deviations:'clock',review:'check',
   double:'copy',random:'shuffle',stats:'chart',forms:'file',export:'download',integration:'plug'};
+function findNav(page){
+  for(const g of NAV){
+    for(const it of g.items){
+      if(it.id===page) return {group:g,item:it};
+      if(it.children){
+        const c=it.children.find(x=>x.id===page);
+        if(c) return {group:g,item:c,parent:it};
+      }
+    }
+  }
+  return null;
+}
 function renderNav(){
   const todo=db.queries.filter(q=>q.status==='未解决').length+db.reviews.filter(r=>r.status==='待审核').length+db.deviations.filter(x=>x.status==='待处理').length;
-  const pin=(page,icon,label,cnt)=>`<div class="nav ${state.page===page?'active':''}" data-action="go" data-page="${page}">${icon}<span>${label}</span>${cnt?`<span class="cnt">${cnt}</span>`:''}</div>`;
-  $('#nav').innerHTML=`
-    <div class="sb-pin">${pin('home',ICON.zap,'平台工作台')}
-      <div class="nav" data-action="notify">${ICON.task}<span>我的任务</span><span class="cnt">${todo}</span></div></div>
-    ${NAV.map(g=>{
-      const title=g.group==='当前队列'?state.currentQueue+' 队列':g.group;
-      const collapsed=!!(state.collapsedGroups||{})[g.group];
-      const groupActive=g.items.some(it=>it.id===state.page||(it.id==='subjects'&&state.page==='subject-detail'))||(g.group==='当前队列'&&state.page==='enroll');
-      return `<div class="sb-group">
-        <div class="nav-group ${groupActive?'active':''}" data-action="toggle-group" data-group="${g.group}">
-          <svg class="chev-svg ${collapsed?'closed':''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg><span>${title}</span>
-        </div>
-        <div class="sb-sub ${collapsed?'collapsed':''}">
-          ${g.items.map(it=>{
-            const cnt = it.id==='queries'? db.queries.filter(q=>q.status==='未解决').length
-              : it.id==='review'? db.reviews.filter(r=>r.status==='待审核').length : 0;
-            const active=it.id===state.page||(it.id==='subjects'&&state.page==='subject-detail');
-            return `<div class="nav sub ${active?'active':''}" data-action="go" data-page="${it.id}">
-              ${ICON[ICON_OF[it.id]]||ICON.grid}<span>${it.name}</span>${cnt?`<span class="cnt">${cnt}</span>`:''}</div>`;
-          }).join('')}
-        </div>
-      </div>`;
-    }).join('')}`;
+  const isActive=it=>it.id===state.page||(it.id==='subjects'&&state.page==='subject-detail');
+  const cntOf=it=>it.id==='queries'?db.queries.filter(q=>q.status==='未解决').length
+    :it.id==='review'?db.reviews.filter(r=>r.status==='待审核').length:0;
+  const leaf=it=>{
+    const cnt=cntOf(it);
+    return `<div class="nav sub leaf ${isActive(it)?'active':''}" data-action="go" data-page="${it.id}">
+      ${ICON[ICON_OF[it.id]]||ICON.grid}<span>${it.name}</span>${cnt?`<span class="cnt">${cnt}</span>`:''}</div>`;
+  };
+  const branch=it=>{
+    const open=!(state.collapsedSubs||{})[it.id];
+    const on=it.children.some(isActive);
+    return `<div class="nav-parent ${open?'open':''} ${on?'active':''}" data-action="toggle-sub" data-sub="${it.id}">
+        ${ICON[ICON_OF[it.id]]||ICON.grid}<span>${it.name}</span>
+        <svg class="chev-svg ${open?'':'closed'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <div class="sb-sub2 ${open?'':'collapsed'}">${it.children.map(leaf).join('')}</div>`;
+  };
+  $('#nav').innerHTML=NAV.map(g=>{
+    const title=g.group==='当前队列'?state.currentQueue+' 队列管理':g.group;
+    const collapsed=!!(state.collapsedGroups||{})[g.group];
+    const groupActive=g.items.some(it=>isActive(it)||(it.children&&it.children.some(isActive)));
+    return `<div class="sb-group">
+      <div class="nav-group ${groupActive?'active':''}" data-action="toggle-group" data-group="${g.group}">
+        <svg class="chev-svg ${collapsed?'closed':''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        <span>${title}</span>
+      </div>
+      <div class="sb-sub ${collapsed?'collapsed':''}">
+        ${g.items.map(it=>it.children?branch(it):leaf(it)).join('')}
+      </div>
+    </div>`;
+  }).join('');
   $('#sbFoot').innerHTML=`<div class="nav" data-action="help">${ICON.help}<span>帮助中心</span></div>
     <div class="nav" data-action="logout">${ICON.logout}<span>退出登录</span></div>`;
 }
@@ -986,11 +1054,10 @@ function renderPanel(){
     <div class="rc"><h4>说明</h4><div class="note-r">全部为模拟数据，操作即时生效但不落库；右上角切换角色可体验权限与盲底差异，「重置数据」恢复初始状态。</div></div>`;
 }
 function groupOf(page){
-  if(page==='subject-detail') return '对象管理';
-  if(page==='enroll') return state.currentQueue+' 队列';
-  if(page==='samples') return '随访配置';
-  for(const g of NAV){ if(g.items.some(it=>it.id===page)) return g.group==='当前队列'?state.currentQueue+' 队列':g.group; }
-  return '总览';
+  if(page==='subject-detail') return state.currentQueue+' 队列管理';
+  const f=findNav(page);
+  if(f) return f.group.group==='当前队列'?state.currentQueue+' 队列管理':f.group.group;
+  return '平台管理';
 }
 function render(){
   const map={home:renderHome,orgs:renderOrgs,sites:renderSites,users:renderUsers,roles:renderRoles,
@@ -999,7 +1066,7 @@ function render(){
     stats:renderStats,forms:renderForms,export:renderExport,random:renderRandom,double:renderDouble,
     samples:renderSamples,integration:renderIntegration,'subject-detail':renderSubjectDetail,
     cohort:renderCohort,enroll:renderEnroll,archives:renderArchives,qsettings:renderQSettings,questionnaires:renderQuestionnaires,
-    dropouts:renderDropouts,calendar:renderCalendar};
+    dropouts:renderDropouts,calendar:renderCalendar,entry:renderEntry};
   renderNav();
   const cq=db.projects.find(p=>p.short===state.currentQueue);
   const sbq=document.querySelector('.sb-proj b'); if(sbq&&cq) sbq.textContent=cq.short;
@@ -1008,9 +1075,7 @@ function render(){
   $('#main').scrollTop=0;
   const p=PANEL[state.page]||PANEL.home;
   const grp = groupOf(state.page);
-  $('#crumb').innerHTML = state.page==='home'
-    ? `<b>工作台</b>`
-    : `<span>${grp}</span> <i>/</i> <b>${p.title}</b>`;
+  $('#crumb').innerHTML = `<span>${grp}</span> <i>/</i> <b>${p.title}</b>`;
   renderPanel();
 }
 
@@ -1018,7 +1083,7 @@ function render(){
 function renderHome(){
   const qs=db.projects.filter(p=>p.queue);
   const todo=db.queries.filter(q=>q.status==='未解决').length+db.reviews.filter(r=>r.status==='待审核').length;
-  return `${pageHead('平台工作台','多队列 · 多课题统一入口；课题按研究类型挂载队列或随机化模块',`
+  return `${pageHead('平台首页','多队列 · 多课题统一入口；课题按研究类型挂载队列或随机化模块',`
       <button class="btn btn-s btn-sm" data-action="switch-project">切换队列</button>
       <button class="btn btn-p btn-sm" data-action="new-project">新建课题</button>`)}
     <div class="g4" style="margin-bottom:12px">
@@ -1116,7 +1181,7 @@ function renderUsers(){
 
 /* ================= 角色 ================= */
 function renderRoles(){
-  return `${pageHead('角色管理','页面、操作、数据、导出四维权限；盲底与揭盲单独授权',`
+  return `${pageHead('权限管理','页面、操作、数据、导出四维权限；盲底与揭盲单独授权',`
       <button class="btn btn-p btn-sm" data-action="new-role">新增角色</button>`)}
     <div class="g2" style="margin-bottom:12px">
       <div class="panel"><div class="ph"><h3>四维权限模型</h3></div><div class="pb">
@@ -1140,10 +1205,10 @@ function renderRoles(){
 function renderProjects(){
   const cp=currentProject();
   const rnd=QUEUE_SETS[cp.short]?.queue.randomized;
-  return `${pageHead('课题管理','课题建档、属性配置、进度与锁定；锁定后所有用户不可操作',`
+  return `${pageHead('队列列表','队列/课题列表：查看牵头单位、入组进度与更新时间',`
       <button class="btn btn-p btn-sm" data-action="new-project">新建课题</button>`)}
-    <div class="panel"><div class="tw"><table class="tbl"><thead><tr><th>课题编码</th><th>简称</th><th>课题名称</th><th>PI</th><th>起止日期</th><th>入组进度</th><th>中心</th><th>状态</th><th>更新时间</th><th class="right">操作</th></tr></thead>
-      <tbody>${db.projects.map(p=>`<tr><td class="mono">${p.code}</td><td class="st">${p.short}</td>
+    <div class="panel"><div class="tw"><table class="tbl"><thead><tr><th>队列编码</th><th>简称</th><th>队列名称</th><th>PI</th><th>起止日期</th><th>入组进度</th><th>中心</th><th>状态</th><th>更新时间</th><th class="right">操作</th></tr></thead>
+      <tbody>${db.projects.filter(p=>p.queue).map(p=>`<tr><td class="mono">${p.code}</td><td class="st">${p.short}</td>
         <td style="max-width:300px"><div style="overflow:hidden;text-overflow:ellipsis">${p.name}</div><div class="tiny muted">牵头 ${p.org}</div></td>
         <td>${p.pi} ${QUEUE_SETS[p.short]?'<span class="chip teal" style="margin-left:4px">队列</span>':''}</td>
         <td class="mono tiny">${p.start} ~ ${p.end}</td><td class="mono">${p.actual}/${p.plan}</td><td class="num">${p.centers}</td>
@@ -1238,6 +1303,30 @@ function renderPlan(){
           <div class="kv"><span class="k">提醒</span><span class="v">提前 3 天</span></div></div></div>
       </div>
     </div>`;
+}
+
+/* ================= 数据采集端 ================= */
+function renderEntry(){
+  const list=db.subjects;
+  const done=list.filter(s=>s.status==='已完成').length;
+  const pending=list.length-done;
+  const q=db.queries.filter(x=>x.status==='未解决').length;
+  const form=(db.queue.crf||{}).title||'CRF';
+  return `${pageHead('数据采集端',`${db.queue.name} · 按访视任务进入 CRF 录入`,`
+      <button class="btn btn-s btn-sm" data-action="go" data-page="subjects">对象管理</button>`)}
+    <div class="g4" style="margin-bottom:12px">
+      ${stat('待',pending,'待录入任务','按当前访视')}
+      ${stat('今',2,'今日到期','需优先处理','down')}
+      ${stat('质',q,'有质询任务','处理后继续录入','down')}
+      ${stat('完',done,'已完成采集','提交并通过校验')}
+    </div>
+    <div class="panel"><div class="ph"><h3>录入任务</h3><span class="more">共 ${list.length} 位受试者 · 表单：${form}</span></div>
+      <div class="tw"><table class="tbl"><thead><tr><th>入组编号</th><th>姓名</th><th>中心</th><th>当前访视</th><th>表单</th><th>状态</th><th>入组日期</th><th class="right">操作</th></tr></thead>
+      <tbody>${list.map(s=>`<tr>
+        <td class="mono st">${s.id}</td><td>${s.name}</td><td>${s.site}</td><td>${s.visit}</td>
+        <td>${form}</td><td>${badge(s.status)}</td><td class="mono">${s.enroll}</td>
+        <td class="right"><button class="btn btn-p btn-xs" data-action="entry-open" data-id="${s.id}">进入采集</button></td></tr>`).join('')}</tbody></table></div></div>
+    <div class="note" style="margin-top:12px"><b>采集流程：</b>进入受试者详情 → 选择访视表单（生命体征/实验室检查/合并用药/不良事件）→ 保存或提交 → 提交后进入质控。</div>`;
 }
 
 /* ================= 对象列表 ================= */
@@ -1867,7 +1956,7 @@ function renderSamples(){
     const n=(i*3+j*2)%5;
     return `<button class="btn btn-s btn-xs" data-action="collect-sample" data-tp="${tps[i]}" data-type="${types[j]}" title="采集 / 登记">${n?n+' 份':'＋'}</button>`;
   };
-  return `${pageHead('样本管理','按「采样时点 × 样本类型」组织登记，入库审核后完成闭环',`
+  return `${pageHead('样本关联','按「采样时点 × 样本类型」关联受试者与样本，入库审核后完成闭环',`
       <button class="btn btn-s btn-sm" data-action="sample-review">入库审核</button>
       <button class="btn btn-p btn-sm" data-action="collect-sample">采集样本</button>`)}
     <div class="g4" style="margin-bottom:12px">
@@ -1962,6 +2051,14 @@ document.addEventListener('click', e=>{
     case 'toggle-group': {
       state.collapsedGroups=state.collapsedGroups||{};
       state.collapsedGroups[d.group]=!state.collapsedGroups[d.group];
+      const top=$('#nav')?.scrollTop||0;
+      renderNav();
+      if($('#nav')) $('#nav').scrollTop=top;
+      break;
+    }
+    case 'toggle-sub': {
+      state.collapsedSubs=state.collapsedSubs||{};
+      state.collapsedSubs[d.sub]=!state.collapsedSubs[d.sub];
       const top=$('#nav')?.scrollTop||0;
       renderNav();
       if($('#nav')) $('#nav').scrollTop=top;
@@ -2124,7 +2221,7 @@ document.addEventListener('click', e=>{
           <div class="field full"><label>课题名称 *</label><input class="input" id="pName" placeholder="请输入研究全称" /></div>
           <div class="field"><label>PI</label><input class="input" id="pPi" placeholder="姓名" /></div>
           <div class="field"><label>计划入组</label><input class="input" id="pPlan" type="number" value="120" /></div>
-          <div class="field"><label>研究类型</label><select class="select" id="pType"><option>干预性</option><option>观察性</option><option>注册性</option></select></div>
+          <div class="field"><label>研究类型</label><select class="select" id="pType"><option>观察性（队列）</option><option>干预性</option><option>注册性</option></select></div>
           <div class="field"><label>盲法</label><select class="select" id="pBlind"><option>双盲</option><option>单盲</option><option>开放</option></select></div>
         </div>
         <div class="validate-note"><b>保存前将进行配置校验</b>系统会检查编码唯一性、时间点冲突及必填字段完整性。</div>`,
@@ -2135,7 +2232,7 @@ document.addEventListener('click', e=>{
       if(!code||!short||!name){ toast('课题编码、简称、名称必填','err'); break; }
       if(db.projects.some(p=>p.code===code)){ toast(`课题编码 ${code} 已存在，请更换`,'err'); break; }
       db.projects.unshift({code,short,name,pi:val('pPi')||'—',org:'上海市第一人民医院',start:'2026-01-01',end:'2027-12-31',
-        plan:+val('pPlan')||120,actual:0,centers:1,status:'进行中',locked:false,type:val('pType'),blind:val('pBlind'),updated:'2026-11-13'});
+        plan:+val('pPlan')||120,actual:0,centers:1,status:'进行中',locked:false,type:val('pType'),blind:val('pBlind'),queue:val('pType').includes('观察性'),updated:'2026-11-13'});
       closeModal(); render(); toast('课题已创建：'+short); break;
     }
     case 'lock-project': {
@@ -2242,6 +2339,7 @@ document.addEventListener('click', e=>{
       closeModal(); render(); toast('受试者已登记：'+id); break;
     }
     case 'import-subject': toast('已导入 16 例受试者，入组编码自动生成（演示）'); break;
+    case 'entry-open': state.subject=d.id; state.tab='crf'; state.page='subject-detail'; render(); toast('已进入数据采集：'+d.id); break;
     case 'open-subject': state.subject=d.id; state.tab='visits'; state.visitForm='vitals'; state.page='subject-detail'; renderSubjectDetailPage(); break;
     case 'tab': state.tab=d.tab; renderSubjectDetailPage(); break;
     case 'open-crf': state.tab='crf'; renderSubjectDetailPage(); break;
