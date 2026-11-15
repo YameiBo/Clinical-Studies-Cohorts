@@ -424,19 +424,19 @@
 /* ================= 演示数据 ================= */
 const db = {
   orgs:[
-    {code:'ORG-001',name:'上海市第一人民医院',level:'三级甲等',region:'上海市 / 虹口区',addr:'武进路 100 号',admin:'王建国',users:42},
-    {code:'ORG-002',name:'复旦大学附属华山医院',level:'三级甲等',region:'上海市 / 静安区',addr:'乌鲁木齐中路 12 号',admin:'周敏',users:28},
-    {code:'ORG-003',name:'上海交通大学医学院附属瑞金医院',level:'三级甲等',region:'上海市 / 黄浦区',addr:'瑞金二路 197 号',admin:'陈立',users:35},
-    {code:'ORG-004',name:'上海市第六人民医院',level:'三级甲等',region:'上海市 / 徐汇区',addr:'宜山路 600 号',admin:'赵敏',users:0},
-    {code:'ORG-005',name:'北京安定医院',level:'三级甲等',region:'北京市 / 西城区',addr:'安康胡同 5 号',admin:'张明',users:56},
-    {code:'ORG-006',name:'郑州市骨科医院',level:'三级甲等',region:'河南省 / 郑州市',addr:'陇海中路 58 号',admin:'刘伟',users:38},
-    {code:'ORG-007',name:'北京积水潭医院',level:'三级甲等',region:'北京市 / 西城区',addr:'新街口东街 31 号',admin:'陈刚',users:44}
+    {code:'ORG-001',name:'申江大学医学院',level:'三级甲等',region:'上海市 / 虹口区',addr:'学院路 100 号',admin:'王建国',users:42},
+    {code:'ORG-002',name:'东海大学医学部',level:'三级甲等',region:'上海市 / 静安区',addr:'医学院路 88 号',admin:'周敏',users:28},
+    {code:'ORG-003',name:'沪西医科大学',level:'三级甲等',region:'上海市 / 黄浦区',addr:'医学园路 12 号',admin:'陈立',users:35},
+    {code:'ORG-004',name:'华东医科大学',level:'三级甲等',region:'上海市 / 徐汇区',addr:'健康路 600 号',admin:'赵敏',users:0},
+    {code:'ORG-005',name:'燕京医学院',level:'三级甲等',region:'北京市 / 西城区',addr:'学院胡同 5 号',admin:'张明',users:56},
+    {code:'ORG-006',name:'中原医科大学',level:'三级甲等',region:'河南省 / 郑州市',addr:'大学北路 58 号',admin:'刘伟',users:38},
+    {code:'ORG-007',name:'京华医学院',level:'三级甲等',region:'北京市 / 西城区',addr:'医学路 31 号',admin:'陈刚',users:44}
   ],
   archives:[
-    {code:'ARC-S01-0001',org:'上海市第一人民医院',female:'张*华',male:'李*明',fid:'3101**********1234',mid:'3101**********5678',date:'2026-09-12',status:{'基线问卷':'已提交','早孕随访':'已提交','中晚孕随访':'已提交','妊娠结局':'未提交'}},
-    {code:'ARC-S01-0002',org:'上海市第一人民医院',female:'王*芳',male:'赵*军',fid:'3101**********2345',mid:'3101**********6789',date:'2026-09-20',status:{'基线问卷':'已提交','早孕随访':'已提交','中晚孕随访':'未提交','妊娠结局':'未提交'}},
-    {code:'ARC-S02-0001',org:'复旦大学附属华山医院',female:'陈*',male:'周*',fid:'3101**********3456',mid:'3101**********7890',date:'2026-10-02',status:{'基线问卷':'已提交','早孕随访':'未提交','中晚孕随访':'未提交','妊娠结局':'未提交'}},
-    {code:'ARC-S03-0001',org:'上海交通大学医学院附属瑞金医院',female:'刘*敏',male:'孙*',fid:'3101**********4567',mid:'3101**********8901',date:'2026-10-18',status:{'基线问卷':'未提交','早孕随访':'未提交','中晚孕随访':'未提交','妊娠结局':'未提交'}}
+    {code:'ARC-S01-0001',org:'申江大学医学院',female:'张*华',male:'李*明',fid:'3101**********1234',mid:'3101**********5678',date:'2026-09-12',status:{'基线问卷':'已提交','早孕随访':'已提交','中晚孕随访':'已提交','妊娠结局':'未提交'}},
+    {code:'ARC-S01-0002',org:'申江大学医学院',female:'王*芳',male:'赵*军',fid:'3101**********2345',mid:'3101**********6789',date:'2026-09-20',status:{'基线问卷':'已提交','早孕随访':'已提交','中晚孕随访':'未提交','妊娠结局':'未提交'}},
+    {code:'ARC-S02-0001',org:'东海大学医学部',female:'陈*',male:'周*',fid:'3101**********3456',mid:'3101**********7890',date:'2026-10-02',status:{'基线问卷':'已提交','早孕随访':'未提交','中晚孕随访':'未提交','妊娠结局':'未提交'}},
+    {code:'ARC-S03-0001',org:'沪西医科大学',female:'刘*敏',male:'孙*',fid:'3101**********4567',mid:'3101**********8901',date:'2026-10-18',status:{'基线问卷':'未提交','早孕随访':'未提交','中晚孕随访':'未提交','妊娠结局':'未提交'}}
   ],
   queue:{
     statuses:['婚前','孕前','孕期','子代'],
@@ -448,16 +448,16 @@ const db = {
     dupRule:'证件号码 + 姓名/出生日期'
   },
   sites:[
-    {code:'S01',org:'上海市第一人民医院',name:'心血管内科',pi:'王建国',plan:60,actual:38},
-    {code:'S02',org:'复旦大学附属华山医院',name:'心内科',pi:'周敏',plan:50,actual:31},
-    {code:'S03',org:'上海交通大学医学院附属瑞金医院',name:'高血压科',pi:'陈立',plan:40,actual:24},
-    {code:'S04',org:'上海市第六人民医院',name:'心内科',pi:'赵敏',plan:40,actual:0},
-    {code:'D01',org:'北京安定医院',name:'精神科',pi:'张明',plan:300,actual:86},
-    {code:'D02',org:'天津市安定医院',name:'精神科',pi:'李强',plan:180,actual:64},
-    {code:'D03',org:'杭州市第七人民医院',name:'精神科',pi:'王芳',plan:150,actual:52},
-    {code:'H01',org:'郑州市骨科医院',name:'创伤骨科',pi:'刘伟',plan:200,actual:56},
-    {code:'H02',org:'北京积水潭医院',name:'创伤骨科',pi:'陈刚',plan:300,actual:128},
-    {code:'H03',org:'上海市第六人民医院',name:'骨科',pi:'赵敏',plan:120,actual:48}
+    {code:'S01',org:'申江大学医学院',name:'心血管内科',pi:'王建国',plan:60,actual:38},
+    {code:'S02',org:'东海大学医学部',name:'心内科',pi:'周敏',plan:50,actual:31},
+    {code:'S03',org:'沪西医科大学',name:'高血压科',pi:'陈立',plan:40,actual:24},
+    {code:'S04',org:'华东医科大学',name:'心内科',pi:'赵敏',plan:40,actual:0},
+    {code:'D01',org:'燕京医学院',name:'精神科',pi:'张明',plan:300,actual:86},
+    {code:'D02',org:'津门医学院',name:'精神科',pi:'李强',plan:180,actual:64},
+    {code:'D03',org:'钱塘医学院',name:'精神科',pi:'王芳',plan:150,actual:52},
+    {code:'H01',org:'中原医科大学',name:'创伤骨科',pi:'刘伟',plan:200,actual:56},
+    {code:'H02',org:'京华医学院',name:'创伤骨科',pi:'陈刚',plan:300,actual:128},
+    {code:'H03',org:'华东医科大学',name:'骨科',pi:'赵敏',plan:120,actual:48}
   ],
   users:[
     {no:'U1024',name:'王建国',gender:'男',phone:'138****2201',title:'主任医师',role:'PI',site:'S01',status:'启用'},
@@ -477,11 +477,11 @@ const db = {
     {code:'R05',name:'DM 数据管理员',level:'课题',pages:'模板 / 计划 / 质询 / 导出',data:'课题数据',export:'全部字段'}
   ],
   projects:[
-    {code:'EDC-2024-001',short:'SAPPHIRE',name:'华东地区育龄人群生殖健康队列研究',pi:'王建国',org:'上海市第一人民医院',start:'2024-03-01',end:'2026-02-28',plan:240,actual:186,centers:6,status:'进行中',locked:false,type:'观察性（队列）',blind:'开放',queue:true,updated:'2026-11-12'},
-    {code:'EDC-2024-002',short:'ORCHID',name:'XX 单抗治疗晚期非小细胞肺癌的 II 期研究',pi:'周敏',org:'复旦大学附属华山医院',start:'2024-06-15',end:'2026-06-30',plan:120,actual:64,centers:4,status:'进行中',locked:false,type:'干预性',blind:'开放',queue:false,updated:'2026-11-08'},
-    {code:'EDC-2023-018',short:'MAGNOLIA',name:'心血管疾病队列随访研究',pi:'陈立',org:'瑞金医院',start:'2023-09-01',end:'2025-08-31',plan:800,actual:812,centers:8,status:'已锁库',locked:true,type:'观察性（队列）',blind:'开放',queue:true,updated:'2025-09-01'},
-    {code:'EDC-2026-003',short:'DEPRESSION',name:'全国多中心抑郁症前瞻性队列研究',pi:'张明',org:'北京安定医院',start:'2026-01-01',end:'2029-12-31',plan:10000,actual:1286,centers:57,status:'进行中',locked:false,type:'观察性（队列）',blind:'开放',queue:true,updated:'2026-11-13'},
-    {code:'EDC-2025-007',short:'HIP',name:'老年髋部骨折全国专病队列研究',pi:'陈刚',org:'北京积水潭医院',start:'2025-03-01',end:'2028-02-28',plan:3000,actual:1876,centers:47,status:'进行中',locked:false,type:'观察性（队列）',blind:'开放',queue:true,updated:'2026-11-11'}
+    {code:'EDC-2024-001',short:'SAPPHIRE',name:'华东地区育龄人群生殖健康队列研究',pi:'王建国',org:'申江大学医学院',start:'2024-03-01',end:'2026-02-28',plan:240,actual:186,centers:6,status:'进行中',locked:false,type:'观察性（队列）',blind:'开放',queue:true,updated:'2026-11-12'},
+    {code:'EDC-2024-002',short:'ORCHID',name:'XX 单抗治疗晚期非小细胞肺癌的 II 期研究',pi:'周敏',org:'东海大学医学部',start:'2024-06-15',end:'2026-06-30',plan:120,actual:64,centers:4,status:'进行中',locked:false,type:'干预性',blind:'开放',queue:false,updated:'2026-11-08'},
+    {code:'EDC-2023-018',short:'MAGNOLIA',name:'心血管疾病队列随访研究',pi:'陈立',org:'沪西医科大学',start:'2023-09-01',end:'2025-08-31',plan:800,actual:812,centers:8,status:'已锁库',locked:true,type:'观察性（队列）',blind:'开放',queue:true,updated:'2025-09-01'},
+    {code:'EDC-2026-003',short:'DEPRESSION',name:'全国多中心抑郁症前瞻性队列研究',pi:'张明',org:'燕京医学院',start:'2026-01-01',end:'2029-12-31',plan:10000,actual:1286,centers:57,status:'进行中',locked:false,type:'观察性（队列）',blind:'开放',queue:true,updated:'2026-11-13'},
+    {code:'EDC-2025-007',short:'HIP',name:'老年髋部骨折全国专病队列研究',pi:'陈刚',org:'京华医学院',start:'2025-03-01',end:'2028-02-28',plan:3000,actual:1876,centers:47,status:'进行中',locked:false,type:'观察性（队列）',blind:'开放',queue:true,updated:'2026-11-11'}
   ],
   docs:[
     {name:'SAPPHIRE_研究方案_V3.0.pdf',size:'4.2 MB',by:'王建国',time:'2026-10-08',folder:'方案文件'},
@@ -609,7 +609,7 @@ const SAPPHIRE_SET={
 };
 
 const DEPRESSION_SET={
-  queue:{name:'全国多中心抑郁症前瞻性队列研究',lead:'北京安定医院',structure:'单方（受试者）',
+  queue:{name:'全国多中心抑郁症前瞻性队列研究',lead:'燕京医学院',structure:'单方（受试者）',
     people:[{key:'p0',label:'受试者'}],statuses:['首发','复发','缓解期','随访中'],
     keyDates:['首次发病日期','基线评估日期'],
     timepoints:['基线','第 4 周','第 3 个月','第 6 个月','第 12 个月'],
@@ -637,11 +637,11 @@ const DEPRESSION_SET={
     {code:'V5',name:'第 12 个月随访',type:'计划访视',schedule:'D336',window:'±30 天',forms:5,status:'未开始'}
   ]},
   archives:[
-    {code:'DEP-D01-0001',org:'北京安定医院',people:[{label:'受试者',name:'李*',id:'1101**********1234'}],date:'2026-09-03',status:{'基线评估':'已提交','4周随访':'已提交','3个月随访':'已提交','6个月随访':'未提交','12个月随访':'未提交'}},
-    {code:'DEP-D01-0002',org:'北京安定医院',people:[{label:'受试者',name:'王*',id:'1101**********2345'}],date:'2026-09-08',status:{'基线评估':'已提交','4周随访':'已提交','3个月随访':'未提交','6个月随访':'未提交','12个月随访':'未提交'}},
-    {code:'DEP-D02-0001',org:'天津市安定医院',people:[{label:'受试者',name:'赵*',id:'1201**********3456'}],date:'2026-09-15',status:{'基线评估':'已提交','4周随访':'未提交','3个月随访':'未提交','6个月随访':'未提交','12个月随访':'未提交'}},
-    {code:'DEP-D02-0002',org:'天津市安定医院',people:[{label:'受试者',name:'陈*',id:'1201**********4567'}],date:'2026-09-22',status:{'基线评估':'已提交','4周随访':'已提交','3个月随访':'已提交','6个月随访':'已提交','12个月随访':'未提交'}},
-    {code:'DEP-D03-0001',org:'杭州市第七人民医院',people:[{label:'受试者',name:'刘*',id:'3301**********5678'}],date:'2026-10-01',status:{'基线评估':'未提交','4周随访':'未提交','3个月随访':'未提交','6个月随访':'未提交','12个月随访':'未提交'}}
+    {code:'DEP-D01-0001',org:'燕京医学院',people:[{label:'受试者',name:'李*',id:'1101**********1234'}],date:'2026-09-03',status:{'基线评估':'已提交','4周随访':'已提交','3个月随访':'已提交','6个月随访':'未提交','12个月随访':'未提交'}},
+    {code:'DEP-D01-0002',org:'燕京医学院',people:[{label:'受试者',name:'王*',id:'1101**********2345'}],date:'2026-09-08',status:{'基线评估':'已提交','4周随访':'已提交','3个月随访':'未提交','6个月随访':'未提交','12个月随访':'未提交'}},
+    {code:'DEP-D02-0001',org:'津门医学院',people:[{label:'受试者',name:'赵*',id:'1201**********3456'}],date:'2026-09-15',status:{'基线评估':'已提交','4周随访':'未提交','3个月随访':'未提交','6个月随访':'未提交','12个月随访':'未提交'}},
+    {code:'DEP-D02-0002',org:'津门医学院',people:[{label:'受试者',name:'陈*',id:'1201**********4567'}],date:'2026-09-22',status:{'基线评估':'已提交','4周随访':'已提交','3个月随访':'已提交','6个月随访':'已提交','12个月随访':'未提交'}},
+    {code:'DEP-D03-0001',org:'钱塘医学院',people:[{label:'受试者',name:'刘*',id:'3301**********5678'}],date:'2026-10-01',status:{'基线评估':'未提交','4周随访':'未提交','3个月随访':'未提交','6个月随访':'未提交','12个月随访':'未提交'}}
   ],
   subjects:[
     {id:'D01-0001',name:'李*',gender:'男',age:28,site:'D01',enroll:'2026-09-03',visit:'V2 第 4 周',status:'有质询',queries:2,random:'—',group:'—',samples:2},
@@ -708,7 +708,7 @@ const DEPRESSION_SET={
 };
 
 const HIP_SET={
-  queue:{name:'老年髋部骨折全国专病队列研究',lead:'北京积水潭医院',structure:'单方（受试者）',
+  queue:{name:'老年髋部骨折全国专病队列研究',lead:'京华医学院',structure:'单方（受试者）',
     people:[{key:'p0',label:'受试者'}],statuses:['术前','术后3天','术后1个月','术后3个月','术后6个月','术后1年'],
     keyDates:['受伤日期','手术日期'],
     timepoints:['术前','术后3天','术后1个月','术后3个月','术后6个月','术后1年'],
@@ -738,11 +738,11 @@ const HIP_SET={
     {code:'V6',name:'术后 1 年',type:'计划访视',schedule:'D365',window:'±30 天',forms:4,status:'未开始'}
   ]},
   archives:[
-    {code:'HIP-H01-0001',org:'郑州市骨科医院',people:[{label:'受试者',name:'张*',id:'4101**********1234'}],date:'2026-09-05',status:{'术前评估':'已提交','术后3天':'已提交','术后1个月':'已提交','术后3个月':'未提交','术后6个月':'未提交','术后1年':'未提交'}},
-    {code:'HIP-H01-0002',org:'郑州市骨科医院',people:[{label:'受试者',name:'李*',id:'4101**********2345'}],date:'2026-09-12',status:{'术前评估':'已提交','术后3天':'已提交','术后1个月':'已提交','术后3个月':'已提交','术后6个月':'已提交','术后1年':'未提交'}},
-    {code:'HIP-H01-0003',org:'郑州市骨科医院',people:[{label:'受试者',name:'王*',id:'4101**********3456'}],date:'2026-09-20',status:{'术前评估':'已提交','术后3天':'未提交','术后1个月':'未提交','术后3个月':'未提交','术后6个月':'未提交','术后1年':'未提交'}},
-    {code:'HIP-H02-0001',org:'北京积水潭医院',people:[{label:'受试者',name:'赵*',id:'1101**********4567'}],date:'2026-09-18',status:{'术前评估':'已提交','术后3天':'已提交','术后1个月':'未提交','术后3个月':'未提交','术后6个月':'未提交','术后1年':'未提交'}},
-    {code:'HIP-H03-0001',org:'上海市第六人民医院',people:[{label:'受试者',name:'陈*',id:'3101**********5678'}],date:'2026-10-02',status:{'术前评估':'未提交','术后3天':'未提交','术后1个月':'未提交','术后3个月':'未提交','术后6个月':'未提交','术后1年':'未提交'}}
+    {code:'HIP-H01-0001',org:'中原医科大学',people:[{label:'受试者',name:'张*',id:'4101**********1234'}],date:'2026-09-05',status:{'术前评估':'已提交','术后3天':'已提交','术后1个月':'已提交','术后3个月':'未提交','术后6个月':'未提交','术后1年':'未提交'}},
+    {code:'HIP-H01-0002',org:'中原医科大学',people:[{label:'受试者',name:'李*',id:'4101**********2345'}],date:'2026-09-12',status:{'术前评估':'已提交','术后3天':'已提交','术后1个月':'已提交','术后3个月':'已提交','术后6个月':'已提交','术后1年':'未提交'}},
+    {code:'HIP-H01-0003',org:'中原医科大学',people:[{label:'受试者',name:'王*',id:'4101**********3456'}],date:'2026-09-20',status:{'术前评估':'已提交','术后3天':'未提交','术后1个月':'未提交','术后3个月':'未提交','术后6个月':'未提交','术后1年':'未提交'}},
+    {code:'HIP-H02-0001',org:'京华医学院',people:[{label:'受试者',name:'赵*',id:'1101**********4567'}],date:'2026-09-18',status:{'术前评估':'已提交','术后3天':'已提交','术后1个月':'未提交','术后3个月':'未提交','术后6个月':'未提交','术后1年':'未提交'}},
+    {code:'HIP-H03-0001',org:'华东医科大学',people:[{label:'受试者',name:'陈*',id:'3101**********5678'}],date:'2026-10-02',status:{'术前评估':'未提交','术后3天':'未提交','术后1个月':'未提交','术后3个月':'未提交','术后6个月':'未提交','术后1年':'未提交'}}
   ],
   subjects:[
     {id:'H01-0001',name:'张*',gender:'男',age:78,site:'H01',enroll:'2026-09-05',visit:'V3 术后 1 个月',status:'有质询',queries:2,random:'—',group:'—',samples:3},
@@ -786,7 +786,7 @@ const HIP_SET={
   ],
   reviews:[
     {id:'HRV-0301',file:'HIP_专病队列数据导出申请.xlsx',unit:'统计部',by:'赵敏',time:'2026-11-09 09:40',status:'待审核',note:''},
-    {id:'HRV-0300',file:'HIP_郑州市骨科医院质控数据.csv',unit:'项目管理组',by:'刘伟',time:'2026-11-07 15:10',status:'通过',note:'字段范围符合授权'}
+    {id:'HRV-0300',file:'HIP_中原医科大学质控数据.csv',unit:'项目管理组',by:'刘伟',time:'2026-11-07 15:10',status:'通过',note:'字段范围符合授权'}
   ],
   exports:[
     {name:'HIP_受试者清单_20261109.xlsx',by:'刘伟',time:'2026-11-09 16:00',status:'已完成',count:2,format:'xlsx'},
@@ -1514,7 +1514,7 @@ function renderCohort(){
     const done=db.archives.filter(a=>a.status[c]==='已提交').length;
     return {name:c,pct:total?Math.round(done/total*100):0};
   });
-  const note=state.currentQueue==='HIP'?'郑州市骨科医院作为分中心成员单位，已完成 56 例':state.currentQueue==='DEPRESSION'?'牵头单位统一方案、培训、质控与考核，57 家分中心协同入组':'';
+  const note=state.currentQueue==='HIP'?'中原医科大学作为分中心成员单位，已完成 56 例':state.currentQueue==='DEPRESSION'?'牵头单位统一方案、培训、质控与考核，57 家分中心协同入组':'';
   return `${pageHead('队列工作台',`${p.name} · ${state.currentQueue} 队列 · 牵头 ${queueLead()}`,`
       <button class="btn btn-s btn-sm" data-action="duplicate-check">重复建档查询</button>
       <button class="btn btn-p btn-sm" data-action="go" data-page="enroll">新建档案</button>`)}
@@ -2231,7 +2231,7 @@ document.addEventListener('click', e=>{
       const code=val('pCode'), short=val('pShort'), name=val('pName');
       if(!code||!short||!name){ toast('课题编码、简称、名称必填','err'); break; }
       if(db.projects.some(p=>p.code===code)){ toast(`课题编码 ${code} 已存在，请更换`,'err'); break; }
-      db.projects.unshift({code,short,name,pi:val('pPi')||'—',org:'上海市第一人民医院',start:'2026-01-01',end:'2027-12-31',
+      db.projects.unshift({code,short,name,pi:val('pPi')||'—',org:'申江大学医学院',start:'2026-01-01',end:'2027-12-31',
         plan:+val('pPlan')||120,actual:0,centers:1,status:'进行中',locked:false,type:val('pType'),blind:val('pBlind'),queue:val('pType').includes('观察性'),updated:'2026-11-13'});
       closeModal(); render(); toast('课题已创建：'+short); break;
     }
