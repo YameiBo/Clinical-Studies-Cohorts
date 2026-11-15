@@ -838,6 +838,9 @@ const NAV = [
   ]},
   {group:'当前队列',items:[
     {id:'cohort',name:'队列工作台'},
+    {id:'docs',name:'文档管理'},
+    {id:'sites',name:'分中心管理'},
+    {id:'users',name:'人员管理'},
     {id:'archives',name:'档案管理'},
     {id:'plan',name:'随访计划'},
     {id:'questionnaires',name:'问卷配置'},
@@ -853,9 +856,6 @@ const NAV = [
     ]}
   ]},
   {group:'设置',items:[
-    {id:'sites',name:'分中心管理'},
-    {id:'users',name:'人员管理'},
-    {id:'docs',name:'文档管理'},
     {id:'calendar',name:'任务日历'},
     {id:'templates',name:'模板与数据元'},
     {id:'enroll',name:'建档管理'},
@@ -1142,8 +1142,8 @@ function renderOrgs(){
     <div class="panel"><div class="pb" style="padding-bottom:0"><div class="toolbar">
       <input class="input" id="orgSearch" placeholder="按机构名称或编码搜索" value="${esc(state.orgFilter)}" />
       <span class="chip">共 ${rows.length} 家机构</span></div></div>
-      <div class="tw"><table class="tbl"><thead><tr><th>机构编码</th><th>机构名称</th><th>等级</th><th>地址</th><th>管理员</th><th>用户数</th><th class="center">操作</th></tr></thead>
-      <tbody>${rows.length?rows.map(o=>`<tr><td class="mono">${o.code}</td><td class="st">${esc(o.name)}</td><td>${o.level}</td>
+      <div class="tw"><table class="tbl"><thead><tr><th>机构编码</th><th>机构名称</th><th>地址</th><th>管理员</th><th>用户数</th><th class="center">操作</th></tr></thead>
+      <tbody>${rows.length?rows.map(o=>`<tr><td class="mono">${o.code}</td><td class="st">${esc(o.name)}</td>
         <td class="muted">${esc((o.region||'')+' '+(o.addr||''))}</td><td>${o.admin||'—'}</td>
         <td><span class="db ${o.users?'info':''}">${o.users} 人</span></td>
         <td class="center"><button class="link" data-action="edit-org" data-code="${o.code}">编辑</button>
